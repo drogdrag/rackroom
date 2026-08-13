@@ -80,6 +80,15 @@ main {
         0 2px 10px
         rgba(0,0,0,0.08);
 }
+
+.temperature-card {
+    border-top: 5px solid #ef4444;
+}
+
+.humidity-card {
+    border-top: 5px solid #3b82f6;
+}
+
 .card h2 {
     margin-top: 0;
 }
