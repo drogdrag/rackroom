@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Rack Room Monitoring</title>
+
+    <link
+        rel="stylesheet"
+        href="style.css"
+    >
+
+    <!-- ================================================= -->
+    <!-- Chart.js -->
+    <!-- ================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/chart.js"
+    ></script>
+
+
+    <!-- ================================================= -->
+    <!-- SheetJS / XLSX -->
+    <!-- ================================================= -->
+
+    <script
+        src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
+    ></script>
+
+
+    <!-- ================================================= -->
+    <!-- Firebase / Application -->
+    <!-- ================================================= -->
+
+    <script
+        type="module"
+        src="app.js"
+    ></script>
+
+</head>
+
+
+<body>
+
+
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+
+    <header>
+
+        <h1>
+            RACK ROOM MONITORING SYSTEM
+        </h1>
+
+        <p>
+            Temperature & Humidity Monitoring
+        </p>
+
+    </header>
+
+
+
+    <!-- ================================================= -->
+    <!-- OVERVIEW PAGE -->
+    <!-- ================================================= -->
+
+    <main
+        id="overviewPage"
+    >
+
+        <!-- ============================================= -->
+        <!-- OVERVIEW HEADER -->
+        <!-- ============================================= -->
+
+        <section class="status-section">
+
+            <div>
+
+                <strong>
+                    Rack Overview
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                <span>
+                    Firebase:
+                </span>
+
+                <span
+                    id="connectionDot"
+                    class="dot offline"
+                >
+                </span>
+
+                <span
+                    id="connectionText"
+                >
+                    กำลังเชื่อมต่อ...
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================= -->
+        <!-- SUMMARY -->
+        <!-- ============================================= -->
+
+        <section
+            class="summary-cards"
+        >
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Total Rack
+                </span>
+
+                <span
+                    id="totalRack"
+                    class="summary-value"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Online
+                </span>
+
+                <span
+                    id="onlineRack"
+                    class="summary-value"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Offline
+                </span>
+
+                <span
+                    id="offlineRack"
+                    class="summary-value"
+                >
+                    0
+                </span>
+
+            </div>
+
+
+            <div class="summary-card">
+
+                <span class="summary-title">
+                    Alert
+                </span>
+
+                <span
+                    id="alertRack"
+                    class="summary-value"
+                >
+                    0
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================= -->
+        <!-- FILTER -->
+        <!-- ============================================= -->
+
+        <section
+            class="filter-section"
+        >
+
+            <button
+                id="filterAll"
+                class="filter-button active"
+            >
+                All
+            </button>
+
+
+            <button
+                id="filterOnline"
+                class="filter-button"
+            >
+                Online
+            </button>
+
+
+            <button
+                id="filterOffline"
+                class="filter-button"
+            >
+                Offline
+            </button>
+
+
+            <button
+                id="filterAlert"
+                class="filter-button"
+            >
+                Alert
+            </button>
+
+        </section>
+
+
+        <!-- ============================================= -->
+        <!-- RACK GRID -->
+        <!-- ============================================= -->
+
+        <section>
+
+            <h2>
+                Rack Status
+            </h2>
+
+
+            <div
+                id="rackGrid"
+                class="rack-grid"
+            >
+
+                <div
+                    class="empty-state"
+                >
+                    กำลังโหลดข้อมูล Rack...
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ================================================= -->
+    <!-- DETAIL PAGE -->
+    <!-- ================================================= -->
+
+    <main
+        id="detailPage"
+        style="display: none;"
+    >
+
+        <!-- ============================================= -->
+        <!-- BACK BUTTON -->
+        <!-- ============================================= -->
+
+        <section
+            class="detail-header"
+        >
+
+            <button
+                id="backToOverview"
+                class="back-button"
+            >
+                ← Back
+            </button>
+
+
+            <div>
+
+                <h2
+                    id="detailRackTitle"
+                >
+                    RACK-01
+                </h2>
+
+                <p>
+                    Rack Detail Monitoring
+                </p>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================= -->
+        <!-- CONNECTION STATUS -->
+        <!-- ============================================= -->
+
+        <section
+            class="status-section"
+        >
+
+            <div>
+
+                <span
+                    id="detailConnectionDot"
+                    class="dot offline"
+                >
+                </span>
+
+                <span
+                    id="detailConnectionText"
+                >
+                    OFFLINE
+                </span>
+
+            </div>
+
+
+            <div>
+
+                Last Update:
+
+                <span
+                    id="detailLastUpdate"
+                >
+                    -
+                </span>
+
+            </div>
+
+        </section>
+
+
+        <!-- ============================================= -->
+        <!-- CURRENT VALUE -->
+        <!-- ============================================= -->
+
+        <section class="cards">
+
+
+            <!-- ========================================= -->
+            <!-- Temperature -->
+            <!-- ========================================= -->
+
+            <div
+                id="temperatureCard"
+                class="card status-good"
+            >
+
+                <div class="card-header">
+
+                    <span class="card-title">
+                        Temperature
+                    </span>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div
+                        class="status-box"
+                    >
+
+                        <span class="status-label">
+                            Status:
+                        </span>
+
+                        <span
+                            id="temperatureStatus"
+                            class="status-value"
+                        >
+                            GOOD
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="value-box"
+                    >
+
+                        <span
+                            id="temperature"
+                            class="number"
+                        >
+                            --
+                        </span>
+
+                        <span class="unit">
+                            °C
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+
+
+            <!-- ========================================= -->
+            <!-- Humidity -->
+            <!-- ========================================= -->
+
+            <div
+                id="humidityCard"
+                class="card status-good"
+            >
+
+                <div class="card-header">
+
+                    <span class="card-title">
+                        Humidity
+                    </span>
+
+                </div>
+
+
+                <div class="card-body">
+
+                    <div
+                        class="status-box"
+                    >
+
+                        <span class="status-label">
+                            Status:
+                        </span>
+
+                        <span
+                            id="humidityStatus"
+                            class="status-value"
+                        >
+                            GOOD
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        class="value-box"
+                    >
+
+                        <span
+                            id="humidity"
+                            class="number"
+                        >
+                            --
+                        </span>
+
+                        <span class="unit">
+                            %RH
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ============================================= -->
+        <!-- SENSOR / WIFI STATUS -->
+        <!-- ============================================= -->
+
+        <section
+            class="status-section"
+        >
+
+            <div>
+
+                Sensor:
+
+                <strong
+                    id="detailSensorStatus"
+                >
+                    --
+                </strong>
+
+            </div>
+
+
+            <div>
+
+                Wi-Fi:
+
+                <strong
+                    id="detailWifiStatus"
+                >
+                    --
+                </strong>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ============================================= -->
+        <!-- TEMPERATURE GRAPH -->
+        <!-- ============================================= -->
+
+        <section class="panel">
+
+            <h2>
+                🌡️ Temperature History
+            </h2>
+
+
+            <div class="chart-container">
+
+                <canvas
+                    id="temperatureChart"
+                ></canvas>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ============================================= -->
+        <!-- HUMIDITY GRAPH -->
+        <!-- ============================================= -->
+
+        <section class="panel">
+
+            <h2>
+                💧 Humidity History
+            </h2>
+
+
+            <div class="chart-container">
+
+                <canvas
+                    id="humidityChart"
+                ></canvas>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ============================================= -->
+        <!-- MEASUREMENT HISTORY -->
+        <!-- ============================================= -->
+
+        <section class="panel">
+
+            <h2>
+                📋 Measurement History
+            </h2>
+
+
+            <div class="table-container">
+
+                <table>
+
+                    <thead>
+
+                        <tr>
+
+                            <th>
+                                Date
+                            </th>
+
+                            <th>
+                                Time
+                            </th>
+
+                            <th>
+                                Temperature
+                            </th>
+
+                            <th>
+                                Humidity
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody
+                        id="historyTable"
+                    >
+
+                        <tr>
+
+                            <td
+                                colspan="4"
+                            >
+                                Waiting for data...
+                            </td>
+
+                        </tr>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+
+
+        <!-- ============================================= -->
+        <!-- DOWNLOAD -->
+        <!-- ============================================= -->
+
+        <section class="panel">
+
+            <h2>
+                📥 Download Data
+            </h2>
+
+
+            <div
+                class="download-buttons"
+            >
+
+                <button
+                    id="downloadTemperature"
+                >
+                    🌡️ Download Temperature
+                </button>
+
+
+                <button
+                    id="downloadHumidity"
+                >
+                    💧 Download Humidity
+                </button>
+
+
+                <button
+                    id="downloadAll"
+                >
+                    📊 Download All Data
+                </button>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+
+    <!-- ================================================= -->
+    <!-- FOOTER -->
+    <!-- ================================================= -->
+
+    <footer>
+
+        <p>
+             Rack Room Monitoring System
+        </p>
+
+    </footer>
+
+
+</body>
+
+</html>
