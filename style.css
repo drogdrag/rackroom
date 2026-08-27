@@ -229,6 +229,20 @@ main {
     color: white;
 }
 
+/* สีพื้นหลังตอน active แยกตามหมวด */
+#filterOnline.active {
+    background: #1f2937; /* เขียว = Online */
+    color: #ffffff;
+}
+#filterOffline.active {
+    background: #1f2937; /* แดง = Offline */
+    color: #ffffff;
+}
+#filterAlert.active {
+    background: #1f2937; /* เหลือง = Alert */
+    color: #ffffff;
+}
+
 /* ========================================= */
 /* RACK GRID / RACK CARDS (overview) */
 /* ========================================= */
@@ -455,9 +469,26 @@ th {
 /* FOOTER */
 /* ========================================= */
 footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: #1f2937;
+    color: #ffffff;
     text-align: center;
-    padding: 20px;
-    color: #666;
+    padding: 14px 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+footer p {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* กันเนื้อหาโดน Footer Bar ที่ fixed อยู่บังด้านล่าง */
+main {
+    padding-bottom: 60px;
 }
 /* ========================================= */
 /* MOBILE */

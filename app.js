@@ -82,6 +82,8 @@ let historyListener = null;
 
 let liveStatusInterval = null;
 
+let currentFilterMode = "all";
+
 
 // =====================================================
 // Rack Card Server Icon
@@ -421,6 +423,11 @@ function updateSummary(racks)
         "alertRack",
         alert
     );
+
+
+    console.log(
+        `📊 Summary @ ${new Date().toLocaleTimeString()} → online: ${online}, offline: ${offline}, alert: ${alert}`
+    );
 }
 
 
@@ -456,6 +463,12 @@ function startLiveStatusInterval()
 
                 return;
             }
+
+
+            console.log(
+                "🔄 Live status tick:",
+                new Date().toLocaleTimeString()
+            );
 
 
             updateSummary(allRackData);
@@ -502,6 +515,18 @@ function renderRackOverview(racks)
 
             rackGrid.appendChild(card);
         }
+    );
+
+
+    // =================================================
+    // การ์ดถูกสร้างใหม่ทั้งหมดทุกครั้งที่ render
+    // (รวมถึงตอน live interval ทำงานทุก 2 วิ) จึงต้อง
+    // ใช้ filter ที่ผู้ใช้เลือกไว้ล่าสุดซ้ำ ไม่งั้นการ์ด
+    // ที่ถูกซ่อนไว้จะโผล่กลับมาหมดหลัง re-render
+    // =================================================
+
+    filterRacks(
+        currentFilterMode
     );
 }
 
@@ -2505,11 +2530,64 @@ const filterAlert =
     );
 
 
+const filterButtons =
+    [
+        filterAll,
+        filterOnline,
+        filterOffline,
+        filterAlert
+    ];
+
+
+// =====================================================
+// Set Active Filter Button
+// -----------------------------------------------------
+// เอา class "active" ออกจากทุกปุ่ม แล้วใส่เฉพาะปุ่มที่กด
+// เพื่อให้สีพื้นหลังของปุ่มที่ active เปลี่ยนตามหมวดจริง
+// =====================================================
+
+function setActiveFilterButton(
+    button
+)
+{
+
+    filterButtons.forEach(
+        (btn) => {
+
+            if (!btn) {
+
+                return;
+            }
+
+
+            btn.classList.remove(
+                "active"
+            );
+        }
+    );
+
+
+    if (button) {
+
+        button.classList.add(
+            "active"
+        );
+    }
+}
+
+
 if (filterAll) {
 
     filterAll.addEventListener(
         "click",
         () => {
+
+            currentFilterMode =
+                "all";
+
+            setActiveFilterButton(
+                filterAll
+            );
 
             filterRacks("all");
         }
@@ -2523,6 +2601,13 @@ if (filterOnline) {
         "click",
         () => {
 
+            currentFilterMode =
+                "online";
+
+            setActiveFilterButton(
+                filterOnline
+            );
+
             filterRacks("online");
         }
     );
@@ -2535,6 +2620,13 @@ if (filterOffline) {
         "click",
         () => {
 
+            currentFilterMode =
+                "offline";
+
+            setActiveFilterButton(
+                filterOffline
+            );
+
             filterRacks("offline");
         }
     );
@@ -2546,6 +2638,13 @@ if (filterAlert) {
     filterAlert.addEventListener(
         "click",
         () => {
+
+            currentFilterMode =
+                "alert";
+
+            setActiveFilterButton(
+                filterAlert
+            );
 
             filterRacks("alert");
         }
