@@ -80,6 +80,8 @@ let allRackData = {};
 
 let historyListener = null;
 
+let liveStatusInterval = null;
+
 
 // =====================================================
 // Rack Card Server Icon
@@ -284,6 +286,15 @@ onValue(
                 );
             }
         }
+
+
+        // =================================================
+        // เริ่มตรวจสอบสถานะแบบ Real-time
+        // (ให้ Online/Offline/Alert อัปเดตตามเวลาจริง
+        //  แม้ Firebase จะไม่มีข้อมูลใหม่เข้ามาก็ตาม)
+        // =================================================
+
+        startLiveStatusInterval();
     },
 
 
@@ -409,6 +420,62 @@ function updateSummary(racks)
     setText(
         "alertRack",
         alert
+    );
+}
+
+
+// =====================================================
+// Live Status Interval
+// -----------------------------------------------------
+// สถานะ Online/Offline/Alert คำนวณจากเวลาที่ผ่านไป
+// นับจาก lastUpdate (ดู checkRackOnline) ซึ่งเปลี่ยนแปลง
+// ไปเรื่อย ๆ ตามเวลาจริง แม้ Firebase จะไม่ส่งข้อมูลใหม่
+// เข้ามา ถ้าคำนวณเฉพาะตอนที่ onValue() ยิง event เท่านั้น
+// ตัวเลข Alert/Online/Offline จะ "ค้าง" ค่าล่าสุดไว้ทันที
+// ที่ sensor หยุดส่งข้อมูล ทั้งที่จริง ๆ ควรกลายเป็น
+// Offline/Alert แล้ว จึงต้องคำนวณซ้ำเป็นระยะด้วย
+// setInterval โดยใช้ allRackData ที่แคชไว้ล่าสุด
+// =====================================================
+
+function startLiveStatusInterval()
+{
+
+    if (liveStatusInterval) {
+
+        return;
+    }
+
+
+    liveStatusInterval = setInterval(
+        () => {
+
+            if (
+                !allRackData ||
+                Object.keys(allRackData).length === 0
+            ) {
+
+                return;
+            }
+
+
+            updateSummary(allRackData);
+
+            renderRackOverview(allRackData);
+
+
+            if (
+                selectedRack &&
+                allRackData[selectedRack]
+            ) {
+
+                updateDetailData(
+                    selectedRack,
+                    allRackData[selectedRack]
+                );
+            }
+        },
+
+        2000
     );
 }
 
