@@ -329,8 +329,7 @@ onValue(
 // Update Summary
 // =====================================================
 
-function updateSummary(racks)
-{
+function updateSummary(racks) {
 
     const rackEntries =
         Object.entries(racks);
@@ -377,25 +376,20 @@ function updateSummary(racks)
                     status.lastUpdate
                 );
 
-
             if (isOnline) {
-
                 online++;
 
+                // ถ้าระบบ Online อยู่ ให้เช็คต่อว่ามี Alert หรือไม่
+                if (
+                    environment.level === "BAD" ||
+                    status.sensor !== "OK" ||
+                    status.wifi !== "OK"
+                ) {
+                    alert++;
+                }
             } else {
-
                 offline++;
-            }
-
-
-            if (
-                !isOnline ||
-                environment.level === "BAD" ||
-                status.sensor !== "OK" ||
-                status.wifi !== "OK"
-            ) {
-
-                alert++;
+                // ถ้า Offline จะนับแค่ offline++ อย่างเดียว ไม่บวก alert เพิ่ม
             }
         }
     );
@@ -444,8 +438,7 @@ function updateSummary(racks)
 // setInterval โดยใช้ allRackData ที่แคชไว้ล่าสุด
 // =====================================================
 
-function startLiveStatusInterval()
-{
+function startLiveStatusInterval() {
 
     if (liveStatusInterval) {
 
@@ -497,8 +490,7 @@ function startLiveStatusInterval()
 // Render Rack Overview
 // =====================================================
 
-function renderRackOverview(racks)
-{
+function renderRackOverview(racks) {
 
     rackGrid.innerHTML = "";
 
@@ -538,8 +530,7 @@ function renderRackOverview(racks)
 function createRackCard(
     rackID,
     rackData
-)
-{
+) {
 
     const current =
         rackData?.current || {};
@@ -697,11 +688,10 @@ function createRackCard(
                 </h3>
 
                 <p>
-                    ${
-                        online
-                            ? "Online"
-                            : "Offline"
-                    }
+                    ${online
+            ? "Online"
+            : "Offline"
+        }
                 </p>
 
             </div>
@@ -712,18 +702,16 @@ function createRackCard(
         <div class="rack-online">
 
             <span
-                class="dot ${
-                    online
-                        ? "online"
-                        : "offline"
-                }"
+                class="dot ${online
+            ? "online"
+            : "offline"
+        }"
             ></span>
 
-            ${
-                online
-                    ? "Connected to Firebase"
-                    : "Disconnected"
-            }
+            ${online
+            ? "Connected to Firebase"
+            : "Disconnected"
+        }
 
         </div>
 
@@ -745,11 +733,10 @@ function createRackCard(
 
                     <div class="value-box">
                         <span class="number">
-                            ${
-                                Number.isFinite(temperature)
-                                    ? temperature.toFixed(1)
-                                    : "--"
-                            }
+                            ${Number.isFinite(temperature)
+            ? temperature.toFixed(1)
+            : "--"
+        }
                         </span>
                         <span class="unit">°c</span>
                     </div>
@@ -774,11 +761,10 @@ function createRackCard(
 
                     <div class="value-box">
                         <span class="number">
-                            ${
-                                Number.isFinite(humidity)
-                                    ? humidity.toFixed(1)
-                                    : "--"
-                            }
+                            ${Number.isFinite(humidity)
+            ? humidity.toFixed(1)
+            : "--"
+        }
                         </span>
                         <span class="unit">%</span>
                     </div>
@@ -846,8 +832,7 @@ function createRackCard(
 // Open Rack Detail
 // =====================================================
 
-function openRackDetail(rackID)
-{
+function openRackDetail(rackID) {
 
     selectedRack =
         rackID;
@@ -895,8 +880,7 @@ function openRackDetail(rackID)
 function updateDetailData(
     rackID,
     rackData
-)
-{
+) {
 
     console.log(
         `Updating detail: ${rackID}`,
@@ -1072,8 +1056,7 @@ function updateDetailData(
 function setText(
     elementID,
     value
-)
-{
+) {
 
     const element =
         document.getElementById(
@@ -1093,8 +1076,7 @@ function setText(
 // Convert Number
 // =====================================================
 
-function toNumber(value)
-{
+function toNumber(value) {
 
     if (
         value === null ||
@@ -1123,8 +1105,7 @@ function toNumber(value)
 function setStatusElement(
     elementID,
     status
-)
-{
+) {
 
     const element =
         document.getElementById(
@@ -1159,8 +1140,7 @@ function setStatusElement(
 // Check Rack Online
 // =====================================================
 
-function checkRackOnline(timestamp)
-{
+function checkRackOnline(timestamp) {
     if (
         timestamp === null ||
         timestamp === undefined
@@ -1247,8 +1227,7 @@ function checkRackOnline(timestamp)
 function getEnvironmentStatus(
     temperature,
     humidity
-)
-{
+) {
 
     if (
         !Number.isFinite(
@@ -1378,8 +1357,7 @@ if (backToOverview) {
 
 function loadRackHistory(
     rackID
-)
-{
+) {
 
     // =================================================
     // Remove Previous Listener
@@ -1508,8 +1486,7 @@ function loadRackHistory(
 
 function getDateTimeValue(
     datetime
-)
-{
+) {
 
     if (!datetime) {
 
@@ -1618,8 +1595,7 @@ function getDateTimeValue(
 // Update Temperature Chart
 // =====================================================
 
-function updateTemperatureChart(data)
-{
+function updateTemperatureChart(data) {
     const canvas =
         document.getElementById(
             "temperatureChart"
@@ -1800,8 +1776,7 @@ function updateTemperatureChart(data)
                                     0.5,
 
                                 callback:
-                                    function(value)
-                                    {
+                                    function (value) {
                                         return Number(value)
                                             .toFixed(1);
                                     }
@@ -1823,8 +1798,7 @@ function updateTemperatureChart(data)
 // Update Humidity Chart
 // =====================================================
 
-function updateHumidityChart(data)
-{
+function updateHumidityChart(data) {
     const canvas =
         document.getElementById(
             "humidityChart"
@@ -2006,8 +1980,7 @@ function updateHumidityChart(data)
                                     0.5,
 
                                 callback:
-                                    function(value)
-                                    {
+                                    function (value) {
                                         return Number(value)
                                             .toFixed(1);
                                     }
@@ -2029,8 +2002,7 @@ function updateHumidityChart(data)
 // Get Time Only
 // =====================================================
 
-function getTimeOnly(datetime)
-{
+function getTimeOnly(datetime) {
 
     if (!datetime) {
 
@@ -2121,8 +2093,7 @@ function getTimeOnly(datetime)
 
 function updateHistoryTable(
     data
-)
-{
+) {
 
     const table =
         document.getElementById(
@@ -2243,24 +2214,22 @@ function updateHistoryTable(
                         </td>
 
                         <td>
-                            ${
-                                Number.isFinite(
-                                    temperature
-                                )
-                                    ? temperature.toFixed(1)
-                                    : "--"
-                            }
+                            ${Number.isFinite(
+                    temperature
+                )
+                        ? temperature.toFixed(1)
+                        : "--"
+                    }
                             °C
                         </td>
 
                         <td>
-                            ${
-                                Number.isFinite(
-                                    humidity
-                                )
-                                    ? humidity.toFixed(1)
-                                    : "--"
-                            }
+                            ${Number.isFinite(
+                        humidity
+                    )
+                        ? humidity.toFixed(1)
+                        : "--"
+                    }
                             %RH
                         </td>
 
@@ -2278,8 +2247,7 @@ function updateHistoryTable(
 
 function downloadExcel(
     type
-)
-{
+) {
 
     if (
         !historyDataForExcel ||
@@ -2436,8 +2404,7 @@ if (downloadAll) {
 
 function filterRacks(
     mode
-)
-{
+) {
 
     const cards =
         rackGrid.querySelectorAll(
@@ -2548,8 +2515,7 @@ const filterButtons =
 
 function setActiveFilterButton(
     button
-)
-{
+) {
 
     filterButtons.forEach(
         (btn) => {
