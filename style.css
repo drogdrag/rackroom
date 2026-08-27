@@ -1,0 +1,538 @@
+* {
+    box-sizing: border-box;
+}
+body {
+    margin: 0;
+    font-family:
+        Arial,
+        sans-serif;
+    background: #f4f6f8;
+    color: #222;
+}
+/* ========================================= */
+/* HEADER */ 
+/* ========================================= */
+header {
+    background: #1f2937;
+    color: white;
+    text-align: center;
+    padding: 25px 20px;
+}
+header h1 {
+    margin: 0;
+    font-size: 28px;
+}
+header p {
+    margin-top: 8px;
+    opacity: 0.8;
+}
+/* ========================================= */
+/* MAIN */
+/* ========================================= */
+main {
+    width: 90%;
+    max-width: 1200px;
+    margin: 25px auto;
+}
+/* ========================================= */
+/* STATUS */
+/* ========================================= */
+.status-section {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    box-shadow:
+        0 2px 8px
+        rgba(0,0,0,0.08);
+}
+.dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+.dot.offline {
+    background: #ef4444;
+}
+.dot.online {
+    background: #22c55e;
+}
+/* ========================================= */
+/* CARDS DESIGN */
+/* ========================================= */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+/* ========================================= */
+/* CARDS DESIGN & DYNAMIC BACKGROUNDS */
+/* ========================================= */
+.card {
+    position: relative;
+    border-radius: 16px;
+    padding: 16px 24px 20px 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+    
+    /* ⚪ บังคับตัวอักษรทุกตัวในการ์ดให้เป็นสีขาวล้วน */
+    color: #ffffff !important;
+}
+/* ========================================= */
+/* CARDS DESIGN & DYNAMIC BACKGROUNDS */
+/* ========================================= */
+/* 🎨 เปลี่ยนสีพื้นหลังตาม Class Status */
+.card.status-good {
+    background-color: #00c853 !important; /* สีเขียว */
+}
+
+.card.status-normal {
+    background-color: #e0a100 !important; /* สีเหลืองส้ม */
+}
+
+.card.status-bad {
+    background-color: #d32f2f !important; /* สีแดง */
+}
+
+/* 🏷️ ป้าย Title (ยังคงพื้นหลังขาว อักษรน้ำเงินตามแบบ) */
+.card-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ffffff;
+    padding: 6px 30px 6px 20px;
+    clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%);
+}
+
+.card-title {
+    color: #333333 !important; /* สีน้ำเงินสำหรับ Title เท่านั้น */
+    font-size: 18px;
+    font-weight: 800;
+}
+
+/* 📊 Layout และการจัดวางตัวอักษรภายใน */
+.card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 35px;
+}
+
+/* ฝั่งซ้าย: Status Label & Value */
+.status-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-label {
+    color: #ffffff !important; /* ⚪ สีขาว */
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-bottom: 2px;
+}
+
+.status-value {
+    color: #ffffff !important; /* ⚪ สีขาว */
+    font-size: 26px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* ฝั่งขวา: ค่าตัวเลข และ หน่วย */
+.value-box {
+    text-align: right;
+    line-height: 1;
+}
+
+.value-box .number {
+    color: #ffffff !important; /* ⚪ สีขาว */
+    /* 3. ปรับขนาดตัวเลขแบบสมูทตามความกว้างหน้าจอ (fluid) แทนการกระโดดที่ breakpoint */
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.value-box .unit {
+    color: #ffffff !important; /* ⚪ สีขาว */
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+/* ========================================= */
+/* SUMMARY CARDS (overview) */
+/* ========================================= */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.summary-title {
+    font-size: 13px;
+    color: #667085;
+    font-weight: 600;
+}
+.summary-value {
+    font-size: 30px;
+    font-weight: 800;
+    color: #1f2937;
+}
+#onlineRack { color: #16a34a; }
+#offlineRack { color: #dc2626; }
+#alertRack { color: #eab308; }
+
+/* ========================================= */
+/* FILTER BUTTONS */
+/* ========================================= */
+.filter-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+.filter-button {
+    border: none;
+    background: white;
+    color: #374151;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+.filter-button:hover {
+    background: #e5e7eb;
+}
+.filter-button.active {
+    background: #1f2937;
+    color: white;
+}
+
+/* สีพื้นหลังตอน active แยกตามหมวด */
+#filterOnline.active {
+    background: #1f2937; /* เขียว = Online */
+    color: #ffffff;
+}
+#filterOffline.active {
+    background: #1f2937; /* แดง = Offline */
+    color: #ffffff;
+}
+#filterAlert.active {
+    background: #1f2937; /* เหลือง = Alert */
+    color: #ffffff;
+}
+
+/* ========================================= */
+/* RACK GRID / RACK CARDS (overview) */
+/* ========================================= */
+.rack-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+.empty-state {
+    grid-column: 1 / -1;
+    background: white;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    color: #667085;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.rack-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 20px 20px 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.rack-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.14);
+}
+.rack-card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+.rack-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+.rack-icon svg {
+    width: 100%;
+    height: 100%;
+}
+.rack-card-title h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #1f2937;
+    letter-spacing: 0.3px;
+}
+.rack-card-title p {
+    margin: 2px 0 0 0;
+    font-size: 13px;
+    color: #667085;
+}
+.rack-online {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #4b5563;
+    margin-bottom: 14px;
+}
+.rack-mini-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+.view-rack {
+    width: 100%;
+    border: none;
+    background: #1f2937;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+.view-rack:hover {
+    background: #111827;
+}
+
+/* Compact variant of .card used inside rack overview cards */
+.card.card-mini {
+    padding: 8px 14px 12px 14px;
+    border-radius: 12px;
+    min-height: 64px;
+}
+
+/* 1. เปลี่ยนพื้นหลัง Temp / Humidity (การ์ดย่อยหน้า Overview) เป็นสีเทา ทุกสถานะ */
+.card.card-mini.status-good,
+.card.card-mini.status-normal,
+.card.card-mini.status-bad {
+    background-color: #6b7280 !important;
+}
+
+.card.card-mini .card-header {
+    padding: 4px 16px 4px 12px;
+    clip-path: polygon(0 0, 100% 0, 78% 100%, 0 100%);
+}
+.card.card-mini .card-title {
+    font-size: 12px;
+    font-weight: 800;
+}
+.card.card-mini .card-body {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 26px;
+    gap: 4px;
+}
+
+/* 2. ซ่อน label สถานะ (status: GOOD) ในการ์ดย่อย */
+.card.card-mini .status-box {
+    display: none;
+}
+
+/* 4. ซ่อนค่าตัวเลข Temp / Humidity ในการ์ดย่อย */
+.card.card-mini .value-box {
+    display: none;
+}
+
+/* ========================================= */
+/* DETAIL PAGE HEADER / BACK BUTTON */
+/* ========================================= */
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+.back-button {
+    border: none;
+    background: white;
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+.back-button:hover {
+    background: #e5e7eb;
+}
+.detail-header h2 {
+    margin: 0;
+}
+.detail-header p {
+    margin: 2px 0 0 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+/* ========================================= */
+/* DOWNLOAD BUTTONS */
+/* ========================================= */
+.download-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.download-buttons button {
+    border: none;
+    background: #1f2937;
+    color: white;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.download-buttons button:hover {
+    background: #111827;
+}
+
+/* ========================================= */
+/* PANEL */
+/* ========================================= */
+.panel {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow:
+        0 2px 10px
+        rgba(0,0,0,0.08);
+}
+.panel h2 {
+    margin-top: 0;
+}
+/* ========================================= */
+/* CHART */
+/* ========================================= */
+.chart-container {
+    position: relative;
+    height: 350px;
+    width: 100%;
+}
+/* ========================================= */
+/* TABLE */
+/* ========================================= */
+.table-container {
+    overflow-x: auto;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+th,
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom:
+        1px solid #ddd;
+}
+th {
+    background: #f1f5f9;
+}
+/* ========================================= */
+/* FOOTER */
+/* ========================================= */
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: #1f2937;
+    color: #ffffff;
+    text-align: center;
+    padding: 14px 20px;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+}
+footer p {
+    margin: 0;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+}
+
+/* กันเนื้อหาโดน Footer Bar ที่ fixed อยู่บังด้านล่าง */
+main {
+    padding-bottom: 60px;
+}
+/* ========================================= */
+/* MOBILE */
+/* ========================================= */
+@media (
+    max-width: 700px
+) {
+    .cards {
+        grid-template-columns:
+            1fr;
+    }
+    .status-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+    header h1 {
+        font-size: 20px;
+    }
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .rack-grid {
+        grid-template-columns: 1fr;
+    }
+    .rack-mini-cards {
+        grid-template-columns: 1fr;
+    }
+    .detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+/* =====================================================
+   Environment Status
+   ===================================================== */
+.status-good {
+    color: #16a34a;
+    font-weight: bold;
+}
+.status-normal {
+    color: #eab308;
+    font-weight: bold;
+}
+.status-bad {
+    color: #dc2626;
+    font-weight: bold;
+}
