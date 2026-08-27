@@ -376,10 +376,11 @@ function updateSummary(racks) {
                     status.lastUpdate
                 );
 
+
             if (isOnline) {
+
                 online++;
 
-                // ถ้าระบบ Online อยู่ ให้เช็คต่อว่ามี Alert หรือไม่
                 if (
                     environment.level === "BAD" ||
                     status.sensor !== "OK" ||

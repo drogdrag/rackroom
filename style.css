@@ -536,3 +536,23 @@ main {
     color: #dc2626;
     font-weight: bold;
 }
+
+
+
+/* 🎨 เปลี่ยนสีพื้นหลังตาม Class Status */
+.card.status-good {
+    background-color: #00c853 !important; /* สีเขียว */
+}
+
+.card.status-normal {
+    background-color: #e0a100 !important; /* สีเหลืองส้ม */
+}
+
+.card.status-bad {
+    background-color: #d32f2f !important; /* สีแดง */
+}
+
+/* เพิ่มโค้ดบรรทัดนี้ลงไป: สีเทาสำหรับสถานะ Offline */
+.card.status-offline {
+    background-color: #6b7280 !important; /* สีเทา */
+}
