@@ -155,7 +155,8 @@ main {
 
 .value-box .number {
     color: #ffffff !important; /* ⚪ สีขาว */
-    font-size: 64px;
+    /* 3. ปรับขนาดตัวเลขแบบสมูทตามความกว้างหน้าจอ (fluid) แทนการกระโดดที่ breakpoint */
+    font-size: clamp(36px, 8vw, 64px);
     font-weight: 900;
     letter-spacing: -1px;
 }
@@ -317,7 +318,16 @@ main {
 .card.card-mini {
     padding: 8px 14px 12px 14px;
     border-radius: 12px;
+    min-height: 64px;
 }
+
+/* 1. เปลี่ยนพื้นหลัง Temp / Humidity (การ์ดย่อยหน้า Overview) เป็นสีเทา ทุกสถานะ */
+.card.card-mini.status-good,
+.card.card-mini.status-normal,
+.card.card-mini.status-bad {
+    background-color: #6b7280 !important;
+}
+
 .card.card-mini .card-header {
     padding: 4px 16px 4px 12px;
     clip-path: polygon(0 0, 100% 0, 78% 100%, 0 100%);
@@ -334,24 +344,14 @@ main {
     gap: 4px;
 }
 
-.card.card-mini .status-label {
-    font-size: 13px;
+/* 2. ซ่อน label สถานะ (status: GOOD) ในการ์ดย่อย */
+.card.card-mini .status-box {
+    display: none;
 }
 
-.card.card-mini .status-value {
-    font-size: 13px;
-}
-
+/* 4. ซ่อนค่าตัวเลข Temp / Humidity ในการ์ดย่อย */
 .card.card-mini .value-box {
-    margin-left: auto;
-    text-align: right;
-}
-.card.card-mini .value-box .number {
-    font-size: 46px;
-}
-.card.card-mini .value-box .unit {
-    font-size: 18px;
-    margin-top: 1px;
+    display: none;
 }
 
 /* ========================================= */
@@ -475,9 +475,6 @@ footer {
     }
     header h1 {
         font-size: 20px;
-    }
-    .value {
-        font-size: 34px;
     }
     .summary-cards {
         grid-template-columns: repeat(2, 1fr);
