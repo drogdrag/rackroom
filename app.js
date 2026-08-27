@@ -292,8 +292,6 @@ onValue(
 
         // =================================================
         // เริ่มตรวจสอบสถานะแบบ Real-time
-        // (ให้ Online/Offline/Alert อัปเดตตามเวลาจริง
-        //  แม้ Firebase จะไม่มีข้อมูลใหม่เข้ามาก็ตาม)
         // =================================================
 
         startLiveStatusInterval();
@@ -329,7 +327,8 @@ onValue(
 // Update Summary
 // =====================================================
 
-function updateSummary(racks) {
+function updateSummary(racks)
+{
 
     const rackEntries =
         Object.entries(racks);
@@ -376,9 +375,10 @@ function updateSummary(racks) {
                     status.lastUpdate
                 );
 
+
             if (isOnline) {
                 online++;
-
+                
                 // ถ้าระบบ Online อยู่ ให้เช็คต่อว่ามี Alert หรือไม่
                 if (
                     environment.level === "BAD" ||
@@ -427,18 +427,10 @@ function updateSummary(racks) {
 
 // =====================================================
 // Live Status Interval
-// -----------------------------------------------------
-// สถานะ Online/Offline/Alert คำนวณจากเวลาที่ผ่านไป
-// นับจาก lastUpdate (ดู checkRackOnline) ซึ่งเปลี่ยนแปลง
-// ไปเรื่อย ๆ ตามเวลาจริง แม้ Firebase จะไม่ส่งข้อมูลใหม่
-// เข้ามา ถ้าคำนวณเฉพาะตอนที่ onValue() ยิง event เท่านั้น
-// ตัวเลข Alert/Online/Offline จะ "ค้าง" ค่าล่าสุดไว้ทันที
-// ที่ sensor หยุดส่งข้อมูล ทั้งที่จริง ๆ ควรกลายเป็น
-// Offline/Alert แล้ว จึงต้องคำนวณซ้ำเป็นระยะด้วย
-// setInterval โดยใช้ allRackData ที่แคชไว้ล่าสุด
 // =====================================================
 
-function startLiveStatusInterval() {
+function startLiveStatusInterval()
+{
 
     if (liveStatusInterval) {
 
@@ -490,7 +482,8 @@ function startLiveStatusInterval() {
 // Render Rack Overview
 // =====================================================
 
-function renderRackOverview(racks) {
+function renderRackOverview(racks)
+{
 
     rackGrid.innerHTML = "";
 
@@ -510,13 +503,6 @@ function renderRackOverview(racks) {
     );
 
 
-    // =================================================
-    // การ์ดถูกสร้างใหม่ทั้งหมดทุกครั้งที่ render
-    // (รวมถึงตอน live interval ทำงานทุก 2 วิ) จึงต้อง
-    // ใช้ filter ที่ผู้ใช้เลือกไว้ล่าสุดซ้ำ ไม่งั้นการ์ด
-    // ที่ถูกซ่อนไว้จะโผล่กลับมาหมดหลัง re-render
-    // =================================================
-
     filterRacks(
         currentFilterMode
     );
@@ -530,7 +516,8 @@ function renderRackOverview(racks) {
 function createRackCard(
     rackID,
     rackData
-) {
+)
+{
 
     const current =
         rackData?.current || {};
@@ -582,8 +569,13 @@ function createRackCard(
 
 
     // =================================================
-    // Offline
+    // กำหนดค่าเริ่มต้นสำหรับแสดงผลบนการ์ดย่อย
     // =================================================
+    let displayTemp = Number.isFinite(temperature) ? temperature.toFixed(1) : "--";
+    let displayHum = Number.isFinite(humidity) ? humidity.toFixed(1) : "--";
+    let envLabel = environment.level === "BAD" ? "ALERT" : environment.level;
+    let miniCardClass = environment.className;
+
 
     if (!online) {
 
@@ -592,12 +584,14 @@ function createRackCard(
 
         overallClass =
             "offline";
+            
+        envLabel = "OFFLINE";
+        displayTemp = "--";
+        displayHum = "--";
+        miniCardClass = "status-offline";
+
     }
 
-
-    // =================================================
-    // Sensor Error
-    // =================================================
 
     else if (!sensorOK) {
 
@@ -609,10 +603,6 @@ function createRackCard(
     }
 
 
-    // =================================================
-    // WiFi Error
-    // =================================================
-
     else if (!wifiOK) {
 
         overallStatus =
@@ -622,10 +612,6 @@ function createRackCard(
             "alarm";
     }
 
-
-    // =================================================
-    // Environment Bad
-    // =================================================
 
     else if (
         environment.level === "BAD"
@@ -639,10 +625,6 @@ function createRackCard(
     }
 
 
-    // =================================================
-    // Normal
-    // =================================================
-
     else if (
         environment.level === "NORMAL"
     ) {
@@ -655,22 +637,12 @@ function createRackCard(
     }
 
 
-    // =================================================
-    // Create Card
-    // =================================================
-
     const card =
         document.createElement("div");
 
 
     card.className =
         `rack-card ${overallClass}`;
-
-
-    const envLabel =
-        environment.level === "BAD"
-            ? "ALERT"
-            : environment.level;
 
 
     card.innerHTML = `
@@ -688,10 +660,11 @@ function createRackCard(
                 </h3>
 
                 <p>
-                    ${online
-            ? "Online"
-            : "Offline"
-        }
+                    ${
+                        online
+                            ? "Online"
+                            : "Offline"
+                    }
                 </p>
 
             </div>
@@ -702,23 +675,25 @@ function createRackCard(
         <div class="rack-online">
 
             <span
-                class="dot ${online
-            ? "online"
-            : "offline"
-        }"
+                class="dot ${
+                    online
+                        ? "online"
+                        : "offline"
+                }"
             ></span>
 
-            ${online
-            ? "Connected to Firebase"
-            : "Disconnected"
-        }
+            ${
+                online
+                    ? "Connected to Firebase"
+                    : "Disconnected"
+            }
 
         </div>
 
 
         <div class="rack-mini-cards">
 
-            <div class="card card-mini ${environment.className}">
+            <div class="card card-mini ${miniCardClass}">
 
                 <div class="card-header">
                     <span class="card-title">Temp</span>
@@ -732,12 +707,7 @@ function createRackCard(
                     </div>
 
                     <div class="value-box">
-                        <span class="number">
-                            ${Number.isFinite(temperature)
-            ? temperature.toFixed(1)
-            : "--"
-        }
-                        </span>
+                        <span class="number">${displayTemp}</span>
                         <span class="unit">°c</span>
                     </div>
 
@@ -746,7 +716,7 @@ function createRackCard(
             </div>
 
 
-            <div class="card card-mini ${environment.className}">
+            <div class="card card-mini ${miniCardClass}">
 
                 <div class="card-header">
                     <span class="card-title">Humidity</span>
@@ -760,12 +730,7 @@ function createRackCard(
                     </div>
 
                     <div class="value-box">
-                        <span class="number">
-                            ${Number.isFinite(humidity)
-            ? humidity.toFixed(1)
-            : "--"
-        }
-                        </span>
+                        <span class="number">${displayHum}</span>
                         <span class="unit">%</span>
                     </div>
 
@@ -789,10 +754,6 @@ function createRackCard(
 
     `;
 
-
-    // =================================================
-    // Open Detail
-    // =================================================
 
     card.addEventListener(
         "click",
@@ -832,7 +793,8 @@ function createRackCard(
 // Open Rack Detail
 // =====================================================
 
-function openRackDetail(rackID) {
+function openRackDetail(rackID)
+{
 
     selectedRack =
         rackID;
@@ -877,175 +839,84 @@ function openRackDetail(rackID) {
 // Update Detail
 // =====================================================
 
-function updateDetailData(
-    rackID,
-    rackData
-) {
+function updateDetailData(rackID, rackData) {
+    console.log(`Updating detail: ${rackID}`, rackData);
 
-    console.log(
-        `Updating detail: ${rackID}`,
-        rackData
-    );
+    const current = rackData?.current || {};
+    const status = rackData?.status || {};
+    const temperature = toNumber(current.temperature);
+    const humidity = toNumber(current.humidity);
 
-
-    const current =
-        rackData?.current || {};
-
-
-    const status =
-        rackData?.status || {};
-
-
-    const temperature =
-        toNumber(
-            current.temperature
-        );
-
-
-    const humidity =
-        toNumber(
-            current.humidity
-        );
-
+    // =================================================
+    // เช็คสถานะ Online ก่อน เพื่อเอามาตัดสินใจแสดงผล
+    // =================================================
+    const online = checkRackOnline(status.lastUpdate);
 
     // =================================================
     // Title
     // =================================================
+    setText("detailRackTitle", rackID);
 
-    setText(
-        "detailRackTitle",
-        rackID
-    );
+    // กำหนดค่าตัวเลขและสถานะตามการ Online
+    let displayTemp = "--";
+    let displayHum = "--";
+    let environment = {};
 
-
-    // =================================================
-    // Temperature
-    // =================================================
-
-    setText(
-        "temperature",
-
-        Number.isFinite(
-            temperature
-        )
-            ? temperature.toFixed(1)
-            : "--"
-    );
-
+    if (online) {
+        displayTemp = Number.isFinite(temperature) ? temperature.toFixed(1) : "--";
+        displayHum = Number.isFinite(humidity) ? humidity.toFixed(1) : "--";
+        environment = getEnvironmentStatus(temperature, humidity);
+    } else {
+        // ถ้า Offline ให้แสดงข้อความ OFFLINE และใช้คลาสสีเทา
+        environment = {
+            text: "OFFLINE", 
+            className: "status-offline",
+            level: "OFFLINE"
+        };
+    }
 
     // =================================================
-    // Humidity
+    // Temperature & Humidity
     // =================================================
-
-    setText(
-        "humidity",
-
-        Number.isFinite(
-            humidity
-        )
-            ? humidity.toFixed(1)
-            : "--"
-    );
-
+    setText("temperature", displayTemp);
+    setText("humidity", displayHum);
 
     // =================================================
-    // Environment
+    // Environment Text Status
     // =================================================
+    setStatusElement("temperatureStatus", environment);
+    setStatusElement("humidityStatus", environment);
 
-    const environment =
-        getEnvironmentStatus(
-            temperature,
-            humidity
-        );
-
-
-    setStatusElement(
-        "temperatureStatus",
-        environment
-    );
-
-
-    setStatusElement(
-        "humidityStatus",
-        environment
-    );
-
+    // =================================================
+    // Update Card Background Color
+    // =================================================
+    const tempCard = document.getElementById("temperatureCard");
+    if (tempCard) {
+        tempCard.className = `card ${environment.className}`;
+    }
+    
+    const humCard = document.getElementById("humidityCard");
+    if (humCard) {
+        humCard.className = `card ${environment.className}`;
+    }
 
     // =================================================
     // Online
     // =================================================
+    setText("detailConnectionText", online ? "ONLINE" : "OFFLINE");
 
-    const online =
-        checkRackOnline(
-            status.lastUpdate
-        );
-
-
-    setText(
-        "detailConnectionText",
-        online
-            ? "ONLINE"
-            : "OFFLINE"
-    );
-
-
-    const detailDot =
-        document.getElementById(
-            "detailConnectionDot"
-        );
-
-
+    const detailDot = document.getElementById("detailConnectionDot");
     if (detailDot) {
-
-        detailDot.classList.remove(
-            "online",
-            "offline"
-        );
-
-
-        detailDot.classList.add(
-            online
-                ? "online"
-                : "offline"
-        );
+        detailDot.classList.remove("online", "offline");
+        detailDot.classList.add(online ? "online" : "offline");
     }
 
-
     // =================================================
-    // Last Update
+    // Last Update, Sensor, WiFi
     // =================================================
-
-    setText(
-        "detailLastUpdate",
-
-        status.lastUpdateText ||
-        current.datetime ||
-        "--"
-    );
-
-
-    // =================================================
-    // Sensor
-    // =================================================
-
-    setText(
-        "detailSensorStatus",
-
-        status.sensor ||
-        "--"
-    );
-
-
-    // =================================================
-    // WiFi
-    // =================================================
-
-    setText(
-        "detailWifiStatus",
-
-        status.wifi ||
-        "--"
-    );
+    setText("detailLastUpdate", status.lastUpdateText || current.datetime || "--");
+    setText("detailSensorStatus", status.sensor || "--");
+    setText("detailWifiStatus", status.wifi || "--");
 }
 
 
@@ -1056,7 +927,8 @@ function updateDetailData(
 function setText(
     elementID,
     value
-) {
+)
+{
 
     const element =
         document.getElementById(
@@ -1076,7 +948,8 @@ function setText(
 // Convert Number
 // =====================================================
 
-function toNumber(value) {
+function toNumber(value)
+{
 
     if (
         value === null ||
@@ -1102,37 +975,24 @@ function toNumber(value) {
 // Set Status
 // =====================================================
 
-function setStatusElement(
-    elementID,
-    status
-) {
-
-    const element =
-        document.getElementById(
-            elementID
-        );
-
+function setStatusElement(elementID, status) {
+    const element = document.getElementById(elementID);
 
     if (!element) {
-
         return;
     }
 
+    element.textContent = status.text;
 
-    element.textContent =
-        status.text;
-
-
+    // เพิ่ม "status-offline" ลงใน list ที่ต้องลบออก
     element.classList.remove(
         "status-good",
         "status-normal",
-        "status-bad"
+        "status-bad",
+        "status-offline" 
     );
 
-
-    element.classList.add(
-        status.className
-    );
+    element.classList.add(status.className);
 }
 
 
@@ -1140,7 +1000,8 @@ function setStatusElement(
 // Check Rack Online
 // =====================================================
 
-function checkRackOnline(timestamp) {
+function checkRackOnline(timestamp)
+{
     if (
         timestamp === null ||
         timestamp === undefined
@@ -1153,10 +1014,6 @@ function checkRackOnline(timestamp) {
         Number(timestamp);
 
 
-    // =================================================
-    // Timestamp เป็น milliseconds
-    // =================================================
-
     if (
         Number.isFinite(value) &&
         value > 100000000000
@@ -1165,10 +1022,6 @@ function checkRackOnline(timestamp) {
             value / 1000;
     }
 
-
-    // =================================================
-    // Timestamp เป็น Unix seconds
-    // =================================================
 
     if (
         Number.isFinite(value) &&
@@ -1180,21 +1033,12 @@ function checkRackOnline(timestamp) {
             value * 1000;
 
 
-        // ---------------------------------------------
-        // ONLINE <= 30 seconds
-        // OFFLINE > 30 seconds
-        // ---------------------------------------------
-
         return (
             age >= 0 &&
             age <= 30000
         );
     }
 
-
-    // =================================================
-    // กรณี timestamp เป็น Date String
-    // =================================================
 
     const date =
         new Date(timestamp);
@@ -1227,7 +1071,8 @@ function checkRackOnline(timestamp) {
 function getEnvironmentStatus(
     temperature,
     humidity
-) {
+)
+{
 
     if (
         !Number.isFinite(
@@ -1357,11 +1202,8 @@ if (backToOverview) {
 
 function loadRackHistory(
     rackID
-) {
-
-    // =================================================
-    // Remove Previous Listener
-    // =================================================
+)
+{
 
     if (historyListener) {
 
@@ -1486,17 +1328,14 @@ function loadRackHistory(
 
 function getDateTimeValue(
     datetime
-) {
+)
+{
 
     if (!datetime) {
 
         return 0;
     }
 
-
-    // =================================================
-    // Unix timestamp
-    // =================================================
 
     if (
         typeof datetime ===
@@ -1514,17 +1353,9 @@ function getDateTimeValue(
     }
 
 
-    // =================================================
-    // String
-    // =================================================
-
     const text =
         String(datetime).trim();
 
-
-    // Format:
-    // DD/MM/YYYY HH:mm:ss
-    // =================================================
 
     const match =
         text.match(
@@ -1569,10 +1400,6 @@ function getDateTimeValue(
     }
 
 
-    // =================================================
-    // Try normal Date
-    // =================================================
-
     const date =
         new Date(text);
 
@@ -1595,7 +1422,8 @@ function getDateTimeValue(
 // Update Temperature Chart
 // =====================================================
 
-function updateTemperatureChart(data) {
+function updateTemperatureChart(data)
+{
     const canvas =
         document.getElementById(
             "temperatureChart"
@@ -1606,7 +1434,6 @@ function updateTemperatureChart(data) {
     }
 
 
-    // เรียงข้อมูลจากเก่า -> ใหม่
     const sorted =
         [...data].sort(
             (a, b) =>
@@ -1614,10 +1441,6 @@ function updateTemperatureChart(data) {
                 getDateTimeValue(b.datetime)
         );
 
-
-    // =================================================
-    // X Axis = Time
-    // =================================================
 
     const labels =
         sorted.map(
@@ -1633,10 +1456,6 @@ function updateTemperatureChart(data) {
         );
 
 
-    // =================================================
-    // Temperature
-    // =================================================
-
     const values =
         sorted.map(
             item =>
@@ -1646,19 +1465,11 @@ function updateTemperatureChart(data) {
         );
 
 
-    // =================================================
-    // Destroy old chart
-    // =================================================
-
     if (temperatureChart) {
 
         temperatureChart.destroy();
     }
 
-
-    // =================================================
-    // Create Chart
-    // =================================================
 
     temperatureChart =
         new Chart(
@@ -1709,10 +1520,6 @@ function updateTemperatureChart(data) {
                         false,
 
 
-                    // =====================================
-                    // Legend - ขวาบน
-                    // =====================================
-
                     plugins: {
 
                         legend: {
@@ -1730,15 +1537,7 @@ function updateTemperatureChart(data) {
                     },
 
 
-                    // =====================================
-                    // Scales
-                    // =====================================
-
                     scales: {
-
-                        // -------------------------------
-                        // X Axis
-                        // -------------------------------
 
                         x: {
 
@@ -1753,10 +1552,6 @@ function updateTemperatureChart(data) {
 
                         },
 
-
-                        // -------------------------------
-                        // Y Axis
-                        // -------------------------------
 
                         y: {
 
@@ -1776,7 +1571,8 @@ function updateTemperatureChart(data) {
                                     0.5,
 
                                 callback:
-                                    function (value) {
+                                    function(value)
+                                    {
                                         return Number(value)
                                             .toFixed(1);
                                     }
@@ -1798,7 +1594,8 @@ function updateTemperatureChart(data) {
 // Update Humidity Chart
 // =====================================================
 
-function updateHumidityChart(data) {
+function updateHumidityChart(data)
+{
     const canvas =
         document.getElementById(
             "humidityChart"
@@ -1809,10 +1606,6 @@ function updateHumidityChart(data) {
     }
 
 
-    // =================================================
-    // เรียงข้อมูลจากเก่า -> ใหม่
-    // =================================================
-
     const sorted =
         [...data].sort(
             (a, b) =>
@@ -1820,10 +1613,6 @@ function updateHumidityChart(data) {
                 getDateTimeValue(b.datetime)
         );
 
-
-    // =================================================
-    // X Axis = Time
-    // =================================================
 
     const labels =
         sorted.map(
@@ -1837,10 +1626,6 @@ function updateHumidityChart(data) {
         );
 
 
-    // =================================================
-    // Humidity
-    // =================================================
-
     const values =
         sorted.map(
             item =>
@@ -1850,19 +1635,11 @@ function updateHumidityChart(data) {
         );
 
 
-    // =================================================
-    // Destroy old chart
-    // =================================================
-
     if (humidityChart) {
 
         humidityChart.destroy();
     }
 
-
-    // =================================================
-    // Create Chart
-    // =================================================
 
     humidityChart =
         new Chart(
@@ -1913,10 +1690,6 @@ function updateHumidityChart(data) {
                         false,
 
 
-                    // =====================================
-                    // Legend - ขวาบน
-                    // =====================================
-
                     plugins: {
 
                         legend: {
@@ -1934,15 +1707,7 @@ function updateHumidityChart(data) {
                     },
 
 
-                    // =====================================
-                    // Scales
-                    // =====================================
-
                     scales: {
-
-                        // -------------------------------
-                        // X Axis
-                        // -------------------------------
 
                         x: {
 
@@ -1957,10 +1722,6 @@ function updateHumidityChart(data) {
 
                         },
 
-
-                        // -------------------------------
-                        // Y Axis
-                        // -------------------------------
 
                         y: {
 
@@ -1980,7 +1741,8 @@ function updateHumidityChart(data) {
                                     0.5,
 
                                 callback:
-                                    function (value) {
+                                    function(value)
+                                    {
                                         return Number(value)
                                             .toFixed(1);
                                     }
@@ -2002,7 +1764,8 @@ function updateHumidityChart(data) {
 // Get Time Only
 // =====================================================
 
-function getTimeOnly(datetime) {
+function getTimeOnly(datetime)
+{
 
     if (!datetime) {
 
@@ -2013,11 +1776,6 @@ function getTimeOnly(datetime) {
     const text =
         String(datetime).trim();
 
-
-    // =================================================
-    // Format:
-    // DD/MM/YYYY HH:mm:ss
-    // =================================================
 
     const match =
         text.match(
@@ -2037,11 +1795,6 @@ function getTimeOnly(datetime) {
     }
 
 
-    // =================================================
-    // Format:
-    // YYYY-MM-DD HH:mm:ss
-    // =================================================
-
     const match2 =
         text.match(
             /^\d{4}-\d{1,2}-\d{1,2}\s+(\d{1,2}):(\d{2}):(\d{2})/
@@ -2059,10 +1812,6 @@ function getTimeOnly(datetime) {
         );
     }
 
-
-    // =================================================
-    // Try Date
-    // =================================================
 
     const date =
         new Date(text);
@@ -2093,7 +1842,8 @@ function getTimeOnly(datetime) {
 
 function updateHistoryTable(
     data
-) {
+)
+{
 
     const table =
         document.getElementById(
@@ -2125,7 +1875,6 @@ function updateHistoryTable(
     }
 
 
-    // Show newest 5
     const latest =
         data.slice(0, 5);
 
@@ -2214,22 +1963,24 @@ function updateHistoryTable(
                         </td>
 
                         <td>
-                            ${Number.isFinite(
-                    temperature
-                )
-                        ? temperature.toFixed(1)
-                        : "--"
-                    }
+                            ${
+                                Number.isFinite(
+                                    temperature
+                                )
+                                    ? temperature.toFixed(1)
+                                    : "--"
+                            }
                             °C
                         </td>
 
                         <td>
-                            ${Number.isFinite(
-                        humidity
-                    )
-                        ? humidity.toFixed(1)
-                        : "--"
-                    }
+                            ${
+                                Number.isFinite(
+                                    humidity
+                                )
+                                    ? humidity.toFixed(1)
+                                    : "--"
+                            }
                             %RH
                         </td>
 
@@ -2247,7 +1998,8 @@ function updateHistoryTable(
 
 function downloadExcel(
     type
-) {
+)
+{
 
     if (
         !historyDataForExcel ||
@@ -2404,7 +2156,8 @@ if (downloadAll) {
 
 function filterRacks(
     mode
-) {
+)
+{
 
     const cards =
         rackGrid.querySelectorAll(
@@ -2508,14 +2261,12 @@ const filterButtons =
 
 // =====================================================
 // Set Active Filter Button
-// -----------------------------------------------------
-// เอา class "active" ออกจากทุกปุ่ม แล้วใส่เฉพาะปุ่มที่กด
-// เพื่อให้สีพื้นหลังของปุ่มที่ active เปลี่ยนตามหมวดจริง
 // =====================================================
 
 function setActiveFilterButton(
     button
-) {
+)
+{
 
     filterButtons.forEach(
         (btn) => {
