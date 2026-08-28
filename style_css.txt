@@ -81,29 +81,17 @@ main {
     /* ⚪ บังคับตัวอักษรทุกตัวในการ์ดให้เป็นสีขาวล้วน */
     color: #ffffff !important;
 }
-/* 🎨 เปลี่ยนสีพื้นหลังตาม Class Status (Yokogawa Standard) */
-.card.status-class-a {
-    background-color: #c07844 !important; /* Class A: น้ำตาลส้ม (Good) */
+/* 🎨 เปลี่ยนสีพื้นหลังตาม Class Status */
+.card.status-good {
+    background-color: #00c853 !important; /* สีเขียว */
 }
 
-.card.status-class-b {
-    background-color: #2e8b57 !important; /* Class B: เขียว (Normal) */
-}
-
-.card.status-class-s1 {
-    background-color: #20b2aa !important; /* Class S1: เขียวอมฟ้า */
-}
-
-.card.status-class-s2 {
-    background-color: #008b8b !important; /* Class S2: ฟ้าเข้ม */
-}
-
-.card.status-class-s3 {
-    background-color: #4682b4 !important; /* Class S3: น้ำเงินเทา */
+.card.status-normal {
+    background-color: #e0a100 !important; /* สีเหลืองส้ม */
 }
 
 .card.status-bad {
-    background-color: #d32f2f !important; /* สีแดง (อยู่นอกเกณฑ์) */
+    background-color: #d32f2f !important; /* สีแดง */
 }
 
 .card.status-offline {
@@ -164,6 +152,7 @@ main {
 
 .value-box .number {
     color: #ffffff !important; /* ⚪ สีขาว */
+    /* 3. ปรับขนาดตัวเลขแบบสมูทตามความกว้างหน้าจอ (fluid) แทนการกระโดดที่ breakpoint */
     font-size: clamp(36px, 8vw, 64px);
     font-weight: 900;
     letter-spacing: -1px;
@@ -237,16 +226,17 @@ main {
     color: white;
 }
 
+/* สีพื้นหลังตอน active แยกตามหมวด */
 #filterOnline.active {
-    background: #1f2937;
+    background: #1f2937; /* เขียว = Online */
     color: #ffffff;
 }
 #filterOffline.active {
-    background: #1f2937;
+    background: #1f2937; /* แดง = Offline */
     color: #ffffff;
 }
 #filterAlert.active {
-    background: #1f2937;
+    background: #1f2937; /* เหลือง = Alert */
     color: #ffffff;
 }
 
@@ -335,17 +325,16 @@ main {
     background: #111827;
 }
 
+/* Compact variant of .card used inside rack overview cards */
 .card.card-mini {
     padding: 8px 14px 12px 14px;
     border-radius: 12px;
     min-height: 64px;
 }
 
-.card.card-mini.status-class-a,
-.card.card-mini.status-class-b,
-.card.card-mini.status-class-s1,
-.card.card-mini.status-class-s2,
-.card.card-mini.status-class-s3,
+/* 1. เปลี่ยนพื้นหลัง Temp / Humidity (การ์ดย่อยหน้า Overview) เป็นสีเทา ทุกสถานะ */
+.card.card-mini.status-good,
+.card.card-mini.status-normal,
 .card.card-mini.status-bad,
 .card.card-mini.status-offline {
     background-color: #6b7280 !important;
@@ -367,6 +356,7 @@ main {
     gap: 4px;
 }
 
+/* 2. เลิกซ่อน label สถานะ และปรับขนาดให้พอดีการ์ดย่อย */
 .card.card-mini .status-box {
     display: flex;
 }
@@ -377,6 +367,7 @@ main {
     font-size: 14px;
 }
 
+/* 4. เลิกซ่อนค่าตัวเลข Temp / Humidity และปรับขนาดให้พอดีการ์ดย่อย */
 .card.card-mini .value-box {
     display: block;
 }
@@ -501,6 +492,7 @@ footer p {
     letter-spacing: 0.3px;
 }
 
+/* กันเนื้อหาโดน Footer Bar ที่ fixed อยู่บังด้านล่าง */
 main {
     padding-bottom: 60px;
 }
@@ -531,4 +523,19 @@ main {
         flex-direction: column;
         align-items: flex-start;
     }
+}
+/* =====================================================
+   Environment Status
+   ===================================================== */
+.status-good {
+    color: #16a34a;
+    font-weight: bold;
+}
+.status-normal {
+    color: #eab308;
+    font-weight: bold;
+}
+.status-bad {
+    color: #dc2626;
+    font-weight: bold;
 }
