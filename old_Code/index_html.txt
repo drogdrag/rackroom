@@ -355,7 +355,7 @@
 
             <div
                 id="temperatureCard"
-                class="card status-good"
+                class="card status-class-a"
             >
 
                 <div class="card-header">
@@ -381,7 +381,7 @@
                             id="temperatureStatus"
                             class="status-value"
                         >
-                            GOOD
+                            CLASS A
                         </span>
 
                     </div>
@@ -416,7 +416,7 @@
 
             <div
                 id="humidityCard"
-                class="card status-good"
+                class="card status-class-a"
             >
 
                 <div class="card-header">
@@ -442,7 +442,7 @@
                             id="humidityStatus"
                             class="status-value"
                         >
-                            GOOD
+                            CLASS A
                         </span>
 
                     </div>
@@ -670,7 +670,7 @@
     <footer>
 
         <p>
-             Rack Room Monitoring System
+            Rack Room Monitoring System
         </p>
 
     </footer>
