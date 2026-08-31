@@ -341,12 +341,25 @@ main {
     min-height: 64px;
 }
 
-.card.card-mini.status-class-a,
-.card.card-mini.status-class-b,
+/* Good (Class A) = สีเขียว */
+.card.card-mini.status-class-a {
+    background-color: #22c55e !important;
+}
+
+/* Normal (Class B) = สีเหลือง */
+.card.card-mini.status-class-b {
+    background-color: #eab308 !important;
+}
+
+/* Bad (หลุดเกณฑ์ทั้งหมด) = สีแดง */
 .card.card-mini.status-class-s1,
 .card.card-mini.status-class-s2,
 .card.card-mini.status-class-s3,
-.card.card-mini.status-bad,
+.card.card-mini.status-bad {
+    background-color: #ef4444 !important;
+}
+
+/* Offline = สีเทา */
 .card.card-mini.status-offline {
     background-color: #6b7280 !important;
 }
