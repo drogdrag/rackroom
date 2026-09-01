@@ -9,7 +9,8 @@ import {
 import {
     getDatabase,
     ref,
-    onValue
+    onValue,
+    update
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 
@@ -263,8 +264,7 @@ onValue(
 // Update Summary
 // =====================================================
 
-function updateSummary(racks)
-{
+function updateSummary(racks) {
 
     const rackEntries =
         Object.entries(racks);
@@ -305,7 +305,7 @@ function updateSummary(racks)
 
             if (isOnline) {
                 online++;
-                
+
                 if (
                     environment.level === "BAD" ||
                     status.sensor !== "OK" ||
@@ -345,8 +345,7 @@ function updateSummary(racks)
 // Live Status Interval
 // =====================================================
 
-function startLiveStatusInterval()
-{
+function startLiveStatusInterval() {
 
     if (liveStatusInterval) {
 
@@ -389,8 +388,7 @@ function startLiveStatusInterval()
 // Render Rack Overview
 // =====================================================
 
-function renderRackOverview(racks)
-{
+function renderRackOverview(racks) {
 
     rackGrid.innerHTML = "";
 
@@ -420,8 +418,7 @@ function renderRackOverview(racks)
 function createRackCard(
     rackID,
     rackData
-)
-{
+) {
 
     const current =
         rackData?.current || {};
@@ -456,6 +453,9 @@ function createRackCard(
     const wifiOK =
         status.wifi === "OK";
 
+    // ดึงชื่อใหม่มาใช้ ถ้าไม่มีให้ใช้ ID เดิม
+    const displayName = rackData?.name || rackID;
+
     let overallStatus =
         "GOOD";
 
@@ -474,7 +474,7 @@ function createRackCard(
 
         overallClass =
             "offline";
-            
+
         envLabel = "OFFLINE";
         displayTemp = "--";
         displayHum = "--";
@@ -529,15 +529,14 @@ function createRackCard(
             <div class="rack-card-title">
 
                 <h3>
-                    ${rackID}
+                    ${displayName}
                 </h3>
 
                 <p>
-                    ${
-                        online
-                            ? "Online"
-                            : "Offline"
-                    }
+                    ${online
+            ? "Online"
+            : "Offline"
+        }
                 </p>
 
             </div>
@@ -548,18 +547,16 @@ function createRackCard(
         <div class="rack-online">
 
             <span
-                class="dot ${
-                    online
-                        ? "online"
-                        : "offline"
-                }"
+                class="dot ${online
+            ? "online"
+            : "offline"
+        }"
             ></span>
 
-            ${
-                online
-                    ? "Connected to Firebase"
-                    : "Disconnected"
-            }
+            ${online
+            ? "Connected to Firebase"
+            : "Disconnected"
+        }
 
         </div>
 
@@ -662,8 +659,7 @@ function createRackCard(
 // Open Rack Detail
 // =====================================================
 
-function openRackDetail(rackID)
-{
+function openRackDetail(rackID) {
 
     selectedRack =
         rackID;
@@ -705,7 +701,9 @@ function updateDetailData(rackID, rackData) {
 
     const online = checkRackOnline(status.lastUpdate);
 
-    setText("detailRackTitle", rackID);
+    // ดึงชื่อใหม่มาแสดงที่ Title
+    const displayName = rackData?.name || rackID;
+    setText("detailRackTitle", displayName);
 
     let displayTemp = "--";
     let displayHum = "--";
@@ -717,7 +715,7 @@ function updateDetailData(rackID, rackData) {
         environment = getEnvironmentStatus(temperature, humidity);
     } else {
         environment = {
-            text: "OFFLINE", 
+            text: "OFFLINE",
             className: "status-offline",
             level: "OFFLINE"
         };
@@ -733,7 +731,7 @@ function updateDetailData(rackID, rackData) {
     if (tempCard) {
         tempCard.className = `card ${environment.className}`;
     }
-    
+
     const humCard = document.getElementById("humidityCard");
     if (humCard) {
         humCard.className = `card ${environment.className}`;
@@ -760,8 +758,7 @@ function updateDetailData(rackID, rackData) {
 function setText(
     elementID,
     value
-)
-{
+) {
 
     const element =
         document.getElementById(
@@ -780,8 +777,7 @@ function setText(
 // Convert Number
 // =====================================================
 
-function toNumber(value)
-{
+function toNumber(value) {
 
     if (
         value === null ||
@@ -832,8 +828,7 @@ function setStatusElement(elementID, status) {
 // Check Rack Online
 // =====================================================
 
-function checkRackOnline(timestamp)
-{
+function checkRackOnline(timestamp) {
     if (
         timestamp === null ||
         timestamp === undefined
@@ -896,8 +891,7 @@ function checkRackOnline(timestamp)
 function getEnvironmentStatus(
     temperature,
     humidity
-)
-{
+) {
     if (
         !Number.isFinite(temperature) ||
         !Number.isFinite(humidity)
@@ -994,8 +988,7 @@ if (backToOverview) {
 
 function loadRackHistory(
     rackID
-)
-{
+) {
 
     if (historyListener) {
 
@@ -1094,8 +1087,7 @@ function loadRackHistory(
 
 function getDateTimeValue(
     datetime
-)
-{
+) {
 
     if (!datetime) {
 
@@ -1175,8 +1167,7 @@ function getDateTimeValue(
 // Update Temperature Chart
 // =====================================================
 
-function updateTemperatureChart(data)
-{
+function updateTemperatureChart(data) {
     const canvas =
         document.getElementById(
             "temperatureChart"
@@ -1314,8 +1305,7 @@ function updateTemperatureChart(data)
                                     0.5,
 
                                 callback:
-                                    function(value)
-                                    {
+                                    function (value) {
                                         return Number(value)
                                             .toFixed(1);
                                     }
@@ -1337,8 +1327,7 @@ function updateTemperatureChart(data)
 // Update Humidity Chart
 // =====================================================
 
-function updateHumidityChart(data)
-{
+function updateHumidityChart(data) {
     const canvas =
         document.getElementById(
             "humidityChart"
@@ -1474,8 +1463,7 @@ function updateHumidityChart(data)
                                     0.5,
 
                                 callback:
-                                    function(value)
-                                    {
+                                    function (value) {
                                         return Number(value)
                                             .toFixed(1);
                                     }
@@ -1497,8 +1485,7 @@ function updateHumidityChart(data)
 // Get Time Only
 // =====================================================
 
-function getTimeOnly(datetime)
-{
+function getTimeOnly(datetime) {
 
     if (!datetime) {
 
@@ -1569,8 +1556,7 @@ function getTimeOnly(datetime)
 
 function updateHistoryTable(
     data
-)
-{
+) {
 
     const table =
         document.getElementById(
@@ -1671,23 +1657,21 @@ function updateHistoryTable(
                             ${time}
                         </td>
                         <td>
-                            ${
-                                Number.isFinite(
-                                    temperature
-                                )
-                                    ? temperature.toFixed(1)
-                                    : "--"
-                            }
+                            ${Number.isFinite(
+                    temperature
+                )
+                        ? temperature.toFixed(1)
+                        : "--"
+                    }
                             °C
                         </td>
                         <td>
-                            ${
-                                Number.isFinite(
-                                    humidity
-                                )
-                                    ? humidity.toFixed(1)
-                                    : "--"
-                            }
+                            ${Number.isFinite(
+                        humidity
+                    )
+                        ? humidity.toFixed(1)
+                        : "--"
+                    }
                             %RH
                         </td>
                     </tr>
@@ -1703,8 +1687,7 @@ function updateHistoryTable(
 
 function downloadExcel(
     type
-)
-{
+) {
 
     if (
         !historyDataForExcel ||
@@ -1849,8 +1832,7 @@ if (downloadAll) {
 
 function filterRacks(
     mode
-)
-{
+) {
 
     const cards =
         rackGrid.querySelectorAll(
@@ -1894,18 +1876,9 @@ function filterRacks(
             if (mode === "alert") {
 
                 show =
-                    status ===
-                    "CLASS S1" ||
-                    status ===
-                    "CLASS S2" ||
-                    status ===
-                    "CLASS S3" ||
-                    status ===
-                    "BAD" ||
-                    status ===
-                    "SENSOR ERROR" ||
-                    status ===
-                    "WIFI ERROR";
+                    status === "BAD" ||
+                    status === "SENSOR ERROR" ||
+                    status === "WIFI ERROR";
             }
 
             card.style.display =
@@ -1952,8 +1925,7 @@ const filterButtons =
 
 function setActiveFilterButton(
     button
-)
-{
+) {
 
     filterButtons.forEach(
         (btn) => {
@@ -2048,4 +2020,33 @@ if (filterAlert) {
             filterRacks("alert");
         }
     );
+}
+
+// =====================================================
+// Edit Rack Name
+// =====================================================
+const editRackNameBtn = document.getElementById("editRackNameBtn");
+
+if (editRackNameBtn) {
+    editRackNameBtn.addEventListener("click", () => {
+        if (!selectedRack) return;
+
+        const rackData = allRackData[selectedRack];
+        const currentName = rackData?.name || selectedRack;
+
+        const newName = prompt("กรุณากรอกชื่อที่ต้องการแสดงสำหรับ Rack นี้:", currentName);
+
+        if (newName !== null && newName.trim() !== "") {
+
+            const rackRef = ref(database, `racks/${selectedRack}`);
+
+            update(rackRef, { name: newName.trim() })
+                .then(() => {
+                    console.log("เปลี่ยนชื่อสำเร็จ");
+                })
+                .catch((error) => {
+                    alert("เกิดข้อผิดพลาดในการเปลี่ยนชื่อ: " + error.message);
+                });
+        }
+    });
 }

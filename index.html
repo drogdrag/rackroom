@@ -5,44 +5,31 @@
 
     <meta charset="UTF-8">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <title>Rack Room Monitoring</title>
 
-    <link
-        rel="stylesheet"
-        href="style.css?v=2"
-    >
+    <link rel="stylesheet" href="style.css?v=3">
 
     <!-- ================================================= -->
     <!-- Chart.js -->
     <!-- ================================================= -->
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/chart.js"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
     <!-- ================================================= -->
     <!-- SheetJS / XLSX -->
     <!-- ================================================= -->
 
-    <script
-        src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"
-    ></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 
 
     <!-- ================================================= -->
     <!-- Firebase / Application -->
     <!-- ================================================= -->
 
-    <script
-        type="module"
-        src="app.js?v=2"
-    ></script>
+    <script type="module" src="app.js?v=3"></script>
 
 </head>
 
@@ -72,9 +59,7 @@
     <!-- OVERVIEW PAGE -->
     <!-- ================================================= -->
 
-    <main
-        id="overviewPage"
-    >
+    <main id="overviewPage">
 
         <!-- ============================================= -->
         <!-- OVERVIEW HEADER -->
@@ -97,15 +82,10 @@
                     Firebase:
                 </span>
 
-                <span
-                    id="connectionDot"
-                    class="dot offline"
-                >
+                <span id="connectionDot" class="dot offline">
                 </span>
 
-                <span
-                    id="connectionText"
-                >
+                <span id="connectionText">
                     กำลังเชื่อมต่อ...
                 </span>
 
@@ -118,9 +98,7 @@
         <!-- SUMMARY -->
         <!-- ============================================= -->
 
-        <section
-            class="summary-cards"
-        >
+        <section class="summary-cards">
 
             <div class="summary-card">
 
@@ -128,10 +106,7 @@
                     Total Rack
                 </span>
 
-                <span
-                    id="totalRack"
-                    class="summary-value"
-                >
+                <span id="totalRack" class="summary-value">
                     0
                 </span>
 
@@ -144,10 +119,7 @@
                     Online
                 </span>
 
-                <span
-                    id="onlineRack"
-                    class="summary-value"
-                >
+                <span id="onlineRack" class="summary-value">
                     0
                 </span>
 
@@ -160,10 +132,7 @@
                     Offline
                 </span>
 
-                <span
-                    id="offlineRack"
-                    class="summary-value"
-                >
+                <span id="offlineRack" class="summary-value">
                     0
                 </span>
 
@@ -176,10 +145,7 @@
                     Alert
                 </span>
 
-                <span
-                    id="alertRack"
-                    class="summary-value"
-                >
+                <span id="alertRack" class="summary-value">
                     0
                 </span>
 
@@ -192,38 +158,24 @@
         <!-- FILTER -->
         <!-- ============================================= -->
 
-        <section
-            class="filter-section"
-        >
+        <section class="filter-section">
 
-            <button
-                id="filterAll"
-                class="filter-button active"
-            >
+            <button id="filterAll" class="filter-button active">
                 All
             </button>
 
 
-            <button
-                id="filterOnline"
-                class="filter-button"
-            >
+            <button id="filterOnline" class="filter-button">
                 Online
             </button>
 
 
-            <button
-                id="filterOffline"
-                class="filter-button"
-            >
+            <button id="filterOffline" class="filter-button">
                 Offline
             </button>
 
 
-            <button
-                id="filterAlert"
-                class="filter-button"
-            >
+            <button id="filterAlert" class="filter-button">
                 Alert
             </button>
 
@@ -241,14 +193,9 @@
             </h2>
 
 
-            <div
-                id="rackGrid"
-                class="rack-grid"
-            >
+            <div id="rackGrid" class="rack-grid">
 
-                <div
-                    class="empty-state"
-                >
+                <div class="empty-state">
                     กำลังโหลดข้อมูล Rack...
                 </div>
 
@@ -264,34 +211,29 @@
     <!-- DETAIL PAGE -->
     <!-- ================================================= -->
 
-    <main
-        id="detailPage"
-        style="display: none;"
-    >
+    <main id="detailPage" style="display: none;">
 
         <!-- ============================================= -->
         <!-- BACK BUTTON -->
         <!-- ============================================= -->
 
-        <section
-            class="detail-header"
-        >
+        <section class="detail-header">
 
-            <button
-                id="backToOverview"
-                class="back-button"
-            >
+            <button id="backToOverview" class="back-button">
                 ← Back
             </button>
 
 
             <div>
 
-                <h2
-                    id="detailRackTitle"
-                >
-                    RACK-01
-                </h2>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <h2 id="detailRackTitle">
+                        RACK-01
+                    </h2>
+                    <button id="editRackNameBtn" class="edit-btn" title="เปลี่ยนชื่อ Rack">
+                        ✏️
+                    </button>
+                </div>
 
                 <p>
                     Rack Detail Monitoring
@@ -306,21 +248,14 @@
         <!-- CONNECTION STATUS -->
         <!-- ============================================= -->
 
-        <section
-            class="status-section"
-        >
+        <section class="status-section">
 
             <div>
 
-                <span
-                    id="detailConnectionDot"
-                    class="dot offline"
-                >
+                <span id="detailConnectionDot" class="dot offline">
                 </span>
 
-                <span
-                    id="detailConnectionText"
-                >
+                <span id="detailConnectionText">
                     OFFLINE
                 </span>
 
@@ -331,9 +266,7 @@
 
                 Last Update:
 
-                <span
-                    id="detailLastUpdate"
-                >
+                <span id="detailLastUpdate">
                     -
                 </span>
 
@@ -353,10 +286,7 @@
             <!-- Temperature -->
             <!-- ========================================= -->
 
-            <div
-                id="temperatureCard"
-                class="card status-class-a"
-            >
+            <div id="temperatureCard" class="card status-class-a">
 
                 <div class="card-header">
 
@@ -369,32 +299,22 @@
 
                 <div class="card-body">
 
-                    <div
-                        class="status-box"
-                    >
+                    <div class="status-box">
 
                         <span class="status-label">
                             Status:
                         </span>
 
-                        <span
-                            id="temperatureStatus"
-                            class="status-value"
-                        >
-                            CLASS A
+                        <span id="temperatureStatus" class="status-value">
+                            GOOD
                         </span>
 
                     </div>
 
 
-                    <div
-                        class="value-box"
-                    >
+                    <div class="value-box">
 
-                        <span
-                            id="temperature"
-                            class="number"
-                        >
+                        <span id="temperature" class="number">
                             --
                         </span>
 
@@ -414,10 +334,7 @@
             <!-- Humidity -->
             <!-- ========================================= -->
 
-            <div
-                id="humidityCard"
-                class="card status-class-a"
-            >
+            <div id="humidityCard" class="card status-class-a">
 
                 <div class="card-header">
 
@@ -430,32 +347,22 @@
 
                 <div class="card-body">
 
-                    <div
-                        class="status-box"
-                    >
+                    <div class="status-box">
 
                         <span class="status-label">
                             Status:
                         </span>
 
-                        <span
-                            id="humidityStatus"
-                            class="status-value"
-                        >
-                            CLASS A
+                        <span id="humidityStatus" class="status-value">
+                            GOOD
                         </span>
 
                     </div>
 
 
-                    <div
-                        class="value-box"
-                    >
+                    <div class="value-box">
 
-                        <span
-                            id="humidity"
-                            class="number"
-                        >
+                        <span id="humidity" class="number">
                             --
                         </span>
 
@@ -477,17 +384,13 @@
         <!-- SENSOR / WIFI STATUS -->
         <!-- ============================================= -->
 
-        <section
-            class="status-section"
-        >
+        <section class="status-section">
 
             <div>
 
                 Sensor:
 
-                <strong
-                    id="detailSensorStatus"
-                >
+                <strong id="detailSensorStatus">
                     --
                 </strong>
 
@@ -498,9 +401,7 @@
 
                 Wi-Fi:
 
-                <strong
-                    id="detailWifiStatus"
-                >
+                <strong id="detailWifiStatus">
                     --
                 </strong>
 
@@ -523,9 +424,7 @@
 
             <div class="chart-container">
 
-                <canvas
-                    id="temperatureChart"
-                ></canvas>
+                <canvas id="temperatureChart"></canvas>
 
             </div>
 
@@ -546,9 +445,7 @@
 
             <div class="chart-container">
 
-                <canvas
-                    id="humidityChart"
-                ></canvas>
+                <canvas id="humidityChart"></canvas>
 
             </div>
 
@@ -596,15 +493,11 @@
                     </thead>
 
 
-                    <tbody
-                        id="historyTable"
-                    >
+                    <tbody id="historyTable">
 
                         <tr>
 
-                            <td
-                                colspan="4"
-                            >
+                            <td colspan="4">
                                 Waiting for data...
                             </td>
 
@@ -631,27 +524,19 @@
             </h2>
 
 
-            <div
-                class="download-buttons"
-            >
+            <div class="download-buttons">
 
-                <button
-                    id="downloadTemperature"
-                >
+                <button id="downloadTemperature">
                     🌡️ Download Temperature
                 </button>
 
 
-                <button
-                    id="downloadHumidity"
-                >
+                <button id="downloadHumidity">
                     💧 Download Humidity
                 </button>
 
 
-                <button
-                    id="downloadAll"
-                >
+                <button id="downloadAll">
                     📊 Download All Data
                 </button>
 
