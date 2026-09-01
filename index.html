@@ -9,7 +9,7 @@
 
     <title>Rack Room Monitoring</title>
 
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 
     <!-- ================================================= -->
     <!-- Chart.js -->
@@ -29,7 +29,7 @@
     <!-- Firebase / Application -->
     <!-- ================================================= -->
 
-    <script type="module" src="app.js?v=3"></script>
+    <script type="module" src="app.js?v=4"></script>
 
 </head>
 
@@ -545,6 +545,25 @@
         </section>
 
     </main>
+
+
+
+    <!-- ================================================= -->
+    <!-- EDIT NAME MODAL (POPUP) -->
+    <!-- ================================================= -->
+    <div id="editNameModal" class="modal-overlay" style="display: none;">
+        <div class="modal-content">
+            <h3>Change name rack</h3>
+            <p>Please enter the display name for this rack.</p>
+
+            <input type="text" id="editNameInput" placeholder="Enter new rack name...">
+
+            <div class="modal-buttons">
+                <button id="cancelEditBtn" class="btn-cancel">Cancel</button>
+                <button id="saveEditBtn" class="btn-save">Save</button>
+            </div>
+        </div>
+    </div>
 
 
 

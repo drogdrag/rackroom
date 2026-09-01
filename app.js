@@ -903,7 +903,7 @@ function getEnvironmentStatus(
         };
     }
 
-    // 1. Class A: Good (Temp: 15~30°C, Hum: 40~70%RH) -> โชว์ข้อความ GOOD
+    // 1. Class A: Good (Temp: 15~30°C, Hum: 40~70%RH)
     if (temperature >= 15 && temperature <= 30 && humidity >= 40 && humidity <= 70) {
         return {
             text: "GOOD",
@@ -912,7 +912,7 @@ function getEnvironmentStatus(
         };
     }
 
-    // 2. Class B: Normal (Temp: 5~40°C, Hum: 20~80%RH) -> โชว์ข้อความ NORMAL
+    // 2. Class B: Normal (Temp: 5~40°C, Hum: 20~80%RH)
     if (temperature >= 5 && temperature <= 40 && humidity >= 20 && humidity <= 80) {
         return {
             text: "NORMAL",
@@ -921,7 +921,7 @@ function getEnvironmentStatus(
         };
     }
 
-    // 3. Class S1 (Temp: 0~50°C, Hum: 10~90%RH) -> โชว์ข้อความ BAD
+    // 3. Class S1 (Temp: 0~50°C, Hum: 10~90%RH)
     if (temperature >= 0 && temperature <= 50 && humidity >= 10 && humidity <= 90) {
         return {
             text: "BAD",
@@ -930,7 +930,7 @@ function getEnvironmentStatus(
         };
     }
 
-    // 4. Class S2 (Temp: -10~60°C, Hum: 5~95%RH) -> โชว์ข้อความ BAD
+    // 4. Class S2 (Temp: -10~60°C, Hum: 5~95%RH)
     if (temperature >= -10 && temperature <= 60 && humidity >= 5 && humidity <= 95) {
         return {
             text: "BAD",
@@ -939,7 +939,7 @@ function getEnvironmentStatus(
         };
     }
 
-    // 5. Class S3 (Temp: -25~70°C, Hum: 5~100%RH) -> โชว์ข้อความ BAD
+    // 5. Class S3 (Temp: -25~70°C, Hum: 5~100%RH)
     if (temperature >= -25 && temperature <= 70 && humidity >= 5 && humidity <= 100) {
         return {
             text: "BAD",
@@ -948,7 +948,7 @@ function getEnvironmentStatus(
         };
     }
 
-    // นอกเหนือจากเกณฑ์ทั้งหมดถือว่าอยู่นอกช่วงวิกฤต -> โชว์ข้อความ BAD
+    // นอกเหนือจากเกณฑ์ทั้งหมดถือว่าอยู่นอกช่วงวิกฤต
     return {
         text: "BAD",
         className: "status-bad",
@@ -2023,30 +2023,58 @@ if (filterAlert) {
 }
 
 // =====================================================
-// Edit Rack Name
+// Edit Rack Name (Popup Modal)
 // =====================================================
 const editRackNameBtn = document.getElementById("editRackNameBtn");
+const editNameModal = document.getElementById("editNameModal");
+const editNameInput = document.getElementById("editNameInput");
+const saveEditBtn = document.getElementById("saveEditBtn");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
 
-if (editRackNameBtn) {
+// เปิดกล่อง Modal เมื่อกดปุ่มดินสอ
+if (editRackNameBtn && editNameModal) {
     editRackNameBtn.addEventListener("click", () => {
         if (!selectedRack) return;
 
+        // ดึงชื่อปัจจุบันมาแสดงในช่องกรอก
         const rackData = allRackData[selectedRack];
         const currentName = rackData?.name || selectedRack;
 
-        const newName = prompt("กรุณากรอกชื่อที่ต้องการแสดงสำหรับ Rack นี้:", currentName);
+        editNameInput.value = currentName;
+        editNameModal.style.display = "flex"; // แสดง Popup
+        editNameInput.focus(); // เคอร์เซอร์กระพริบรอพิมพ์
+    });
+}
 
-        if (newName !== null && newName.trim() !== "") {
+// ปิดกล่อง Modal เมื่อกดปุ่มยกเลิก
+if (cancelEditBtn && editNameModal) {
+    cancelEditBtn.addEventListener("click", () => {
+        editNameModal.style.display = "none";
+    });
+}
 
+// บันทึกข้อมูลเมื่อกดปุ่มบันทึก
+if (saveEditBtn) {
+    saveEditBtn.addEventListener("click", () => {
+        if (!selectedRack) return;
+
+        const newName = editNameInput.value.trim();
+
+        // ตรวจสอบว่าไม่ได้เว้นว่าง
+        if (newName !== "") {
             const rackRef = ref(database, `racks/${selectedRack}`);
 
-            update(rackRef, { name: newName.trim() })
+            update(rackRef, { name: newName })
                 .then(() => {
                     console.log("เปลี่ยนชื่อสำเร็จ");
+                    editNameModal.style.display = "none"; // ปิด Popup เมื่อเซฟสำเร็จ
                 })
                 .catch((error) => {
                     alert("เกิดข้อผิดพลาดในการเปลี่ยนชื่อ: " + error.message);
                 });
+        } else {
+            alert("กรุณากรอกชื่อ Rack ครับ");
+            editNameInput.focus();
         }
     });
 }
