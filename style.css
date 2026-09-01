@@ -81,33 +81,29 @@ main {
     /* ⚪ บังคับตัวอักษรทุกตัวในการ์ดให้เป็นสีขาวล้วน */
     color: #ffffff !important;
 }
-/* 🎨 เปลี่ยนสีพื้นหลังตาม Class Status (Yokogawa Standard) */
+/* 🎨 เปลี่ยนสีพื้นหลังตาม Status */
+
+/* Good (Class A) = สีเขียว */
 .card.status-class-a {
-    background-color: #c07844 !important; /* Class A: น้ำตาลส้ม (Good) */
+    background-color: #22c55e !important;
 }
 
+/* Normal (Class B) = สีเหลือง */
 .card.status-class-b {
-    background-color: #2e8b57 !important; /* Class B: เขียว (Normal) */
+    background-color: #eab308 !important;
 }
 
-.card.status-class-s1 {
-    background-color: #20b2aa !important; /* Class S1: เขียวอมฟ้า */
-}
-
-.card.status-class-s2 {
-    background-color: #008b8b !important; /* Class S2: ฟ้าเข้ม */
-}
-
-.card.status-class-s3 {
-    background-color: #4682b4 !important; /* Class S3: น้ำเงินเทา */
-}
-
+/* Bad (Class S1, S2, S3 และหลุดเกณฑ์) = สีแดง */
+.card.status-class-s1,
+.card.status-class-s2,
+.card.status-class-s3,
 .card.status-bad {
-    background-color: #d32f2f !important; /* สีแดง (อยู่นอกเกณฑ์) */
+    background-color: #ef4444 !important;
 }
 
+/* Offline = สีเทา */
 .card.status-offline {
-    background-color: #6b7280 !important; /* สีเทา */
+    background-color: #6b7280 !important;
 }
 
 /* 🏷️ ป้าย Title (ยังคงพื้นหลังขาว อักษรน้ำเงินตามแบบ) */

@@ -863,7 +863,7 @@ function checkRackOnline(timestamp)
 
         return (
             age >= 0 &&
-            age <= 30000
+            age <= 90000
         );
     }
 
@@ -898,16 +898,10 @@ function getEnvironmentStatus(
     humidity
 )
 {
-
     if (
-        !Number.isFinite(
-            temperature
-        ) ||
-        !Number.isFinite(
-            humidity
-        )
+        !Number.isFinite(temperature) ||
+        !Number.isFinite(humidity)
     ) {
-
         return {
             text: "BAD",
             className: "status-bad",
@@ -915,52 +909,52 @@ function getEnvironmentStatus(
         };
     }
 
-    // 1. Class A: Good (Temp: 15~30°C, Hum: 40~70%RH)
+    // 1. Class A: Good (Temp: 15~30°C, Hum: 40~70%RH) -> โชว์ข้อความ GOOD
     if (temperature >= 15 && temperature <= 30 && humidity >= 40 && humidity <= 70) {
         return {
-            text: "CLASS A",
+            text: "GOOD",
             className: "status-class-a",
             level: "GOOD"
         };
     }
 
-    // 2. Class B: Normal (Temp: 5~40°C, Hum: 20~80%RH)
+    // 2. Class B: Normal (Temp: 5~40°C, Hum: 20~80%RH) -> โชว์ข้อความ NORMAL
     if (temperature >= 5 && temperature <= 40 && humidity >= 20 && humidity <= 80) {
         return {
-            text: "CLASS B",
+            text: "NORMAL",
             className: "status-class-b",
             level: "NORMAL"
         };
     }
 
-    // 3. Class S1 (Temp: 0~50°C, Hum: 10~90%RH)
+    // 3. Class S1 (Temp: 0~50°C, Hum: 10~90%RH) -> โชว์ข้อความ BAD
     if (temperature >= 0 && temperature <= 50 && humidity >= 10 && humidity <= 90) {
         return {
-            text: "CLASS S1",
+            text: "BAD",
             className: "status-class-s1",
             level: "BAD"
         };
     }
 
-    // 4. Class S2 (Temp: -10~60°C, Hum: 5~95%RH)
+    // 4. Class S2 (Temp: -10~60°C, Hum: 5~95%RH) -> โชว์ข้อความ BAD
     if (temperature >= -10 && temperature <= 60 && humidity >= 5 && humidity <= 95) {
         return {
-            text: "CLASS S2",
+            text: "BAD",
             className: "status-class-s2",
             level: "BAD"
         };
     }
 
-    // 5. Class S3 (Temp: -25~70°C, Hum: 5~100%RH)
+    // 5. Class S3 (Temp: -25~70°C, Hum: 5~100%RH) -> โชว์ข้อความ BAD
     if (temperature >= -25 && temperature <= 70 && humidity >= 5 && humidity <= 100) {
         return {
-            text: "CLASS S3",
+            text: "BAD",
             className: "status-class-s3",
             level: "BAD"
         };
     }
 
-    // นอกเหนือจากเกณฑ์ทั้งหมดถือว่าอยู่นอกช่วงวิกฤต
+    // นอกเหนือจากเกณฑ์ทั้งหมดถือว่าอยู่นอกช่วงวิกฤต -> โชว์ข้อความ BAD
     return {
         text: "BAD",
         className: "status-bad",
