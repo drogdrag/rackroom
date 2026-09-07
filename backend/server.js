@@ -1,43 +1,43 @@
 const express = require("express");
-const admin = require("firebase-admin");
+const { initializeApp, cert } = require("firebase-admin/app");
+const { getDatabase } = require("firebase-admin/database");
 require("dotenv").config();
 
 const app = express();
 
 app.use(express.json());
 
-// ========================================
+// ===============================
 // Firebase Admin
-// ========================================
+// ===============================
 
 const serviceAccount = require("./serviceAccountKey.json");
 
-admin.initializeApp({
-    credential: admin.credential.cert(serviceAccount),
+initializeApp({
+    credential: cert(serviceAccount),
     databaseURL:
         "https://rackroom-6e221-default-rtdb.asia-southeast1.firebasedatabase.app"
 });
 
-const db = admin.database();
+const db = getDatabase();
 
 console.log("Firebase Admin connected!");
 
-// ========================================
+// ===============================
 // Test Backend
-// ========================================
+// ===============================
 
 app.get("/", (req, res) => {
     res.send("Rack Room Backend is running!");
 });
 
-// ========================================
+// ===============================
 // Test Firebase
-// ========================================
+// ===============================
 
 app.get("/test-firebase", async (req, res) => {
     try {
         const snapshot = await db.ref("racks").once("value");
-
         const data = snapshot.val();
 
         console.log("Firebase data:");
@@ -59,9 +59,9 @@ app.get("/test-firebase", async (req, res) => {
     }
 });
 
-// ========================================
+// ===============================
 // Start Server
-// ========================================
+// ===============================
 
 const PORT = 3000;
 
