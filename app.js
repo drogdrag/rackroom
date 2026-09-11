@@ -613,18 +613,18 @@ function updateTemperatureChart(data) {
         options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false }, tooltip: { enabled: true } }, 
-            layout: { padding: { left: 0, right: 15, top: 20, bottom: 5 } }, 
+            layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
-                x: { 
-                    ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 } 
+                x: {
+                    ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 }
                 },
                 y: {
-                    display: true, 
+                    display: true,
                     min: scaleMin, max: scaleMax,
                     ticks: {
                         display: true,
-                        color: 'transparent', 
-                        mirror: true, 
+                        color: 'transparent',
+                        mirror: true,
                         stepSize: 0.5,
                         callback: function(val) { return Number(val).toFixed(1); }
                     },
@@ -687,7 +687,7 @@ function updateHumidityChart(data) {
             plugins: { legend: { display: false }, tooltip: { enabled: false } },
             layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
             scales: {
-                x: { 
+                x: {
                     ticks: { color: 'transparent', autoSkip: false, maxRotation: 35, minRotation: 35 },
                     grid: { display: false },
                     border: { display: false }
@@ -715,7 +715,7 @@ function updateHumidityChart(data) {
         options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false }, tooltip: { enabled: true } },
-            layout: { padding: { left: 0, right: 15, top: 20, bottom: 5 } },
+            layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
                 x: { 
                     ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 } 
@@ -909,6 +909,33 @@ if (saveEditBtn) {
         } else {
             alert("กรุณากรอกชื่อ Rack ครับ");
             editNameInput.focus();
+        }
+    });
+}// =====================================================
+// Floating QR Button (มุมขวาล่าง)
+// =====================================================
+
+const qrFab = document.querySelector(".qr-fab");
+const qrButton = document.getElementById("qrButton");
+
+if (qrFab && qrButton) {
+    // กดเพื่อเปิด/ปิดป๊อปอัป (รองรับทั้งมือถือและเดสก์ท็อป)
+    qrButton.addEventListener("click", (e) => {
+        e.stopPropagation();
+        qrFab.classList.toggle("open");
+    });
+
+    // คลิกที่อื่นเพื่อปิด
+    document.addEventListener("click", (e) => {
+        if (!qrFab.contains(e.target)) {
+            qrFab.classList.remove("open");
+        }
+    });
+
+    // กด ESC เพื่อปิด
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") {
+            qrFab.classList.remove("open");
         }
     });
 }
