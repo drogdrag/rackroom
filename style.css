@@ -9,9 +9,7 @@ body {
     color: #222;
 }
 
-/* ========================================= */
 /* HEADER */
-/* ========================================= */
 header {
     background: #1f2937;
     color: white;
@@ -29,18 +27,14 @@ header p {
     opacity: 0.8;
 }
 
-/* ========================================= */
 /* MAIN */
-/* ========================================= */
 main {
     width: 90%;
     max-width: 1200px;
     margin: 25px auto;
 }
 
-/* ========================================= */
 /* STATUS */
-/* ========================================= */
 .status-section {
     background: white;
     padding: 15px 20px;
@@ -67,9 +61,7 @@ main {
     background: #22c55e;
 }
 
-/* ========================================= */
 /* CARDS DESIGN */
-/* ========================================= */
 .cards {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -77,9 +69,6 @@ main {
     margin-bottom: 20px;
 }
 
-/* ========================================= */
-/* CARDS DESIGN & DYNAMIC BACKGROUNDS */
-/* ========================================= */
 .card {
     position: relative;
     border-radius: 16px;
@@ -87,24 +76,17 @@ main {
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
     overflow: hidden;
     transition: background-color 0.3s ease;
-
-    /* ⚪ บังคับตัวอักษรทุกตัวในการ์ดให้เป็นสีขาวล้วน */
     color: #ffffff !important;
 }
 
-/* 🎨 เปลี่ยนสีพื้นหลังตาม Status */
-
-/* Good (Class A) = สีเขียว */
 .card.status-class-a {
     background-color: #22c55e !important;
 }
 
-/* Normal (Class B) = สีเหลือง */
 .card.status-class-b {
     background-color: #eab308 !important;
 }
 
-/* Bad (Class S1, S2, S3 และหลุดเกณฑ์) = สีแดง */
 .card.status-class-s1,
 .card.status-class-s2,
 .card.status-class-s3,
@@ -112,12 +94,10 @@ main {
     background-color: #ef4444 !important;
 }
 
-/* Offline = สีเทา */
 .card.status-offline {
     background-color: #6b7280 !important;
 }
 
-/* 🏷️ ป้าย Title (ยังคงพื้นหลังขาว อักษรน้ำเงินตามแบบ) */
 .card-header {
     position: absolute;
     top: 0;
@@ -129,12 +109,10 @@ main {
 
 .card-title {
     color: #333333 !important;
-    /* สีน้ำเงินสำหรับ Title เท่านั้น */
     font-size: 18px;
     font-weight: 800;
 }
 
-/* 📊 Layout และการจัดวางตัวอักษรภายใน */
 .card-body {
     display: flex;
     justify-content: space-between;
@@ -142,7 +120,6 @@ main {
     margin-top: 35px;
 }
 
-/* ฝั่งซ้าย: Status Label & Value */
 .status-box {
     display: flex;
     flex-direction: column;
@@ -150,7 +127,6 @@ main {
 
 .status-label {
     color: #ffffff !important;
-    /* ⚪ สีขาว */
     font-size: 12px;
     font-weight: 600;
     opacity: 0.9;
@@ -159,14 +135,12 @@ main {
 
 .status-value {
     color: #ffffff !important;
-    /* ⚪ สีขาว */
     font-size: 26px;
     font-weight: 900;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
 
-/* ฝั่งขวา: ค่าตัวเลข และ หน่วย */
 .value-box {
     text-align: right;
     line-height: 1;
@@ -174,7 +148,6 @@ main {
 
 .value-box .number {
     color: #ffffff !important;
-    /* ⚪ สีขาว */
     font-size: clamp(36px, 8vw, 64px);
     font-weight: 900;
     letter-spacing: -1px;
@@ -182,16 +155,13 @@ main {
 
 .value-box .unit {
     color: #ffffff !important;
-    /* ⚪ สีขาว */
     display: block;
     font-size: 14px;
     font-weight: 700;
     margin-top: 4px;
 }
 
-/* ========================================= */
-/* SUMMARY CARDS (overview) */
-/* ========================================= */
+/* SUMMARY CARDS */
 .summary-cards {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -219,12 +189,9 @@ main {
     font-size: 30px;
     font-weight: 800;
     color: #6b7280;
-    /* เปลี่ยนสีตัวเลขทั้งหมดให้เป็นสีเทา */
 }
 
-/* ========================================= */
 /* FILTER BUTTONS */
-/* ========================================= */
 .filter-section {
     display: flex;
     gap: 10px;
@@ -249,29 +216,15 @@ main {
     background: #e5e7eb;
 }
 
-.filter-button.active {
-    background: #1f2937;
-    color: white;
-}
-
-#filterOnline.active {
-    background: #1f2937;
-    color: #ffffff;
-}
-
-#filterOffline.active {
-    background: #1f2937;
-    color: #ffffff;
-}
-
+.filter-button.active,
+#filterOnline.active,
+#filterOffline.active,
 #filterAlert.active {
     background: #1f2937;
     color: #ffffff;
 }
 
-/* ========================================= */
-/* RACK GRID / RACK CARDS (overview) */
-/* ========================================= */
+/* RACK GRID */
 .rack-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
@@ -414,9 +367,7 @@ main {
     font-size: 10px;
 }
 
-/* ========================================= */
-/* DETAIL PAGE HEADER / BACK BUTTON */
-/* ========================================= */
+/* DETAIL PAGE HEADER / EDIT / MODAL */
 .detail-header {
     display: flex;
     align-items: center;
@@ -450,9 +401,6 @@ main {
     font-size: 13px;
 }
 
-/* ========================================= */
-/* EDIT BUTTON */
-/* ========================================= */
 .edit-btn {
     background: transparent;
     border: 1px solid #d1d5db;
@@ -472,9 +420,6 @@ main {
     transform: scale(1.05);
 }
 
-/* ========================================= */
-/* POPUP MODAL (EDIT NAME) */
-/* ========================================= */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -575,10 +520,7 @@ main {
     transform: scale(0.97);
 }
 
-
-/* ========================================= */
 /* DOWNLOAD BUTTONS */
-/* ========================================= */
 .download-buttons {
     display: flex;
     gap: 12px;
@@ -600,9 +542,7 @@ main {
     background: #111827;
 }
 
-/* ========================================= */
 /* PANEL */
-/* ========================================= */
 .panel {
     background: white;
     padding: 20px;
@@ -616,7 +556,7 @@ main {
 }
 
 /* ========================================= */
-/* CHART */
+/* CHART DUAL-CANVAS LAYOUT                  */
 /* ========================================= */
 .chart-container {
     position: relative;
@@ -624,9 +564,108 @@ main {
     width: 100%;
 }
 
+.chart-layout-wrapper {
+    display: flex;
+    width: 100%;
+    height: 350px;
+    position: relative;
+    /* ✅ สำคัญสำหรับอ้างอิงตำแหน่งข้อความ Time */
+}
+
+.y-axis-box {
+    width: 135px;
+    padding-left: 15px;
+    height: 100%;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    flex-shrink: 0;
+    z-index: 10;
+    background: white;
+}
+
+.y-axis-box::-webkit-scrollbar {
+    height: 12px;
+}
+
+.y-axis-box::-webkit-scrollbar-track,
+.y-axis-box::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.scroll-box {
+    flex-grow: 1;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: 100%;
+}
+
+.scroll-inner {
+    height: 100%;
+    min-width: 100%;
+}
+
+.scroll-box::-webkit-scrollbar {
+    height: 12px;
+}
+
+.scroll-box::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 6px;
+}
+
+.scroll-box::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+
+.scroll-box::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.chart-layout-wrapper {
+    display: flex;
+    width: 100%;
+    height: 350px;
+    position: relative;
+    /* ✅ เพิ่มบรรทัดนี้เพื่อเป็นจุดอ้างอิงให้ข้อความ */
+}
+
+/* ✅ คลาสใหม่สำหรับตกแต่งและจัดตำแหน่งข้อความ Time */
+.x-axis-time-label {
+    position: absolute;
+    bottom: 16px;
+    left: 110px; /* เว้นระยะหลบความกว้างของกล่องแกน Y ฝั่งซ้าย (110px) */
+    /* คำนวณความกว้างให้เท่ากับพื้นที่ส่วนของกราฟที่เลื่อนได้ (ลบขอบซ้าย 110px และขอบขวา 15px) */
+    width: calc(100% - 125px); 
+    text-align: center; /* จัดข้อความให้อยู่กึ่งกลางของพื้นที่กราฟพอดี */
+    font-size: 13px;
+    font-weight: bold;
+    color: #6b7280;
+    pointer-events: none;
+    z-index: 20;
+}
+
 /* ========================================= */
+/* SCROLLBAR TEXT "TIME"                     */
+/* ========================================= */
+.scrollbar-text {
+    position: absolute;
+    bottom: 0;
+    left: calc(110px + ((100% - 110px) / 2));
+    /* กึ่งกลางพื้นที่กราฟฝั่งขวา */
+    transform: translateX(-50%);
+    font-size: 11px;
+    font-weight: 700;
+    color: #475569;
+    line-height: 12px;
+    /* สูงเท่าความสูง Scrollbar พอดี */
+    padding: 0 10px;
+    pointer-events: none;
+    /* ✅ สำคัญมาก: เพื่อให้ทะลุคลิกลาก scrollbar ข้างใต้ได้ */
+    z-index: 20;
+}
+
 /* TABLE */
-/* ========================================= */
 .table-container {
     overflow-x: auto;
 }
@@ -647,9 +686,7 @@ th {
     background: #f1f5f9;
 }
 
-/* ========================================= */
 /* FOOTER */
-/* ========================================= */
 footer {
     position: fixed;
     left: 0;
@@ -673,9 +710,7 @@ main {
     padding-bottom: 60px;
 }
 
-/* ========================================= */
 /* MOBILE */
-/* ========================================= */
 @media (max-width: 700px) {
     .cards {
         grid-template-columns: 1fr;
