@@ -10,7 +10,7 @@ body {
     color: #222;
 
     /* === โค้ดสำหรับใส่ภาพพื้นหลังแบบจาง (Watermark) === */
-    background-image: linear-gradient(rgba(244, 246, 248, 0.85), rgba(244, 246, 248, 0.85)), url('ptt.jpg');
+    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(1, 71, 99, 0.85)), url('ptt.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
@@ -25,7 +25,6 @@ header.app-header {
     color: white;
     padding: 20px 30px;
     box-shadow: 0 4px 20px rgba(15, 23, 42, 0.35);
-    border-bottom: 3px solid #38bdf8; /* เส้นขอบฟ้าสะท้อนสไตล์ไอคอน */
     position: relative;
     overflow: hidden;
 }
@@ -872,7 +871,6 @@ footer {
     text-align: center;
     padding: 14px 20px;
     box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.35);
-    border-top: 3px solid #38bdf8; /* เส้นขอบฟ้าด้านบนรับกับ Top Bar */
     z-index: 1000;
 }
 
