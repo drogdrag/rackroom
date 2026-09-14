@@ -521,7 +521,6 @@ main {
 }
 
 /* DOWNLOAD BUTTONS */
-/* PANEL */
 .panel {
     background: white;
     padding: 20px;
@@ -530,7 +529,6 @@ main {
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
 }
 
-/* ✅ หัว panel: หัวข้อชิดซ้าย ปุ่ม Download ชิดขวาบน */
 .panel-header {
     display: flex;
     align-items: center;
@@ -544,7 +542,6 @@ main {
     margin: 0;
 }
 
-/* ✅ ปุ่ม Download มุมขวาบนของแต่ละ panel */
 .download-button {
     border: none;
     background: #1f2937;
@@ -566,9 +563,7 @@ main {
     transform: scale(0.97);
 }
 
-/* ========================================= */
-/* CHART DUAL-CANVAS LAYOUT                  */
-/* ========================================= */
+/* CHART DUAL-CANVAS LAYOUT */
 .chart-container {
     position: relative;
     height: 350px;
@@ -578,15 +573,14 @@ main {
 .chart-layout-wrapper {
     display: flex;
     width: 100%;
-    height: 350px;
+    height: 380px;
     position: relative;
-    /* ✅ สำคัญสำหรับอ้างอิงตำแหน่งข้อความ Time */
 }
 
 .y-axis-box {
     width: 135px;
     padding-left: 15px;
-    height: calc(100% - 24px); /* เว้นท้ายสุดไว้ให้แถบป้าย Time */
+    height: calc(100% - 24px);
     overflow-x: scroll;
     overflow-y: hidden;
     flex-shrink: 0;
@@ -607,7 +601,7 @@ main {
     flex-grow: 1;
     overflow-x: scroll;
     overflow-y: hidden;
-    height: calc(100% - 24px); /* เว้นท้ายสุดไว้ให้แถบป้าย Time */
+    height: calc(100% - 24px);
 }
 
 .scroll-inner {
@@ -633,49 +627,19 @@ main {
     background: #94a3b8;
 }
 
-.chart-layout-wrapper {
-    display: flex;
-    width: 100%;
-    height: 380px;
-    position: relative;
-    /* ✅ เพิ่มความสูงไว้สำหรับแถบ Time + scrollbar ด้านล่าง */
-}
-
-/* ✅ ป้าย "Time" วางไว้ล่างสุด ใต้ scrollbar (scrollbar อยู่เหนือป้าย) */
 .x-axis-time-label {
     position: absolute;
-    bottom: 0; /* อยู่ล่างสุดของ wrapper ใต้ scrollbar */
-    left: 110px; /* เว้นระยะหลบความกว้างของกล่องแกน Y ฝั่งซ้าย (110px) */
-    /* คำนวณความกว้างให้เท่ากับพื้นที่ส่วนของกราฟที่เลื่อนได้ (ลบขอบซ้าย 110px และขอบขวา 15px) */
+    bottom: 0;
+    left: 110px;
     width: calc(100% - 125px);
     height: 18px;
     line-height: 18px;
-    text-align: center; /* จัดข้อความให้อยู่กึ่งกลางของพื้นที่กราฟพอดี */
+    text-align: center;
     font-size: 12px;
     font-weight: 700;
     color: #475569;
     background: transparent;
     pointer-events: none;
-    z-index: 20;
-}
-
-/* ========================================= */
-/* SCROLLBAR TEXT "TIME"                     */
-/* ========================================= */
-.scrollbar-text {
-    position: absolute;
-    bottom: 0;
-    left: calc(110px + ((100% - 110px) / 2));
-    /* กึ่งกลางพื้นที่กราฟฝั่งขวา */
-    transform: translateX(-50%);
-    font-size: 11px;
-    font-weight: 700;
-    color: #475569;
-    line-height: 12px;
-    /* สูงเท่าความสูง Scrollbar พอดี */
-    padding: 0 10px;
-    pointer-events: none;
-    /* ✅ สำคัญมาก: เพื่อให้ทะลุคลิกลาก scrollbar ข้างใต้ได้ */
     z-index: 20;
 }
 
@@ -700,13 +664,11 @@ th {
     background: #f1f5f9;
 }
 
-/* ========================================= */
-/* FLOATING QR BUTTON (มุมขวาล่าง)        */
-/* ========================================= */
+/* FLOATING QR BUTTON */
 .qr-fab {
     position: fixed;
     right: 24px;
-    bottom: 80px; /* ลอยเหนือ footer */
+    bottom: 80px;
     z-index: 1500;
     display: flex;
     flex-direction: column;
@@ -738,7 +700,6 @@ th {
     transform: scale(0.95);
 }
 
-/* ✅ ป๊อปอัป QR แสดงเมื่อ hover หรือกด */
 .qr-popup {
     width: 240px;
     background: #ffffff;
@@ -747,7 +708,6 @@ th {
     margin-bottom: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     text-align: center;
-
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px) scale(0.94);
@@ -756,7 +716,6 @@ th {
     pointer-events: none;
 }
 
-/* แสดงป๊อปอัปเมื่อ hover ที่กลุ่ม หรือเมื่อมีคลาส .open จากการกด */
 .qr-fab:hover .qr-popup,
 .qr-fab.open .qr-popup {
     opacity: 1;
@@ -777,12 +736,6 @@ th {
     height: auto;
     display: block;
     border-radius: 8px;
-}
-
-.qr-popup-hint {
-    margin-top: 10px;
-    font-size: 11px;
-    color: #9ca3af;
 }
 
 /* FOOTER */
@@ -809,7 +762,6 @@ main {
     padding-bottom: 60px;
 }
 
-/* MOBILE */
 @media (max-width: 700px) {
     .cards {
         grid-template-columns: 1fr;

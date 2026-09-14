@@ -157,7 +157,6 @@
                         <canvas id="temperatureChart"></canvas>
                     </div>
                 </div>
-                <!-- ✅ เพิ่มข้อความ Time ตรงนี้ -->
                 <div class="x-axis-time-label">Time</div>
             </div>
         </section>
@@ -179,7 +178,6 @@
                         <canvas id="humidityChart"></canvas>
                     </div>
                 </div>
-                <!-- ✅ เพิ่มข้อความ Time ตรงนี้ -->
                 <div class="x-axis-time-label">Time</div>
             </div>
         </section>
@@ -190,7 +188,10 @@
         <section class="panel">
             <div class="panel-header">
                 <h2>📋 Measurement History</h2>
-                <button id="downloadAll" class="download-button">📊 Download All Data</button>
+                <div style="display: flex; gap: 8px;">
+                    <button id="clearHistoryBtn" class="download-button" style="background-color: #ef4444;">🗑️ Clear History</button>
+                    <button id="downloadAll" class="download-button">📊 Download All Data</button>
+                </div>
             </div>
             <div class="table-container">
                 <table>

@@ -10,7 +10,8 @@ import {
     getDatabase,
     ref,
     onValue,
-    update
+    update,
+    remove // 👈 เพิ่ม remove เข้ามาสำหรับสั่งลบข้อมูล
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 
@@ -482,7 +483,6 @@ function loadRackHistory(rackID) {
         
         let historyArray = Object.entries(data).map(([key, value]) => ({ id: key, ...(value || {}) }));
 
-        // ✅ กรอง (Filter) ข้อมูลที่มีค่าเวลาเป็น "TIME ERROR" ทิ้งไปจากกราฟ
         historyArray = historyArray.filter(item => {
             const dt = String(item.datetime || "").trim().toUpperCase();
             return dt !== "TIME ERROR" && dt !== "";
@@ -540,6 +540,7 @@ function getTimeOnly(datetime) {
     }
     return text;
 }
+
 
 // =====================================================
 // Update Temperature Chart (Dual-Canvas Layout)
@@ -635,7 +636,6 @@ function updateTemperatureChart(data) {
         }
     });
 
-    // ✅ สั่งให้ Scrollbar เลื่อนไปขวาสุดอัตโนมัติทั้งฝั่งข้อมูลและฝั่งแกน Y
     setTimeout(() => {
         if (scrollBox) { scrollBox.scrollLeft = scrollBox.scrollWidth; }
         if (axisBox) { axisBox.scrollLeft = axisBox.scrollWidth; }
@@ -737,12 +737,12 @@ function updateHumidityChart(data) {
         }
     });
 
-    // ✅ สั่งให้ Scrollbar เลื่อนไปขวาสุดอัตโนมัติทั้งฝั่งข้อมูลและฝั่งแกน Y
     setTimeout(() => {
         if (scrollBox) { scrollBox.scrollLeft = scrollBox.scrollWidth; }
         if (axisBox) { axisBox.scrollLeft = axisBox.scrollWidth; }
     }, 50);
 }
+
 
 // =====================================================
 // Update History Table
@@ -829,7 +829,7 @@ if (downloadAll) { downloadAll.addEventListener("click", () => { downloadExcel("
 
 
 // =====================================================
-// Filter
+// Filter Racks
 // =====================================================
 
 function filterRacks(mode) {
@@ -911,31 +911,66 @@ if (saveEditBtn) {
             editNameInput.focus();
         }
     });
-}// =====================================================
-// Floating QR Button (มุมขวาล่าง)
+}
+
+
+// =====================================================
+// Floating QR Button
 // =====================================================
 
 const qrFab = document.querySelector(".qr-fab");
 const qrButton = document.getElementById("qrButton");
 
 if (qrFab && qrButton) {
-    // กดเพื่อเปิด/ปิดป๊อปอัป (รองรับทั้งมือถือและเดสก์ท็อป)
     qrButton.addEventListener("click", (e) => {
         e.stopPropagation();
         qrFab.classList.toggle("open");
     });
 
-    // คลิกที่อื่นเพื่อปิด
     document.addEventListener("click", (e) => {
         if (!qrFab.contains(e.target)) {
             qrFab.classList.remove("open");
         }
     });
 
-    // กด ESC เพื่อปิด
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
             qrFab.classList.remove("open");
         }
+    });
+}
+
+
+// =====================================================
+// Clear Specific Rack History (เพิ่มใหม่สำหรับลบประวัติเฉพาะ Rack นั้นๆ)
+// =====================================================
+
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
+
+if (clearHistoryBtn) {
+    clearHistoryBtn.addEventListener("click", () => {
+        if (!selectedRack) {
+            alert("กรุณาเลือก Rack ก่อน");
+            return;
+        }
+
+        const confirmDelete = confirm(`คุณต้องการลบประวัติเฉพาะของ ${selectedRack} นี้ใช่หรือไม่? (ข้อมูลของ Rack อื่นจะไม่ถูกกระทบ)`);
+        if (!confirmDelete) return;
+
+        // อ้างอิงเจาะจงเฉพาะ history ของ rack ที่กำลังเปิดดูอยู่
+        const historyRef = ref(database, `racks/${selectedRack}/history`);
+
+        remove(historyRef)
+            .then(() => {
+                alert(`ลบประวัติของ ${selectedRack} สำเร็จแล้ว`);
+                historyDataForExcel = [];
+                updateTemperatureChart([]);
+                updateHumidityChart([]);
+                updateHistoryTable([]);
+            })
+            .catch((error) => {
+                console.error("Error clearing history: ", error);
+                alert("เกิดข้อผิดพลาดในการลบประวัติ: " + error.message);
+            });
     });
 }
