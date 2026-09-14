@@ -1,0 +1,947 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f4f6f8;
+    /* สีพื้นหลังสำรองกรณีรูปโหลดไม่ขึ้น */
+    color: #222;
+
+    /* === โค้ดสำหรับใส่ภาพพื้นหลังแบบจาง (Watermark) === */
+    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(191, 195, 197, 0.85)), url('ptt.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
+}
+
+/* ========================================= */
+/* MODERN BLUE TOP BAR HEADER                */
+/* ========================================= */
+header.app-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    color: white;
+    padding: 20px 30px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.35);
+    position: relative;
+    overflow: hidden;
+}
+
+/* แสงสะท้อนเรืองแสงเบาๆ แนว Tech ด้านหลัง Header */
+header.app-header::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: radial-gradient(circle at 85% 50%, rgba(56, 189, 248, 0.18) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-icon-box {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+header.app-header h1 {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    background: linear-gradient(to right, #ffffff, #93c5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+header.app-header p {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+    letter-spacing: 0.3px;
+    font-weight: 500;
+}
+
+/* ป้ายสถานะระบบด้านขวาของ Top Bar (โทนฟ้า) */
+.header-badge {
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* จุดกระพริบสถานะการทำงานสีฟ้า */
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #38bdf8;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(56, 189, 248, 0.4);
+    animation: pulse-blue-animation 2s infinite;
+}
+
+@keyframes pulse-blue-animation {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(56, 189, 248, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    }
+}
+
+/* Responsive สำหรับมือถือ */
+@media (max-width: 768px) {
+    header.app-header {
+        padding: 15px 20px;
+    }
+    header.app-header h1 {
+        font-size: 18px;
+    }
+    .header-badge {
+        display: none;
+    }
+}
+
+/* MAIN */
+main {
+    width: 90%;
+    max-width: 1200px;
+    margin: 25px auto;
+}
+
+/* STATUS */
+.status-section {
+    background: white;
+    padding: 15px 20px;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.dot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 8px;
+}
+
+.dot.offline {
+    background: #ef4444;
+}
+
+.dot.online {
+    background: #22c55e;
+}
+
+/* CARDS DESIGN */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.card {
+    position: relative;
+    border-radius: 16px;
+    padding: 16px 24px 20px 24px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: background-color 0.3s ease;
+    color: #ffffff !important;
+}
+
+.card.status-class-a {
+    background-color: #22c55e !important;
+}
+
+.card.status-class-b {
+    background-color: #eab308 !important;
+}
+
+.card.status-class-s1,
+.card.status-class-s2,
+.card.status-class-s3,
+.card.status-bad {
+    background-color: #ef4444 !important;
+}
+
+.card.status-offline {
+    background-color: #6b7280 !important;
+}
+
+.card-header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #ffffff;
+    padding: 6px 30px 6px 20px;
+    clip-path: polygon(0 0, 100% 0, 82% 100%, 0 100%);
+}
+
+.card-title {
+    color: #333333 !important;
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.card-body {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 35px;
+}
+
+.status-box {
+    display: flex;
+    flex-direction: column;
+}
+
+.status-label {
+    color: #ffffff !important;
+    font-size: 12px;
+    font-weight: 600;
+    opacity: 0.9;
+    margin-bottom: 2px;
+}
+
+.status-value {
+    color: #ffffff !important;
+    font-size: 26px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.value-box {
+    text-align: right;
+    line-height: 1;
+}
+
+.value-box .number {
+    color: #ffffff !important;
+    font-size: clamp(36px, 8vw, 64px);
+    font-weight: 900;
+    letter-spacing: -1px;
+}
+
+.value-box .unit {
+    color: #ffffff !important;
+    display: block;
+    font-size: 14px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+/* SUMMARY CARDS */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.summary-card {
+    background: white;
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.summary-title {
+    font-size: 13px;
+    color: #667085;
+    font-weight: 600;
+}
+
+.summary-value {
+    font-size: 30px;
+    font-weight: 800;
+    color: #6b7280;
+}
+
+/* FILTER BUTTONS */
+.filter-section {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-button {
+    border: none;
+    background: white;
+    color: #374151;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 20px;
+    border-radius: 999px;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.filter-button:hover {
+    background: #e5e7eb;
+}
+
+.filter-button.active,
+#filterOnline.active,
+#filterOffline.active,
+#filterAlert.active {
+    background: #1f2937;
+    color: #ffffff;
+}
+
+/* RACK GRID */
+.rack-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.empty-state {
+    grid-column: 1 / -1;
+    background: white;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    color: #667085;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.rack-card {
+    background: white;
+    border-radius: 16px;
+    padding: 18px 20px 20px 20px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.rack-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.14);
+}
+
+.rack-card-top {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 10px;
+}
+
+.rack-icon {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.rack-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+.rack-card-title h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: #1f2937;
+    letter-spacing: 0.3px;
+}
+
+.rack-card-title p {
+    margin: 2px 0 0 0;
+    font-size: 13px;
+    color: #667085;
+}
+
+.rack-online {
+    display: flex;
+    align-items: center;
+    font-size: 13px;
+    color: #4b5563;
+    margin-bottom: 14px;
+}
+
+.rack-mini-cards {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 14px;
+}
+
+.view-rack {
+    width: 100%;
+    border: none;
+    background: #1f2937;
+    color: white;
+    font-weight: 700;
+    font-size: 14px;
+    padding: 10px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.view-rack:hover {
+    background: #111827;
+}
+
+.card.card-mini {
+    padding: 8px 14px 12px 14px;
+    border-radius: 12px;
+    min-height: 64px;
+}
+
+.card.card-mini .card-header {
+    padding: 4px 16px 4px 12px;
+    clip-path: polygon(0 0, 100% 0, 78% 100%, 0 100%);
+}
+
+.card.card-mini .card-title {
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.card.card-mini .card-body {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 26px;
+    gap: 4px;
+}
+
+.card.card-mini .status-box {
+    display: flex;
+}
+
+.card.card-mini .status-label {
+    font-size: 10px;
+}
+
+.card.card-mini .status-value {
+    font-size: 14px;
+}
+
+.card.card-mini .value-box {
+    display: block;
+}
+
+.card.card-mini .value-box .number {
+    font-size: 24px;
+}
+
+.card.card-mini .value-box .unit {
+    font-size: 10px;
+}
+
+/* DETAIL PAGE HEADER / EDIT / MODAL */
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.back-button {
+    border: none;
+    background: white;
+    color: #1f2937;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 10px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.back-button:hover {
+    background: #e5e7eb;
+}
+
+.detail-header h2 {
+    margin: 0;
+}
+
+.detail-header p {
+    margin: 2px 0 0 0;
+    color: #667085;
+    font-size: 13px;
+}
+
+.edit-btn {
+    background: transparent;
+    border: 1px solid #d1d5db;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.edit-btn:hover {
+    background: #f3f4f6;
+    border-color: #9ca3af;
+    transform: scale(1.05);
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(2px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background: white;
+    padding: 24px;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 380px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    text-align: center;
+}
+
+.modal-content h3 {
+    margin-top: 0;
+    margin-bottom: 8px;
+    font-size: 20px;
+    color: #1f2937;
+}
+
+.modal-content p {
+    color: #6b7280;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+
+.modal-content input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 16px;
+    margin-bottom: 24px;
+    outline: none;
+    transition: border-color 0.2s;
+    text-align: center;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.modal-content input:focus {
+    border-color: #1f2937;
+    box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1);
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.btn-cancel,
+.btn-save {
+    flex: 1;
+    padding: 12px 20px;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.btn-cancel {
+    background: #f3f4f6;
+    color: #4b5563;
+}
+
+.btn-cancel:hover {
+    background: #e5e7eb;
+}
+
+.btn-cancel:active {
+    transform: scale(0.97);
+}
+
+.btn-save {
+    background: #1f2937;
+    color: white;
+}
+
+.btn-save:hover {
+    background: #111827;
+}
+
+.btn-save:active {
+    transform: scale(0.97);
+}
+
+/* DOWNLOAD BUTTONS */
+.panel {
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 25px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+}
+
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.panel h2 {
+    margin: 0;
+}
+
+.download-button {
+    border: none;
+    background: #1f2937;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 8px 16px;
+    border-radius: 10px;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color 0.2s ease, transform 0.1s ease;
+}
+
+.download-button:hover {
+    background: #111827;
+}
+
+.download-button:active {
+    transform: scale(0.97);
+}
+
+/* CHART DUAL-CANVAS LAYOUT */
+.chart-container {
+    position: relative;
+    height: 350px;
+    width: 100%;
+}
+
+.chart-layout-wrapper {
+    display: flex;
+    width: 100%;
+    height: 380px;
+    position: relative;
+}
+
+.y-axis-box {
+    width: 135px;
+    padding-left: 15px;
+    height: calc(100% - 24px);
+    overflow-x: scroll;
+    overflow-y: hidden;
+    flex-shrink: 0;
+    z-index: 10;
+    background: white;
+}
+
+.y-axis-box::-webkit-scrollbar {
+    height: 12px;
+}
+
+.y-axis-box::-webkit-scrollbar-track,
+.y-axis-box::-webkit-scrollbar-thumb {
+    background: transparent;
+}
+
+.scroll-box {
+    flex-grow: 1;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    height: calc(100% - 24px);
+}
+
+.scroll-inner {
+    height: 100%;
+    min-width: 100%;
+}
+
+.scroll-box::-webkit-scrollbar {
+    height: 12px;
+}
+
+.scroll-box::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 6px;
+}
+
+.scroll-box::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 6px;
+}
+
+.scroll-box::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+.x-axis-time-label {
+    position: absolute;
+    bottom: 0;
+    left: 110px;
+    width: calc(100% - 125px);
+    height: 18px;
+    line-height: 18px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #475569;
+    background: transparent;
+    pointer-events: none;
+    z-index: 20;
+}
+
+/* TABLE */
+.table-container {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th,
+td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #ddd;
+}
+
+th {
+    background: #f1f5f9;
+}
+
+/* FLOATING QR BUTTON */
+.qr-fab {
+    position: fixed;
+    right: 24px;
+    bottom: 80px;
+    z-index: 1500;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+}
+
+.qr-button {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    border: none;
+    background: #1f2937;
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.qr-button:hover {
+    background: #111827;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.qr-button:active {
+    transform: scale(0.95);
+}
+
+/* ✅ โค้ดที่ถูกต้องสำหรับ .qr-popup ใน style.css */
+.qr-popup {
+    width: 240px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px;
+    margin-bottom: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    text-align: center;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(10px) scale(0.94);
+    transform-origin: bottom right;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+    
+    pointer-events: none; /* 👈 สำคัญมาก: ตอนปิดต้องเป็น none เพื่อไม่ให้บล็อกการคลิกข้างหลัง */
+}
+
+/* แสดงป๊อปอัปเมื่อเปิด (มีคลาส .open) */
+.qr-fab.open .qr-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    
+    pointer-events: auto; /* 👈 เปิดให้คลิกได้เฉพาะตอนแสดงผลแล้วเท่านั้น */
+}
+
+.qr-popup-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+.qr-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
+}
+
+/* ========================================= */
+/* MODERN BLUE FOOTER                        */
+/* ========================================= */
+footer {
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    color: #94a3b8;
+    text-align: center;
+    padding: 14px 20px;
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.35);
+    z-index: 1000;
+}
+
+footer p {
+    margin: 0;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: #f1f5f9;
+}
+
+main {
+    padding-bottom: 60px;
+}
+
+@media (max-width: 700px) {
+    .cards {
+        grid-template-columns: 1fr;
+    }
+
+    .status-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    header h1 {
+        font-size: 20px;
+    }
+
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .rack-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .rack-mini-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .detail-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .qr-fab {
+        right: 16px;
+        bottom: 74px;
+    }
+
+    .qr-popup {
+        width: 200px;
+    }
+}
+
+/* ========================================= */
+/* CUSTOM MODAL ALERT / CONFIRM STYLING      */
+/* ========================================= */
+#customModal .modal-content {
+    animation: modalScaleIn 0.2s ease-out;
+}
+
+@keyframes modalScaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
