@@ -10,29 +10,137 @@ body {
     color: #222;
 
     /* === โค้ดสำหรับใส่ภาพพื้นหลังแบบจาง (Watermark) === */
-    background-image: linear-gradient(rgba(244, 246, 248, 0.85), rgba(244, 246, 248, 0.85)), url('ptt.jpg');
+    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(191, 195, 197, 0.85)), url('ptt.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
     background-repeat: no-repeat;
 }
 
-/* HEADER */
-header {
-    background: #1f2937;
+/* ========================================= */
+/* MODERN BLUE TOP BAR HEADER                */
+/* ========================================= */
+header.app-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
     color: white;
-    text-align: center;
-    padding: 25px 20px;
+    padding: 20px 30px;
+    box-shadow: 0 4px 20px rgba(15, 23, 42, 0.35);
+    position: relative;
+    overflow: hidden;
 }
 
-header h1 {
+/* แสงสะท้อนเรืองแสงเบาๆ แนว Tech ด้านหลัง Header */
+header.app-header::before {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0; left: 0;
+    background: radial-gradient(circle at 85% 50%, rgba(56, 189, 248, 0.18) 0%, transparent 65%);
+    pointer-events: none;
+}
+
+.header-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.header-logo-area {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.header-icon-box {
+    width: 50px;
+    height: 50px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.header-logo-img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+header.app-header h1 {
     margin: 0;
-    font-size: 28px;
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: 0.8px;
+    background: linear-gradient(to right, #ffffff, #93c5fd);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
 }
 
-header p {
-    margin-top: 8px;
-    opacity: 0.8;
+header.app-header p {
+    margin: 4px 0 0 0;
+    font-size: 12px;
+    color: #94a3b8;
+    letter-spacing: 0.3px;
+    font-weight: 500;
+}
+
+/* ป้ายสถานะระบบด้านขวาของ Top Bar (โทนฟ้า) */
+.header-badge {
+    background: rgba(56, 189, 248, 0.12);
+    border: 1px solid rgba(56, 189, 248, 0.35);
+    color: #38bdf8;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* จุดกระพริบสถานะการทำงานสีฟ้า */
+.pulse-dot {
+    width: 8px;
+    height: 8px;
+    background-color: #38bdf8;
+    border-radius: 50%;
+    box-shadow: 0 0 0 rgba(56, 189, 248, 0.4);
+    animation: pulse-blue-animation 2s infinite;
+}
+
+@keyframes pulse-blue-animation {
+    0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
+    }
+    70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(56, 189, 248, 0);
+    }
+    100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
+    }
+}
+
+/* Responsive สำหรับมือถือ */
+@media (max-width: 768px) {
+    header.app-header {
+        padding: 15px 20px;
+    }
+    header.app-header h1 {
+        font-size: 18px;
+    }
+    .header-badge {
+        display: none;
+    }
 }
 
 /* MAIN */
@@ -750,24 +858,28 @@ th {
     border-radius: 8px;
 }
 
-/* FOOTER */
+/* ========================================= */
+/* MODERN BLUE FOOTER                        */
+/* ========================================= */
 footer {
     position: fixed;
     left: 0;
     bottom: 0;
     width: 100%;
-    background: #1f2937;
-    color: #ffffff;
+    background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+    color: #94a3b8;
     text-align: center;
     padding: 14px 20px;
-    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 -4px 20px rgba(15, 23, 42, 0.35);
     z-index: 1000;
 }
 
 footer p {
     margin: 0;
     font-weight: 600;
-    letter-spacing: 0.3px;
+    font-size: 13px;
+    letter-spacing: 0.5px;
+    color: #f1f5f9;
 }
 
 main {
