@@ -11,7 +11,7 @@ import {
     ref,
     onValue,
     update,
-    remove // 👈 เพิ่ม remove เข้ามาสำหรับสั่งลบข้อมูล
+    remove
 } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-database.js";
 
 
@@ -480,7 +480,7 @@ function loadRackHistory(rackID) {
             updateHistoryTable([]);
             return;
         }
-        
+
         let historyArray = Object.entries(data).map(([key, value]) => ({ id: key, ...(value || {}) }));
 
         historyArray = historyArray.filter(item => {
@@ -490,7 +490,7 @@ function loadRackHistory(rackID) {
 
         historyDataForExcel = [...historyArray];
         historyArray.sort((a, b) => getDateTimeValue(b.datetime) - getDateTimeValue(a.datetime));
-        
+
         updateTemperatureChart(historyArray);
         updateHumidityChart(historyArray);
         updateHistoryTable(historyArray);
@@ -584,7 +584,7 @@ function updateTemperatureChart(data) {
         options: {
             responsive: true, maintainAspectRatio: false,
             plugins: { legend: { display: false }, tooltip: { enabled: false } },
-            layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } }, 
+            layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
             scales: {
                 x: {
                     ticks: { color: 'transparent', autoSkip: false, maxRotation: 35, minRotation: 35 },
@@ -594,7 +594,7 @@ function updateTemperatureChart(data) {
                 y: {
                     title: { display: true, text: 'Temperature (°C)', padding: { bottom: 10 }, font: { weight: 'bold' } },
                     min: scaleMin, max: scaleMax,
-                    ticks: { stepSize: 0.5, callback: function(val) { return Number(val).toFixed(1); } },
+                    ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } },
                     grid: { display: false },
                     border: { display: false }
                 }
@@ -613,7 +613,7 @@ function updateTemperatureChart(data) {
         },
         options: {
             responsive: true, maintainAspectRatio: false,
-            plugins: { legend: { display: false }, tooltip: { enabled: true } }, 
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
             layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
                 x: {
@@ -627,7 +627,7 @@ function updateTemperatureChart(data) {
                         color: 'transparent',
                         mirror: true,
                         stepSize: 0.5,
-                        callback: function(val) { return Number(val).toFixed(1); }
+                        callback: function (val) { return Number(val).toFixed(1); }
                     },
                     grid: { drawOnChartArea: true },
                     border: { display: false }
@@ -695,7 +695,7 @@ function updateHumidityChart(data) {
                 y: {
                     title: { display: true, text: 'Humidity (%RH)', padding: { bottom: 10 }, font: { weight: 'bold' } },
                     min: scaleMin, max: scaleMax,
-                    ticks: { stepSize: 0.5, callback: function(val) { return Number(val).toFixed(1); } },
+                    ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } },
                     grid: { display: false },
                     border: { display: false }
                 }
@@ -717,18 +717,18 @@ function updateHumidityChart(data) {
             plugins: { legend: { display: false }, tooltip: { enabled: true } },
             layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
-                x: { 
-                    ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 } 
+                x: {
+                    ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 }
                 },
                 y: {
                     display: true,
                     min: scaleMin, max: scaleMax,
-                    ticks: { 
+                    ticks: {
                         display: true,
-                        color: 'transparent', 
-                        mirror: true, 
-                        stepSize: 0.5, 
-                        callback: function(val) { return Number(val).toFixed(1); } 
+                        color: 'transparent',
+                        mirror: true,
+                        stepSize: 0.5,
+                        callback: function (val) { return Number(val).toFixed(1); }
                     },
                     grid: { drawOnChartArea: true },
                     border: { display: false }
@@ -793,7 +793,8 @@ function updateHistoryTable(data) {
 
 function downloadExcel(type) {
     if (!historyDataForExcel || historyDataForExcel.length === 0) {
-        alert("ยังไม่มีข้อมูลสำหรับดาวน์โหลด"); return;
+        showCustomModal("แจ้งเตือน", "ยังไม่มีข้อมูลสำหรับดาวน์โหลด", "alert");
+        return;
     }
     let data = historyDataForExcel.map(item => ({
         DateTime: item.datetime || "",
@@ -905,9 +906,9 @@ if (saveEditBtn) {
                     console.log("เปลี่ยนชื่อสำเร็จ");
                     if (editNameModal) editNameModal.style.display = "none";
                 })
-                .catch(error => { alert("เกิดข้อผิดพลาดในการเปลี่ยนชื่อ: " + error.message); });
+                .catch(error => { showCustomModal("เกิดข้อผิดพลาด", "ไม่สามารถเปลี่ยนชื่อได้: " + error.message, "alert"); });
         } else {
-            alert("กรุณากรอกชื่อ Rack ครับ");
+            showCustomModal("แจ้งเตือน", "กรุณากรอกชื่อ Rack ครับ", "alert");
             editNameInput.focus();
         }
     });
@@ -942,7 +943,53 @@ if (qrFab && qrButton) {
 
 
 // =====================================================
-// Clear Specific Rack History (เพิ่มใหม่สำหรับลบประวัติเฉพาะ Rack นั้นๆ)
+// Custom Confirm & Alert Dialog Helper (ป๊อปอัปสวยๆ ทันสมัย)
+// =====================================================
+function showCustomModal(title, message, type = "confirm", onConfirm = null) {
+    const modal = document.getElementById("customModal");
+    const modalTitle = document.getElementById("customModalTitle");
+    const modalMessage = document.getElementById("customModalMessage");
+    const modalIcon = document.getElementById("customModalIcon");
+    const btnConfirm = document.getElementById("customModalConfirm");
+    const btnCancel = document.getElementById("customModalCancel");
+
+    if (!modal) return;
+
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
+
+    if (type === "confirm") {
+        modalIcon.textContent = "⚠️";
+        btnCancel.style.display = "block";
+        btnConfirm.textContent = "ยืนยันลบ";
+        btnConfirm.style.background = "#ef4444";
+    } else {
+        modalIcon.textContent = "✅";
+        btnCancel.style.display = "none";
+        btnConfirm.textContent = "ตกลง";
+        btnConfirm.style.background = "#1f2937";
+    }
+
+    modal.style.display = "flex";
+
+    const newConfirm = btnConfirm.cloneNode(true);
+    const newCancel = btnCancel.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm);
+    btnCancel.parentNode.replaceChild(newCancel, btnCancel);
+
+    newConfirm.addEventListener("click", () => {
+        modal.style.display = "none";
+        if (onConfirm) onConfirm();
+    });
+
+    newCancel.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
+}
+
+
+// =====================================================
+// Clear Specific Rack History (ใช้ Custom Modal)
 // =====================================================
 
 const clearHistoryBtn = document.getElementById("clearHistoryBtn");
@@ -950,27 +997,30 @@ const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 if (clearHistoryBtn) {
     clearHistoryBtn.addEventListener("click", () => {
         if (!selectedRack) {
-            alert("กรุณาเลือก Rack ก่อน");
+            showCustomModal("แจ้งเตือน", "กรุณาเลือก Rack ก่อนทำการลบประวัติ", "alert");
             return;
         }
 
-        const confirmDelete = confirm(`คุณต้องการลบประวัติเฉพาะของ ${selectedRack} นี้ใช่หรือไม่? (ข้อมูลของ Rack อื่นจะไม่ถูกกระทบ)`);
-        if (!confirmDelete) return;
+        showCustomModal(
+            "ยืนยันการลบประวัติ",
+            `คุณต้องการลบประวัติเฉพาะของ ${selectedRack} นี้ใช่หรือไม่? (ข้อมูลของ Rack อื่นจะไม่ถูกกระทบ)`,
+            "confirm",
+            () => {
+                const historyRef = ref(database, `racks/${selectedRack}/history`);
 
-        // อ้างอิงเจาะจงเฉพาะ history ของ rack ที่กำลังเปิดดูอยู่
-        const historyRef = ref(database, `racks/${selectedRack}/history`);
-
-        remove(historyRef)
-            .then(() => {
-                alert(`ลบประวัติของ ${selectedRack} สำเร็จแล้ว`);
-                historyDataForExcel = [];
-                updateTemperatureChart([]);
-                updateHumidityChart([]);
-                updateHistoryTable([]);
-            })
-            .catch((error) => {
-                console.error("Error clearing history: ", error);
-                alert("เกิดข้อผิดพลาดในการลบประวัติ: " + error.message);
-            });
+                remove(historyRef)
+                    .then(() => {
+                        showCustomModal("สำเร็จ", `ลบประวัติของ ${selectedRack} สำเร็จแล้ว`, "alert");
+                        historyDataForExcel = [];
+                        updateTemperatureChart([]);
+                        updateHumidityChart([]);
+                        updateHistoryTable([]);
+                    })
+                    .catch((error) => {
+                        console.error("Error clearing history: ", error);
+                        showCustomModal("เกิดข้อผิดพลาด", "ไม่สามารถลบประวัติได้: " + error.message, "alert");
+                    });
+            }
+        );
     });
 }

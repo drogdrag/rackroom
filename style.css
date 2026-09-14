@@ -6,7 +6,15 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f6f8;
+    /* สีพื้นหลังสำรองกรณีรูปโหลดไม่ขึ้น */
     color: #222;
+
+    /* === โค้ดสำหรับใส่ภาพพื้นหลังแบบจาง (Watermark) === */
+    background-image: linear-gradient(rgba(244, 246, 248, 0.85), rgba(244, 246, 248, 0.85)), url('ptt.jpg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
 }
 
 /* HEADER */
@@ -800,5 +808,24 @@ main {
 
     .qr-popup {
         width: 200px;
+    }
+}
+
+/* ========================================= */
+/* CUSTOM MODAL ALERT / CONFIRM STYLING      */
+/* ========================================= */
+#customModal .modal-content {
+    animation: modalScaleIn 0.2s ease-out;
+}
+
+@keyframes modalScaleIn {
+    from {
+        transform: scale(0.9);
+        opacity: 0;
+    }
+
+    to {
+        transform: scale(1);
+        opacity: 1;
     }
 }
