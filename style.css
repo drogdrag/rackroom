@@ -708,6 +708,7 @@ th {
     transform: scale(0.95);
 }
 
+/* ✅ โค้ดที่ถูกต้องสำหรับ .qr-popup ใน style.css */
 .qr-popup {
     width: 240px;
     background: #ffffff;
@@ -716,20 +717,23 @@ th {
     margin-bottom: 12px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
     text-align: center;
+
     opacity: 0;
     visibility: hidden;
     transform: translateY(10px) scale(0.94);
     transform-origin: bottom right;
     transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
-    pointer-events: none;
+    
+    pointer-events: none; /* 👈 สำคัญมาก: ตอนปิดต้องเป็น none เพื่อไม่ให้บล็อกการคลิกข้างหลัง */
 }
 
-.qr-fab:hover .qr-popup,
+/* แสดงป๊อปอัปเมื่อเปิด (มีคลาส .open) */
 .qr-fab.open .qr-popup {
     opacity: 1;
     visibility: visible;
     transform: translateY(0) scale(1);
-    pointer-events: auto;
+    
+    pointer-events: auto; /* 👈 เปิดให้คลิกได้เฉพาะตอนแสดงผลแล้วเท่านั้น */
 }
 
 .qr-popup-title {
