@@ -10,7 +10,7 @@ body {
     color: #222;
 
     /* === โค้ดสำหรับใส่ภาพพื้นหลังแบบจาง (Watermark) === */
-    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(1, 71, 99, 0.85)), url('ptt.jpg');
+    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(191, 195, 197, 0.85)), url('ptt.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
