@@ -965,3 +965,32 @@ footer p {
         font-size: 16px;
     }
 }
+
+
+/* ========================================= */
+/* FIX GRAPH LAYOUT ON MOBILE                */
+/* ========================================= */
+@media (max-width: 768px) {
+    /* ซ่อนกล่องแกน Y แยก */
+    .y-axis-box {
+        display: none !important;
+    }
+
+    /* ขยายความกว้างกราฟหลักให้เต็มจอ */
+    .chart-layout-wrapper {
+        height: 320px;
+        position: relative;
+        display: block;
+    }
+
+    .scroll-box {
+        width: 100% !important;
+        height: calc(100% - 20px);
+    }
+
+    /* ซ่อนข้อความกำกับ Time ด้านล่างถ้าไม่จำเป็น หรือปรับให้จัดกึ่งกลาง */
+    .x-axis-time-label {
+        left: 0;
+        width: 100%;
+    }
+}
