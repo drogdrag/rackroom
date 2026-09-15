@@ -543,7 +543,7 @@ function getTimeOnly(datetime) {
 
 
 // =====================================================
-// Update Temperature Chart (Dual-Canvas Layout)
+// Update Temperature Chart
 // =====================================================
 
 function updateTemperatureChart(data) {
@@ -644,7 +644,7 @@ function updateTemperatureChart(data) {
 
 
 // =====================================================
-// Update Humidity Chart (Dual-Canvas Layout)
+// Update Humidity Chart
 // =====================================================
 
 function updateHumidityChart(data) {
@@ -916,34 +916,33 @@ if (saveEditBtn) {
 
 
 // =====================================================
-// Floating QR Button
+// Header QR Button Logic
 // =====================================================
 
-const qrFab = document.querySelector(".qr-fab");
-const qrButton = document.getElementById("qrButton");
+const qrContainer = document.getElementById("qrContainer");
 
-if (qrFab && qrButton) {
-    qrButton.addEventListener("click", (e) => {
+if (qrContainer) {
+    qrContainer.addEventListener("click", (e) => {
         e.stopPropagation();
-        qrFab.classList.toggle("open");
+        qrContainer.classList.toggle("open");
     });
 
     document.addEventListener("click", (e) => {
-        if (!qrFab.contains(e.target)) {
-            qrFab.classList.remove("open");
+        if (!qrContainer.contains(e.target)) {
+            qrContainer.classList.remove("open");
         }
     });
 
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape") {
-            qrFab.classList.remove("open");
+            qrContainer.classList.remove("open");
         }
     });
 }
 
 
 // =====================================================
-// Custom Confirm & Alert Dialog Helper (ป๊อปอัปสวยๆ ทันสมัย)
+// Custom Confirm & Alert Dialog Helper
 // =====================================================
 function showCustomModal(title, message, type = "confirm", onConfirm = null) {
     const modal = document.getElementById("customModal");
@@ -989,7 +988,7 @@ function showCustomModal(title, message, type = "confirm", onConfirm = null) {
 
 
 // =====================================================
-// Clear Specific Rack History (ใช้ Custom Modal)
+// Clear Specific Rack History
 // =====================================================
 
 const clearHistoryBtn = document.getElementById("clearHistoryBtn");
