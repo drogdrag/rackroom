@@ -25,25 +25,33 @@
 
 <body>
 
-<!-- ================================================= -->
-<!-- HEADER -->
-<!-- ================================================= -->
-<header class="app-header">
-    <div class="header-content">
-        <div class="header-logo-area">
-            <div class="header-icon-box">
-                <img src="ptt_icon.png" alt="PTT Logo" class="header-logo-img">
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
+    <header class="app-header">
+        <div class="header-content">
+            <div class="header-logo-area">
+                <div class="header-icon-box">
+                    <img src="ptt_icon.png" alt="PTT Logo" class="header-logo-img">
+                </div>
+                <div>
+                    <h1>RACK ROOM MONITORING</h1>
+                    <p>Industrial IoT Temperature & Humidity Tracking System</p>
+                </div>
             </div>
-            <div>
-                <h1>RACK ROOM MONITORING</h1>
-                <p>Industrial IoT Temperature & Humidity Tracking System</p>
+            <!-- ปุ่ม QR LINE แทนที่ System Online -->
+            <div class="header-badge" id="qrContainer" style="cursor: pointer; position: relative;">
+                <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" aria-hidden="true">
+                    <path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm11-2h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2z" />
+                </svg>
+                QR LINE
+                <div class="qr-popup" id="qrPopup">
+                    <div class="qr-popup-title">สแกนเพื่อรับแจ้งข้อมูล</div>
+                    <img src="line-qr.png" alt="LINE QR Code" class="qr-image" id="qrImage">
+                </div>
             </div>
         </div>
-        <div class="header-badge">
-            <span class="pulse-dot"></span> SYSTEM ONLINE
-        </div>
-    </div>
-</header>
+    </header>
 
     <!-- ================================================= -->
     <!-- OVERVIEW PAGE -->
@@ -243,28 +251,12 @@
     </div>
 
     <!-- ================================================= -->
-    <!-- FLOATING QR BUTTON (มุมขวาล่าง) -->
-    <!-- ================================================= -->
-    <div class="qr-fab">
-        <div class="qr-popup" id="qrPopup">
-            <div class="qr-popup-title">สแกนเพื่อรับแจ้งข้อมูล</div>
-            <img src="line-qr.png" alt="LINE QR Code" class="qr-image" id="qrImage">
-        </div>
-        <button type="button" class="qr-button" id="qrButton" aria-label="Show LINE QR code">
-            <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor" aria-hidden="true">
-                <path
-                    d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm11-2h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2zm-3 3h2v2h-2v-2zm3 0h2v2h-2v-2z" />
-            </svg>
-        </button>
-    </div>
-
-    <!-- ================================================= -->
     <!-- FOOTER -->
     <!-- ================================================= -->
     <footer>
         <p>Rack Room Monitoring System</p>
     </footer>
-    
+
     <!-- ================================================= -->
     <!-- CUSTOM CONFIRM / ALERT MODAL (POPUP สวยงาม) -->
     <!-- ================================================= -->
