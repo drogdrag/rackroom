@@ -6,10 +6,8 @@ body {
     margin: 0;
     font-family: Arial, sans-serif;
     background: #f4f6f8;
-    /* สีพื้นหลังสำรองกรณีรูปโหลดไม่ขึ้น */
     color: #222;
 
-    /* === โค้ดสำหรับใส่ภาพพื้นหลังแบบจาง (Watermark) === */
     background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(191, 195, 197, 0.85)), url('ptt.jpg');
     background-size: cover;
     background-position: center;
@@ -26,14 +24,16 @@ header.app-header {
     padding: 20px 30px;
     box-shadow: 0 4px 20px rgba(15, 23, 42, 0.35);
     position: relative;
-    overflow: hidden;
+    /* เอา overflow: hidden ออก เพื่อให้ป๊อปอัป QR ไม่โดนตัดขอบ */
 }
 
-/* แสงสะท้อนเรืองแสงเบาๆ แนว Tech ด้านหลัง Header */
 header.app-header::before {
     content: '';
     position: absolute;
-    top: 0; right: 0; bottom: 0; left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
     background: radial-gradient(circle at 85% 50%, rgba(56, 189, 248, 0.18) 0%, transparent 65%);
     pointer-events: none;
 }
@@ -91,11 +91,11 @@ header.app-header p {
     font-weight: 500;
 }
 
-/* ป้ายสถานะระบบด้านขวาของ Top Bar (โทนฟ้า) */
+/* ป้ายสถานะ/ปุ่ม QR ด้านขวาของ Header */
 .header-badge {
     background: rgba(56, 189, 248, 0.12);
     border: 1px solid rgba(56, 189, 248, 0.35);
-    color: #38bdf8;
+    color: #ffffff;
     padding: 6px 14px;
     border-radius: 999px;
     font-size: 12px;
@@ -103,31 +103,56 @@ header.app-header p {
     display: flex;
     align-items: center;
     gap: 8px;
+    transition: background 0.2s ease;
 }
 
-/* จุดกระพริบสถานะการทำงานสีฟ้า */
-.pulse-dot {
-    width: 8px;
-    height: 8px;
-    background-color: #38bdf8;
-    border-radius: 50%;
-    box-shadow: 0 0 0 rgba(56, 189, 248, 0.4);
-    animation: pulse-blue-animation 2s infinite;
+.header-badge:hover {
+    background: rgba(56, 189, 248, 0.2);
 }
 
-@keyframes pulse-blue-animation {
-    0% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0.7);
-    }
-    70% {
-        transform: scale(1);
-        box-shadow: 0 0 0 8px rgba(56, 189, 248, 0);
-    }
-    100% {
-        transform: scale(0.95);
-        box-shadow: 0 0 0 0 rgba(56, 189, 248, 0);
-    }
+/* ========================================= */
+/* HEADER QR POPUP                           */
+/* ========================================= */
+.qr-popup {
+    position: absolute;
+    top: 40px;
+    right: 0;
+    width: 240px;
+    background: #ffffff;
+    border-radius: 14px;
+    padding: 14px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    color: #222;
+
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px) scale(0.94);
+    transform-origin: top right;
+    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
+    pointer-events: none;
+    z-index: 2000;
+}
+
+#qrContainer.open .qr-popup {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.qr-popup-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+.qr-image {
+    width: 100%;
+    height: auto;
+    display: block;
+    border-radius: 8px;
 }
 
 /* Responsive สำหรับมือถือ */
@@ -135,11 +160,9 @@ header.app-header p {
     header.app-header {
         padding: 15px 20px;
     }
+
     header.app-header h1 {
         font-size: 18px;
-    }
-    .header-badge {
-        display: none;
     }
 }
 
@@ -148,6 +171,7 @@ main {
     width: 90%;
     max-width: 1200px;
     margin: 25px auto;
+    padding-bottom: 60px;
 }
 
 /* STATUS */
@@ -619,10 +643,6 @@ main {
     background: #e5e7eb;
 }
 
-.btn-cancel:active {
-    transform: scale(0.97);
-}
-
 .btn-save {
     background: #1f2937;
     color: white;
@@ -630,10 +650,6 @@ main {
 
 .btn-save:hover {
     background: #111827;
-}
-
-.btn-save:active {
-    transform: scale(0.97);
 }
 
 /* DOWNLOAD BUTTONS */
@@ -675,17 +691,7 @@ main {
     background: #111827;
 }
 
-.download-button:active {
-    transform: scale(0.97);
-}
-
 /* CHART DUAL-CANVAS LAYOUT */
-.chart-container {
-    position: relative;
-    height: 350px;
-    width: 100%;
-}
-
 .chart-layout-wrapper {
     display: flex;
     width: 100%;
@@ -780,84 +786,6 @@ th {
     background: #f1f5f9;
 }
 
-/* FLOATING QR BUTTON */
-.qr-fab {
-    position: fixed;
-    right: 24px;
-    bottom: 80px;
-    z-index: 1500;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-}
-
-.qr-button {
-    width: 56px;
-    height: 56px;
-    border-radius: 50%;
-    border: none;
-    background: #1f2937;
-    color: #ffffff;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
-    transition: transform 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.qr-button:hover {
-    background: #111827;
-    transform: translateY(-2px) scale(1.05);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-}
-
-.qr-button:active {
-    transform: scale(0.95);
-}
-
-/* ✅ โค้ดที่ถูกต้องสำหรับ .qr-popup ใน style.css */
-.qr-popup {
-    width: 240px;
-    background: #ffffff;
-    border-radius: 14px;
-    padding: 14px;
-    margin-bottom: 12px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
-    text-align: center;
-
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px) scale(0.94);
-    transform-origin: bottom right;
-    transition: opacity 0.22s ease, transform 0.22s ease, visibility 0.22s;
-    
-    pointer-events: none; /* 👈 สำคัญมาก: ตอนปิดต้องเป็น none เพื่อไม่ให้บล็อกการคลิกข้างหลัง */
-}
-
-/* แสดงป๊อปอัปเมื่อเปิด (มีคลาส .open) */
-.qr-fab.open .qr-popup {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0) scale(1);
-    
-    pointer-events: auto; /* 👈 เปิดให้คลิกได้เฉพาะตอนแสดงผลแล้วเท่านั้น */
-}
-
-.qr-popup-title {
-    font-size: 14px;
-    font-weight: 700;
-    color: #1f2937;
-    margin-bottom: 10px;
-}
-
-.qr-image {
-    width: 100%;
-    height: auto;
-    display: block;
-    border-radius: 8px;
-}
-
 /* ========================================= */
 /* MODERN BLUE FOOTER                        */
 /* ========================================= */
@@ -880,10 +808,6 @@ footer p {
     font-size: 13px;
     letter-spacing: 0.5px;
     color: #f1f5f9;
-}
-
-main {
-    padding-bottom: 60px;
 }
 
 @media (max-width: 700px) {
@@ -916,20 +840,8 @@ main {
         flex-direction: column;
         align-items: flex-start;
     }
-
-    .qr-fab {
-        right: 16px;
-        bottom: 74px;
-    }
-
-    .qr-popup {
-        width: 200px;
-    }
 }
 
-/* ========================================= */
-/* CUSTOM MODAL ALERT / CONFIRM STYLING      */
-/* ========================================= */
 #customModal .modal-content {
     animation: modalScaleIn 0.2s ease-out;
 }
@@ -939,7 +851,6 @@ main {
         transform: scale(0.9);
         opacity: 0;
     }
-
     to {
         transform: scale(1);
         opacity: 1;
