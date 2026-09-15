@@ -885,7 +885,7 @@ footer p {
     /* ขยับปุ่ม QR LINE ไปชิดขวาหรือปรับขนาดให้กดง่ายบนมือถือ */
     .header-badge {
         align-self: flex-end;
-        margin-top: -45px;
+        margin-top: -65px;
     }
 
     /* ปรับ Grid ของ Summary Cards ให้แสดงผลเป็น 2 คอลัมน์ */
