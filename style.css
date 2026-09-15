@@ -856,3 +856,112 @@ footer p {
         opacity: 1;
     }
 }
+
+/* ========================================= */
+/* MOBILE RESPONSIVE OPTIMIZATION            */
+/* ========================================= */
+
+@media (max-width: 768px) {
+    /* ปรับ Padding ของ Header และขนาดตัวอักษรให้เล็กลง */
+    header.app-header {
+        padding: 15px 20px;
+    }
+
+    header.app-header h1 {
+        font-size: 18px;
+    }
+
+    header.app-header p {
+        font-size: 11px;
+    }
+
+    /* ปรับให้ Header Content เรียงลงมาด้านล่างหากหน้าจอแคบเกินไป */
+    .header-content {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+    }
+
+    /* ขยับปุ่ม QR LINE ไปชิดขวาหรือปรับขนาดให้กดง่ายบนมือถือ */
+    .header-badge {
+        align-self: flex-end;
+        margin-top: -45px;
+    }
+
+    /* ปรับ Grid ของ Summary Cards ให้แสดงผลเป็น 2 คอลัมน์ */
+    .summary-cards {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+
+    .summary-value {
+        font-size: 24px;
+    }
+
+    /* ปรับ Grid ของ Rack List ให้แสดงผลทีละ 1 คอลัมน์บนมือถือ */
+    .rack-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    /* ปรับหน้า Detail ให้การ์ดอุณหภูมิ/ความชื้นเรียงแถวเดี่ยว */
+    .cards {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .status-section {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    /* ปรับขนาดกล่องค้นหา/ตัวกรอง (Filter) */
+    .filter-section {
+        gap: 8px;
+    }
+
+    .filter-button {
+        padding: 8px 14px;
+        font-size: 13px;
+    }
+
+    /* ปรับแต่งส่วนหัวของกราฟและปุ่ม Download บนมือถือ */
+    .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+
+    .download-button {
+        width: 100%;
+        text-align: center;
+    }
+
+    /* ปรับตำแหน่ง popup QR Code บนมือถือไม่ให้ล้นจอ */
+    .qr-popup {
+        width: 220px;
+        right: -10px;
+    }
+}
+
+/* สำหรับมือถือจอเล็กมาก (เช่น iPhone SE หรือรุ่นเล็ก) */
+@media (max-width: 480px) {
+    main {
+        width: 95%;
+        margin: 15px auto;
+    }
+
+    .header-logo-box {
+        width: 40px;
+        height: 40px;
+    }
+
+    .header-logo-img {
+        width: 26px;
+        height: 26px;
+    }
+
+    header.app-header h1 {
+        font-size: 16px;
+    }
+}
