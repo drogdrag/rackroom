@@ -1,5 +1,8 @@
 {
   "dependencies": {
     "node-cron": "^4.6.0"
+  },
+  "devDependencies": {
+    "concurrently": "^10.0.5"
   }
 }

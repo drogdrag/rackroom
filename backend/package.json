@@ -5,6 +5,7 @@
   "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "concurrently \"node server.js\" \"ngrok http 3000\"",
     "start": "node server.js"
   },
   "keywords": [],
