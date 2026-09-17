@@ -272,6 +272,3 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Backend running at http://localhost:${PORT}`);
 });
-
-// ให้ใช้ Port ที่ Render กำหนดมาให้ แต่ถ้าไม่มีให้ใช้ 3000
-const PORT = process.env.PORT || 3000;
