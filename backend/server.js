@@ -59,8 +59,10 @@ async function sendLineFlexMessage(altText, flexContents) {
 function createRackFlexBubble(rackId, rackData, isAlert = false) {
     const temp = rackData.current?.temperature || "--";
     const hum = rackData.current?.humidity || "--";
-
-    // ตั้งค่าสี: ถ้าเป็น Alert ใช้สีแดง (#ef4444) ถ้าปกติใช้สีน้ำเงิน (#1e3a8a)
+    
+    // ดึงเวลาล่าสุดจากข้อมูลใน Firebase (ถ้าไม่มีให้แสดงว่า "ไม่ระบุ")
+    const lastUpdate = rackData.status?.lastUpdateText || rackData.current?.datetime || "ไม่ระบุ";
+    
     const headerColor = isAlert ? "#ef4444" : "#1e3a8a";
     const statusText = isAlert ? "⚠️ อุปกรณ์มีปัญหา (ALERT)" : "✅ สถานะปกติ (NORMAL)";
 
@@ -107,6 +109,21 @@ function createRackFlexBubble(rackId, rackData, isAlert = false) {
                     contents: [
                         { type: "text", text: "💧 ความชื้น", color: "#555555", size: "sm", flex: 1 },
                         { type: "text", text: `${hum} %RH`, color: "#111111", size: "md", weight: "bold", align: "end", flex: 1 }
+                    ]
+                },
+                // เพิ่มเส้นคั่น
+                {
+                    type: "separator",
+                    margin: "md"
+                },
+                // เพิ่มกล่องแสดงเวลาอัปเดตล่าสุด
+                {
+                    type: "box",
+                    layout: "horizontal",
+                    margin: "md",
+                    contents: [
+                        { type: "text", text: "🕒 อัปเดตล่าสุด", color: "#aaaaaa", size: "xs", flex: 1 },
+                        { type: "text", text: lastUpdate, color: "#aaaaaa", size: "xs", align: "end", flex: 2 }
                     ]
                 }
             ]
@@ -187,6 +204,66 @@ db.ref("racks").on("value", (snapshot) => {
         }
     }
 });
+// ===============================
+// Webhook สำหรับรับข้อความจากผู้ใช้
+// ===============================
+app.post("/webhook", async (req, res) => {
+    res.status(200).send("OK"); // ตอบกลับ LINE ทันที
+
+    const events = req.body.events;
+    if (!events || events.length === 0) return;
+
+    for (const event of events) {
+        if (event.type === "message" && event.message.type === "text") {
+            const userMessage = event.message.text.trim();
+
+            // เช็คว่าผู้ใช้กดปุ่มส่งคำว่าอะไรมา
+            if (userMessage === "ดูข้อมูลปัจจุบัน" || userMessage === "RACK STATUS") {
+                console.log("ได้รับคำสั่ง ดึงข้อมูลปัจจุบัน...");
+                await sendReplyFlexMessage(event.replyToken);
+            }
+        }
+    }
+});
+
+// ===============================
+// ฟังก์ชันส่ง Reply Flex Message กลับไป
+// ===============================
+async function sendReplyFlexMessage(replyToken) {
+    try {
+        const snapshot = await db.ref("racks").once("value");
+        const racks = snapshot.val();
+        if (!racks) return;
+
+        const bubbles = [];
+        for (const [rackId, rackData] of Object.entries(racks)) {
+            const alertStatus = isRackInAlert(rackData); 
+            bubbles.push(createRackFlexBubble(rackId, rackData, alertStatus)); 
+        }
+
+        const carousel = { type: "carousel", contents: bubbles };
+
+        const response = await fetch("https://api.line.me/v2/bot/message/reply", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.LINE_CHANNEL_ACCESS_TOKEN}`
+            },
+            body: JSON.stringify({
+                replyToken: replyToken,
+                messages: [{ type: "flex", altText: "📊 ข้อมูลสถานะ RACK ปัจจุบัน", contents: carousel }]
+            })
+        });
+
+        if (response.ok) {
+            console.log("✅ ส่งข้อมูลปัจจุบันกลับไปสำเร็จ!");
+        } else {
+            console.error("❌ ส่งข้อมูลล้มเหลว:", await response.text());
+        }
+    } catch (error) {
+        console.error("Webhook Error:", error);
+    }
+}
 
 // ===============================
 // Start Server
@@ -195,3 +272,6 @@ const PORT = 3000;
 app.listen(PORT, () => {
     console.log(`Backend running at http://localhost:${PORT}`);
 });
+
+// ให้ใช้ Port ที่ Render กำหนดมาให้ แต่ถ้าไม่มีให้ใช้ 3000
+const PORT = process.env.PORT || 3000;
