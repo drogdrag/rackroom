@@ -8,7 +8,7 @@ body {
     background: #f4f6f8;
     color: #222;
 
-    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(191, 195, 197, 0.85)), url('ptt.jpg');
+    background-image: linear-gradient(rgba(255, 255, 255, 0.85), rgba(191, 195, 197, 0.85)), url('image/ptt.jpg');
     background-size: cover;
     background-position: center;
     background-attachment: fixed;
