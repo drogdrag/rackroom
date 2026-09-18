@@ -730,7 +730,7 @@ main {
 .scroll-inner {
     height: 100%;
     min-width: 100%;
-    position: absolute;
+    position: relative;
     left: 0;
     top: 0;
 }
