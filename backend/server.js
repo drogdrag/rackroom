@@ -1,7 +1,7 @@
 const express = require("express");
 const { initializeApp, cert } = require("firebase-admin/app");
 const { getDatabase } = require("firebase-admin/database");
-const cron = require("node-cron"); // เพิ่มไลบรารีตั้งเวลา
+const cron = require("node-cron");
 require("dotenv").config();
 
 const app = express();
@@ -36,7 +36,7 @@ async function sendLineFlexMessage(altText, flexContents) {
                 messages: [
                     {
                         type: "flex",
-                        altText: altText, // ข้อความที่จะแสดงในหน้าพรีวิวแชท
+                        altText: altText,
                         contents: flexContents
                     }
                 ]
@@ -54,17 +54,54 @@ async function sendLineFlexMessage(altText, flexContents) {
 }
 
 // ===============================
+// ฟังก์ชันตรวจสอบสถานะ 3 ระดับ (GOOD, WARNING, ALERT)
+// ===============================
+function getRackStatusLevel(rackData) {
+    if (!rackData || !rackData.current) return "ALERT";
+
+    const temp = Number(rackData.current.temperature);
+    const hum = Number(rackData.current.humidity);
+
+    // 1. เช็กข้อมูลผิดปกติ หรือเซนเซอร์พัง
+    if (isNaN(temp) || isNaN(hum) || rackData.status?.sensor !== "OK" || rackData.status?.wifi !== "OK") {
+        return "ALERT";
+    }
+
+    // 2. เช็กระดับ ALERT (BAD) - หลุดจากช่วง 5-40°C หรือ 20-80%
+    if (temp < 5 || temp > 40 || hum < 20 || hum > 80) {
+        return "ALERT";
+    }
+
+    // 3. เช็กระดับ GOOD (ปกติสุดๆ) - อยู่ในเกณฑ์ 15-30°C และ 40-70%
+    if (temp >= 15 && temp <= 30 && hum >= 40 && hum <= 70) {
+        return "GOOD";
+    }
+
+    // 4. นอกเหนือจาก 2 และ 3 แปลว่าอยู่ในช่วง NORMAL แต่ไม่ถึงกับ GOOD -> ถือว่ามีความเสี่ยง
+    return "WARNING";
+}
+
+// ===============================
 // สร้างหน้าตาการ์ด Flex Message (Bubble)
 // ===============================
-function createRackFlexBubble(rackId, rackData, isAlert = false) {
+function createRackFlexBubble(rackId, rackData, statusLevel) {
     const temp = rackData.current?.temperature || "--";
     const hum = rackData.current?.humidity || "--";
-
-    // ดึงเวลาล่าสุดจากข้อมูลใน Firebase (ถ้าไม่มีให้แสดงว่า "ไม่ระบุ")
     const lastUpdate = rackData.status?.lastUpdateText || rackData.current?.datetime || "ไม่ระบุ";
 
-    const headerColor = isAlert ? "#ef4444" : "#1e3a8a";
-    const statusText = isAlert ? "⚠️ อุปกรณ์มีปัญหา (ALERT)" : "✅ สถานะปกติ (NORMAL)";
+    let headerColor, statusText;
+
+    // กำหนดสีและข้อความตามสถานะ 3 ระดับ
+    if (statusLevel === "ALERT") {
+        headerColor = "#ef4444"; // สีแดง
+        statusText = "⚠️ อุปกรณ์มีปัญหา (ALERT)";
+    } else if (statusLevel === "WARNING") {
+        headerColor = "#f59e0b"; // สีเหลืองอมส้ม
+        statusText = "⚠️ มีความเสี่ยง (WARNING)";
+    } else {
+        headerColor = "#1e3a8a"; // สีน้ำเงิน (หรือเปลี่ยนเป็นเขียว #10b981 ได้)
+        statusText = "✅ สถานะปกติ (GOOD)";
+    }
 
     return {
         type: "bubble",
@@ -111,12 +148,10 @@ function createRackFlexBubble(rackId, rackData, isAlert = false) {
                         { type: "text", text: `${hum} %RH`, color: "#111111", size: "md", weight: "bold", align: "end", flex: 1 }
                     ]
                 },
-                // เพิ่มเส้นคั่น
                 {
                     type: "separator",
                     margin: "md"
                 },
-                // เพิ่มกล่องแสดงเวลาอัปเดตล่าสุด
                 {
                     type: "box",
                     layout: "horizontal",
@@ -132,32 +167,6 @@ function createRackFlexBubble(rackId, rackData, isAlert = false) {
 }
 
 // ===============================
-// ฟังก์ชันตรวจสอบสถานะว่าสมควร Alert หรือไม่
-// ===============================
-function isRackInAlert(rackData) {
-    if (!rackData || !rackData.current) return false;
-
-    const temp = Number(rackData.current.temperature);
-    const hum = Number(rackData.current.humidity);
-
-    // 1. เช็กข้อมูลผิดปกติ (ไม่มีค่า หรืออ่านค่าไม่ได้)
-    if (isNaN(temp) || isNaN(hum)) return true;
-
-    // 2. เงื่อนไข Alert (ระดับ BAD: อยู่นอกช่วง NORMAL)
-    // NORMAL: Temp 5-40°C และ RH 20-80%
-    if (temp < 5 || temp > 40 || hum < 20 || hum > 80) {
-        return true;
-    }
-
-    // 3. เช็กสถานะการเชื่อมต่อเซนเซอร์และ WiFi
-    if (rackData.status?.sensor !== "OK" || rackData.status?.wifi !== "OK") {
-        return true;
-    }
-
-    return false;
-}
-
-// ===============================
 // 1. ระบบส่งสรุปทุก 6 ชั่วโมง (00:00, 06:00, 12:00, 18:00)
 // ===============================
 cron.schedule("0 0,6,12,18 * * *", async () => {
@@ -169,11 +178,10 @@ cron.schedule("0 0,6,12,18 * * *", async () => {
 
         const bubbles = [];
         for (const [rackId, rackData] of Object.entries(racks)) {
-            const alertStatus = isRackInAlert(rackData);
-            bubbles.push(createRackFlexBubble(rackId, rackData, alertStatus));
+            const statusLevel = getRackStatusLevel(rackData);
+            bubbles.push(createRackFlexBubble(rackId, rackData, statusLevel));
         }
 
-        // จับมัดรวมเป็น Carousel (เลื่อนซ้ายขวาได้)
         const carousel = {
             type: "carousel",
             contents: bubbles
@@ -186,39 +194,51 @@ cron.schedule("0 0,6,12,18 * * *", async () => {
 });
 
 // ===============================
-// 2. ระบบเฝ้าระวังแบบ Real-time (ส่งทันทีที่มี Alert)
+// 2. ระบบเฝ้าระวังแบบ Real-time (ทำงานเมื่อค่าเปลี่ยนระดับ)
 // ===============================
-// ใช้ตัวแปรเก็บสถานะเพื่อป้องกันไม่ให้มันส่ง LINE ซ้ำๆ ทุกวินาทีที่ค่าเปลี่ยน แต่อยู่ในเกณฑ์เสียเหมือนเดิม
-const alertStateTracker = {};
+const alertStateTracker = {}; // เก็บสถานะล่าสุด เช่น "GOOD", "WARNING", "ALERT"
 
 db.ref("racks").on("value", (snapshot) => {
     const racks = snapshot.val();
     if (!racks) return;
 
     for (const [rackId, rackData] of Object.entries(racks)) {
-        const currentlyInAlert = isRackInAlert(rackData);
+        const currentLevel = getRackStatusLevel(rackData);
+        const previousLevel = alertStateTracker[rackId];
 
-        // ถ้ารอบที่แล้วปกติ (หรือยังไม่มีข้อมูล) แล้วรอบนี้พัง -> ส่ง LINE แจ้งเตือน!
-        if (currentlyInAlert && !alertStateTracker[rackId]) {
-            alertStateTracker[rackId] = true; // บันทึกว่าเสียแล้ว จะได้ไม่ส่งซ้ำ
-
-            const flexContent = createRackFlexBubble(rackId, rackData, true);
-            sendLineFlexMessage(`🚨 ด่วน! พบความผิดปกติที่ ${rackId}`, flexContent);
+        // ถ้าระบบเพิ่งเริ่มทำงาน (ยังไม่มีค่าใน Tracker)
+        if (previousLevel === undefined) {
+            alertStateTracker[rackId] = currentLevel;
+            // แจ้งเตือนทันทีตอนเปิดเซิร์ฟเวอร์ ถ้าพบว่ามีอันตรายหรือความเสี่ยงค้างอยู่
+            if (currentLevel === "ALERT" || currentLevel === "WARNING") {
+                const flexContent = createRackFlexBubble(rackId, rackData, currentLevel);
+                const pushText = currentLevel === "ALERT" ? `🚨 ระดับอันตราย! ${rackId} มีปัญหา` : `⚠️ แจ้งเตือน! ${rackId} มีความเสี่ยง`;
+                sendLineFlexMessage(pushText, flexContent);
+            }
+            continue;
         }
-        // ถ้ารอบนี้กลับมาเป็นปกติแล้ว -> รีเซ็ตสถานะ
-        else if (!currentlyInAlert && alertStateTracker[rackId]) {
-            alertStateTracker[rackId] = false;
 
-            const flexContent = createRackFlexBubble(rackId, rackData, false);
-            sendLineFlexMessage(`✅ ${rackId} กลับสู่สถานะปกติแล้ว`, flexContent);
+        // ถ้าสถานะมีการเปลี่ยนแปลงจากเดิม (เช่น เปลี่ยนจาก GOOD -> WARNING)
+        if (previousLevel !== currentLevel) {
+            alertStateTracker[rackId] = currentLevel; // อัปเดตสถานะ
+
+            const flexContent = createRackFlexBubble(rackId, rackData, currentLevel);
+            let pushText = "";
+
+            if (currentLevel === "ALERT") pushText = `🚨 ด่วน! พบความผิดปกติระดับอันตรายที่ ${rackId}`;
+            else if (currentLevel === "WARNING") pushText = `⚠️ แจ้งเตือน! ${rackId} เปลี่ยนเป็นสถานะมีความเสี่ยง`;
+            else pushText = `✅ ${rackId} กลับสู่สถานะปกติแล้ว`;
+
+            sendLineFlexMessage(pushText, flexContent);
         }
     }
 });
+
 // ===============================
 // Webhook สำหรับรับข้อความจากผู้ใช้
 // ===============================
 app.post("/webhook", async (req, res) => {
-    res.status(200).send("OK"); // ตอบกลับ LINE ทันที
+    res.status(200).send("OK");
 
     const events = req.body.events;
     if (!events || events.length === 0) return;
@@ -227,7 +247,6 @@ app.post("/webhook", async (req, res) => {
         if (event.type === "message" && event.message.type === "text") {
             const userMessage = event.message.text.trim();
 
-            // เช็คว่าผู้ใช้กดปุ่มส่งคำว่าอะไรมา
             if (userMessage === "ดูข้อมูลปัจจุบัน" || userMessage === "RACK STATUS") {
                 console.log("ได้รับคำสั่ง ดึงข้อมูลปัจจุบัน...");
                 await sendReplyFlexMessage(event.replyToken);
@@ -247,8 +266,8 @@ async function sendReplyFlexMessage(replyToken) {
 
         const bubbles = [];
         for (const [rackId, rackData] of Object.entries(racks)) {
-            const alertStatus = isRackInAlert(rackData);
-            bubbles.push(createRackFlexBubble(rackId, rackData, alertStatus));
+            const statusLevel = getRackStatusLevel(rackData);
+            bubbles.push(createRackFlexBubble(rackId, rackData, statusLevel));
         }
 
         const carousel = { type: "carousel", contents: bubbles };
