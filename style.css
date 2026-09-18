@@ -79,6 +79,7 @@ header.app-header h1 {
     letter-spacing: 0.8px;
     background: linear-gradient(to right, #ffffff, #93c5fd);
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -735,7 +736,10 @@ main {
     top: 0;
 }
 
-#temperatureChart, #humidityChart, #temperatureAxis, #humidityAxis {
+#temperatureChart,
+#humidityChart,
+#temperatureAxis,
+#humidityAxis {
     width: 100% !important;
     height: 100% !important;
 }
@@ -842,6 +846,7 @@ footer p {
         transform: scale(0.9);
         opacity: 0;
     }
+
     to {
         transform: scale(1);
         opacity: 1;
@@ -853,6 +858,7 @@ footer p {
 /* ========================================= */
 
 @media (max-width: 768px) {
+
     /* ปรับ Padding ของ Header และขนาดตัวอักษรให้เล็กลง */
     header.app-header {
         padding: 15px 20px;
