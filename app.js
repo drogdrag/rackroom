@@ -427,7 +427,7 @@ function checkRackOnline(timestamp) {
 
 function getEnvironmentStatus(temperature, humidity) {
     if (!Number.isFinite(temperature) || !Number.isFinite(humidity)) {
-        return { text: "BAD", className: "status-bad", level: "BAD" };
+        return { text: "ERROR", className: "status-ERROR", level: "ERROR" };
     }
     if (temperature >= 15 && temperature <= 30 && humidity >= 40 && humidity <= 70) {
         return { text: "GOOD", className: "status-class-a", level: "GOOD" };
