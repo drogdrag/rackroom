@@ -59,10 +59,10 @@ async function sendLineFlexMessage(altText, flexContents) {
 function createRackFlexBubble(rackId, rackData, isAlert = false) {
     const temp = rackData.current?.temperature || "--";
     const hum = rackData.current?.humidity || "--";
-    
+
     // ดึงเวลาล่าสุดจากข้อมูลใน Firebase (ถ้าไม่มีให้แสดงว่า "ไม่ระบุ")
     const lastUpdate = rackData.status?.lastUpdateText || rackData.current?.datetime || "ไม่ระบุ";
-    
+
     const headerColor = isAlert ? "#ef4444" : "#1e3a8a";
     const statusText = isAlert ? "⚠️ อุปกรณ์มีปัญหา (ALERT)" : "✅ สถานะปกติ (NORMAL)";
 
@@ -136,13 +136,23 @@ function createRackFlexBubble(rackId, rackData, isAlert = false) {
 // ===============================
 function isRackInAlert(rackData) {
     if (!rackData || !rackData.current) return false;
+
     const temp = Number(rackData.current.temperature);
     const hum = Number(rackData.current.humidity);
 
-    // เงื่อนไข Alert (ปรับเปลี่ยนได้ตาม app.js ของคุณ)
-    // ตัวอย่าง: แจ้งเตือนเมื่ออุณหภูมิเกิน 30 หรือต่ำกว่า 15 / ความชื้นเกิน 70 หรือต่ำกว่า 40
-    if (temp > 30 || temp < 15 || hum > 70 || hum < 40) return true;
-    if (rackData.status?.sensor !== "OK" || rackData.status?.wifi !== "OK") return true;
+    // 1. เช็กข้อมูลผิดปกติ (ไม่มีค่า หรืออ่านค่าไม่ได้)
+    if (isNaN(temp) || isNaN(hum)) return true;
+
+    // 2. เงื่อนไข Alert (ระดับ BAD: อยู่นอกช่วง NORMAL)
+    // NORMAL: Temp 5-40°C และ RH 20-80%
+    if (temp < 5 || temp > 40 || hum < 20 || hum > 80) {
+        return true;
+    }
+
+    // 3. เช็กสถานะการเชื่อมต่อเซนเซอร์และ WiFi
+    if (rackData.status?.sensor !== "OK" || rackData.status?.wifi !== "OK") {
+        return true;
+    }
 
     return false;
 }
@@ -237,8 +247,8 @@ async function sendReplyFlexMessage(replyToken) {
 
         const bubbles = [];
         for (const [rackId, rackData] of Object.entries(racks)) {
-            const alertStatus = isRackInAlert(rackData); 
-            bubbles.push(createRackFlexBubble(rackId, rackData, alertStatus)); 
+            const alertStatus = isRackInAlert(rackData);
+            bubbles.push(createRackFlexBubble(rackId, rackData, alertStatus));
         }
 
         const carousel = { type: "carousel", contents: bubbles };
