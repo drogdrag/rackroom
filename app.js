@@ -247,6 +247,8 @@ function createRackCard(rackID, rackData) {
         miniCardClass = "status-offline";
     } else if (!sensorOK) {
         overallStatus = "SENSOR ERROR"; overallClass = "alarm";
+        envLabel = "ERROR"; displayTemp = "--"; displayHum = "--";
+        miniCardClass = "status-bad";
     } else if (!wifiOK) {
         overallStatus = "WIFI ERROR"; overallClass = "alarm";
     } else if (environment.level === "BAD") {
@@ -346,12 +348,14 @@ function updateDetailData(rackID, rackData) {
     let displayHum = "--";
     let environment = {};
 
-    if (online) {
+    if (!online) {
+        environment = { text: "OFFLINE", className: "status-offline", level: "OFFLINE" };
+    } else if (status.sensor !== "OK") {
+        environment = { text: "ERROR", className: "status-bad", level: "ERROR" };
+    } else {
         displayTemp = Number.isFinite(temperature) ? temperature.toFixed(1) : "--";
         displayHum = Number.isFinite(humidity) ? humidity.toFixed(1) : "--";
         environment = getEnvironmentStatus(temperature, humidity);
-    } else {
-        environment = { text: "OFFLINE", className: "status-offline", level: "OFFLINE" };
     }
 
     setText("temperature", displayTemp);
