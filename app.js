@@ -254,7 +254,8 @@ function createRackCard(rackID, rackData) {
     } else if (environment.level === "BAD") {
         overallStatus = "ALERT"; overallClass = "alarm";
     } else {
-        overallStatus = environment.level; overallClass = "warning";
+        // แก้ไขส่วนนี้จาก warning เป็น online-good เพื่อให้การ์ดสถานะ NORMAL เป็นสีเขียวทั้งหมด
+        overallStatus = environment.level; overallClass = "online-good";
     }
 
     const card = document.createElement("div");
@@ -437,7 +438,8 @@ function getEnvironmentStatus(temperature, humidity) {
         return { text: "GOOD", className: "status-class-a", level: "GOOD" };
     }
     if (temperature >= 5 && temperature <= 40 && humidity >= 20 && humidity <= 80) {
-        return { text: "NORMAL", className: "status-class-b", level: "NORMAL" };
+        // แก้ไขส่วนนี้จาก status-class-b เป็น status-class-a เพื่อให้การ์ดย่อย (mini cards) เป็นสีเขียวด้วย
+        return { text: "NORMAL", className: "status-class-a", level: "NORMAL" };
     }
     if (temperature >= 0 && temperature <= 50 && humidity >= 10 && humidity <= 90) {
         return { text: "BAD", className: "status-class-s1", level: "BAD" };
