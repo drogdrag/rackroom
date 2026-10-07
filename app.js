@@ -262,7 +262,7 @@ function startLiveStatusInterval() {
             );
         }
 
-    }, 2000);
+    }, 60000);
 }
 
 
@@ -2777,7 +2777,7 @@ if (clearHistoryBtn) {
 }
 
 // =====================================================
-// Global Time Filter Logic (Time-based with Tolerance)
+// Global Time Filter Logic (Bypass for 1 Min & All)
 // =====================================================
 function renderChartsWithFilter(data) {
     if (!data || data.length === 0) {
@@ -2789,30 +2789,31 @@ function renderChartsWithFilter(data) {
 
     let filteredData = [];
 
-    if (currentChartTimeFilter === "all") {
+    // ถ้าเลือก "All Time" หรือ "1 Minute" ให้ดึงข้อมูลดิบทั้งหมดมาโชว์เลยโดยไม่กรอง
+    // (เพราะฮาร์ดแวร์ส่งมาทุก 1 นาทีอยู่แล้ว)
+    if (currentChartTimeFilter === "all" || currentChartTimeFilter === "1") {
         filteredData = [...data];
-    } else {
+    } 
+    // ถ้าเลือก 5, 10, 15 นาที... ค่อยใช้ระบบกรองเวลา
+    else {
         const stepMinutes = parseInt(currentChartTimeFilter);
         const stepMs = stepMinutes * 60 * 1000; 
         
-        // กำหนดค่าเผื่อเวลา (Tolerance) 15 วินาที
-        // ป้องกันปัญหากราฟข้ามจุด หากฮาร์ดแวร์ส่งข้อมูลมาคลาดเคลื่อนเล็กน้อย (เช่น ส่งมาตอน 58 วินาที)
-        const toleranceMs = 15000; 
+        // เผื่อเวลาคลาดเคลื่อนให้ 20 วินาที ป้องกันข้อมูลตกหล่น
+        const toleranceMs = 20000; 
 
         let lastKeptTime = null;
 
-        // ข้อมูลถูกเรียงจากใหม่ไปเก่าอยู่แล้ว (Newest First)
         filteredData = data.filter(item => {
             const itemTime = getDateTimeValue(item.datetime);
             if (!itemTime) return false;
 
-            // เก็บข้อมูลจุดแรก (ล่าสุด) เสมอ เพื่อให้กราฟเริ่มต้นพร้อมกัน
             if (lastKeptTime === null) {
                 lastKeptTime = itemTime;
                 return true;
             }
 
-            // คำนวณระยะห่างของเวลา ถ้าเวลาห่างกันตรงตามสเกล (บวกลบค่าเผื่อ) ให้ดึงออกมาโชว์
+            // ถ้าเวลาห่างกันถึงรอบที่กำหนด (เช่น 5 นาที) ให้อนุญาตให้แสดงผล
             if (lastKeptTime - itemTime >= (stepMs - toleranceMs)) {
                 lastKeptTime = itemTime;
                 return true;
@@ -2827,6 +2828,8 @@ function renderChartsWithFilter(data) {
     updateHumidityChart(filteredData);
     updateHistoryTable(filteredData); 
 }
+
+
 
 // รับค่าเมื่อมีการเปลี่ยนตัวเลือกใน Dropdown ใดๆ
 const timeDropdowns = document.querySelectorAll(".time-filter-dropdown");
