@@ -962,3 +962,26 @@ footer p {
         font-size: 16px;
     }
 }
+
+/* ========================================= */
+/* CHART DROPDOWN FILTER                     */
+/* ========================================= */
+.chart-dropdown {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid #d1d5db;
+    background-color: #ffffff;
+    color: #374151;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    transition: all 0.2s ease;
+}
+
+.chart-dropdown:hover, 
+.chart-dropdown:focus {
+    border-color: #1f2937;
+    box-shadow: 0 0 0 3px rgba(31, 41, 55, 0.1);
+}

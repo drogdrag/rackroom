@@ -167,7 +167,19 @@
         <section class="panel">
             <div class="panel-header">
                 <h2>🌡️ Temperature History</h2>
-                <button id="downloadTemperature" class="download-button">🌡️ Download Temperature</button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select class="chart-dropdown time-filter-dropdown">
+                        <option value="all">All Time</option>
+                        <option value="1">1 Minute</option>
+                        <option value="5">5 Minutes</option>
+                        <option value="10">10 Minutes</option>
+                        <option value="15">15 Minutes</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="60">1 Hour</option>
+                        <option value="180">3 Hours</option>
+                    </select>
+                    <button id="downloadTemperature" class="download-button">🌡️ Download Temperature</button>
+                </div>
             </div>
             <div class="chart-layout-wrapper">
                 <div class="y-axis-box">
@@ -188,7 +200,19 @@
         <section class="panel">
             <div class="panel-header">
                 <h2>💧 Humidity History</h2>
-                <button id="downloadHumidity" class="download-button">💧 Download Humidity</button>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <select class="chart-dropdown time-filter-dropdown">
+                        <option value="all">All Time</option>
+                        <option value="1">1 Minute</option>
+                        <option value="5">5 Minutes</option>
+                        <option value="10">10 Minutes</option>
+                        <option value="15">15 Minutes</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="60">1 Hour</option>
+                        <option value="180">3 Hours</option>
+                    </select>
+                    <button id="downloadHumidity" class="download-button">💧 Download Humidity</button>
+                </div>
             </div>
             <div class="chart-layout-wrapper">
                 <div class="y-axis-box">
@@ -209,10 +233,22 @@
         <section class="panel">
             <div class="panel-header">
                 <h2>📋 Measurement History</h2>
-                <div style="display: flex; gap: 8px;">
-                    <button id="clearHistoryBtn" class="download-button" style="background-color: #ef4444;">🗑️ Clear
-                        History</button>
-                    <button id="downloadAll" class="download-button">📊 Download All Data</button>
+                <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                    <select class="chart-dropdown time-filter-dropdown">
+                        <option value="all">All Time</option>
+                        <option value="1">1 Minute</option>
+                        <option value="5">5 Minutes</option>
+                        <option value="10">10 Minutes</option>
+                        <option value="15">15 Minutes</option>
+                        <option value="30">30 Minutes</option>
+                        <option value="60">1 Hour</option>
+                        <option value="180">3 Hours</option>
+                    </select>
+                    <div style="display: flex; gap: 8px;">
+                        <button id="clearHistoryBtn" class="download-button" style="background-color: #ef4444;">🗑️ Clear
+                            History</button>
+                        <button id="downloadAll" class="download-button">📊 Download All Data</button>
+                    </div>
                 </div>
             </div>
             <div class="table-container">

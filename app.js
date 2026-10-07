@@ -58,6 +58,10 @@ let historyListener = null;
 let liveStatusInterval = null;
 let currentFilterMode = "all";
 
+// เพิ่มตัวแปรสำหรับ Filter
+let currentRackHistoryData = [];
+let currentChartTimeFilter = "all";
+
 
 // =====================================================
 // Server Icon
@@ -361,7 +365,6 @@ function createRackCard(rackID, rackData) {
 
     } else {
 
-        // แก้ไขส่วนนี้จาก warning เป็น online-good เพื่อให้การ์ดสถานะ NORMAL เป็นสีเขียวทั้งหมด
         overallStatus = environment.level;
         overallClass = "online-good";
     }
@@ -793,7 +796,7 @@ function checkRackOnline(timestamp) {
 
         return (
             age >= 0 &&
-            age <= 120000 // แก้ไขจาก 90000 เป็น 120000 (2 นาที)
+            age <= 120000
         );
     }
 
@@ -808,12 +811,13 @@ function checkRackOnline(timestamp) {
 
         return (
             age >= 0 &&
-            age <= 120000 // แก้ไขจาก 90000 เป็น 120000 (2 นาที)
+            age <= 120000
         );
     }
 
     return false;
 }
+
 
 // =====================================================
 // Environment Status
@@ -857,7 +861,6 @@ function getEnvironmentStatus(
         humidity <= 80
     ) {
 
-        // แก้ไขส่วนนี้จาก status-class-b เป็น status-class-a เพื่อให้การ์ดย่อย (mini cards) เป็นสีเขียวด้วย
         return {
             text: "NORMAL",
             className: "status-class-a",
@@ -944,101 +947,45 @@ if (backToOverview) {
 // =====================================================
 
 function loadRackHistory(rackID) {
-
     if (historyListener) {
-
         historyListener();
-
         historyListener = null;
     }
 
-    const historyRef =
-        ref(
-            database,
-            `racks/${rackID}/history`
-        );
+    const historyRef = ref(database, `racks/${rackID}/history`);
 
-    historyListener =
-        onValue(
-            historyRef,
-            (snapshot) => {
+    historyListener = onValue(historyRef, (snapshot) => {
+        const data = snapshot.val();
 
-                const data =
-                    snapshot.val();
+        if (!data) {
+            historyDataForExcel = [];
+            currentRackHistoryData = []; 
+            renderChartsWithFilter([]); 
+            return;
+        }
 
-                if (!data) {
+        let historyArray = Object.entries(data).map(([key, value]) => ({
+            id: key,
+            ...(value || {})
+        }));
 
-                    historyDataForExcel = [];
+        historyArray = historyArray.filter(item => {
+            const dt = String(item.datetime || "").trim().toUpperCase();
+            return (dt !== "TIME ERROR" && dt !== "");
+        });
 
-                    updateTemperatureChart([]);
+        // เรียงข้อมูลล่าสุดขึ้นก่อน
+        historyArray.sort((a, b) => getDateTimeValue(b.datetime) - getDateTimeValue(a.datetime));
 
-                    updateHumidityChart([]);
+        historyDataForExcel = [...historyArray];
+        currentRackHistoryData = [...historyArray]; // เก็บข้อมูลดิบไว้ให้ Dropdown ใช้งาน
 
-                    updateHistoryTable([]);
+        // ส่งข้อมูลไปกรองก่อนแสดงผลกราฟและตาราง
+        renderChartsWithFilter(currentRackHistoryData);
 
-                    return;
-                }
-
-                let historyArray =
-                    Object.entries(data).map(
-                        ([key, value]) => ({
-                            id: key,
-                            ...(value || {})
-                        })
-                    );
-
-                historyArray =
-                    historyArray.filter(
-                        item => {
-
-                            const dt =
-                                String(
-                                    item.datetime || ""
-                                )
-                                    .trim()
-                                    .toUpperCase();
-
-                            return (
-                                dt !== "TIME ERROR" &&
-                                dt !== ""
-                            );
-                        }
-                    );
-
-                historyDataForExcel =
-                    [...historyArray];
-
-                historyArray.sort(
-                    (a, b) =>
-                        getDateTimeValue(
-                            b.datetime
-                        ) -
-                        getDateTimeValue(
-                            a.datetime
-                        )
-                );
-
-                updateTemperatureChart(
-                    historyArray
-                );
-
-                updateHumidityChart(
-                    historyArray
-                );
-
-                updateHistoryTable(
-                    historyArray
-                );
-
-            },
-            (error) => {
-
-                console.error(
-                    "History Firebase Error:",
-                    error
-                );
-            }
-        );
+    }, (error) => {
+        console.error("History Firebase Error:", error);
+    });
 }
 
 
@@ -1240,17 +1187,17 @@ function updateTemperatureChart(data) {
 
     const pointWidth = 80;
     const minWidth = 1000;
+    const maxWidth = 30000; // ลิมิตความกว้างสูงสุดของ Canvas ป้องกันจอดำ
 
-    const calculatedWidth =
-        Math.max(
-            minWidth,
-            values.length * pointWidth
-        );
+    let calculatedWidth = Math.max(minWidth, values.length * pointWidth);
+    
+    // ถ้ากว้างเกินลิมิต ให้บังคับใช้ความกว้างสูงสุด
+    if (calculatedWidth > maxWidth) {
+        calculatedWidth = maxWidth;
+    }
 
     if (scrollInner) {
-
-        scrollInner.style.width =
-            `${calculatedWidth}px`;
+        scrollInner.style.width = `${calculatedWidth}px`;
     }
 
     const validValues =
@@ -1566,17 +1513,17 @@ function updateHumidityChart(data) {
 
     const pointWidth = 80;
     const minWidth = 1000;
+    const maxWidth = 30000; // ลิมิตความกว้างสูงสุดของ Canvas ป้องกันจอดำ
 
-    const calculatedWidth =
-        Math.max(
-            minWidth,
-            values.length * pointWidth
-        );
+    let calculatedWidth = Math.max(minWidth, values.length * pointWidth);
+    
+    // ถ้ากว้างเกินลิมิต ให้บังคับใช้ความกว้างสูงสุด
+    if (calculatedWidth > maxWidth) {
+        calculatedWidth = maxWidth;
+    }
 
     if (scrollInner) {
-
-        scrollInner.style.width =
-            `${calculatedWidth}px`;
+        scrollInner.style.width = `${calculatedWidth}px`;
     }
 
     const validValues =
@@ -2804,7 +2751,7 @@ if (clearHistoryBtn) {
                             updateTemperatureChart([]);
 
                             updateHumidityChart([]);
-                            โ
+
                             updateHistoryTable([]);
 
                         })
@@ -2828,3 +2775,72 @@ if (clearHistoryBtn) {
         }
     );
 }
+
+// =====================================================
+// Global Time Filter Logic (Time-based with Tolerance)
+// =====================================================
+function renderChartsWithFilter(data) {
+    if (!data || data.length === 0) {
+        updateTemperatureChart([]);
+        updateHumidityChart([]);
+        updateHistoryTable([]);
+        return;
+    }
+
+    let filteredData = [];
+
+    if (currentChartTimeFilter === "all") {
+        filteredData = [...data];
+    } else {
+        const stepMinutes = parseInt(currentChartTimeFilter);
+        const stepMs = stepMinutes * 60 * 1000; 
+        
+        // กำหนดค่าเผื่อเวลา (Tolerance) 15 วินาที
+        // ป้องกันปัญหากราฟข้ามจุด หากฮาร์ดแวร์ส่งข้อมูลมาคลาดเคลื่อนเล็กน้อย (เช่น ส่งมาตอน 58 วินาที)
+        const toleranceMs = 15000; 
+
+        let lastKeptTime = null;
+
+        // ข้อมูลถูกเรียงจากใหม่ไปเก่าอยู่แล้ว (Newest First)
+        filteredData = data.filter(item => {
+            const itemTime = getDateTimeValue(item.datetime);
+            if (!itemTime) return false;
+
+            // เก็บข้อมูลจุดแรก (ล่าสุด) เสมอ เพื่อให้กราฟเริ่มต้นพร้อมกัน
+            if (lastKeptTime === null) {
+                lastKeptTime = itemTime;
+                return true;
+            }
+
+            // คำนวณระยะห่างของเวลา ถ้าเวลาห่างกันตรงตามสเกล (บวกลบค่าเผื่อ) ให้ดึงออกมาโชว์
+            if (lastKeptTime - itemTime >= (stepMs - toleranceMs)) {
+                lastKeptTime = itemTime;
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    // ส่งข้อมูลไปวาดกราฟและอัปเดตตาราง
+    updateTemperatureChart(filteredData);
+    updateHumidityChart(filteredData);
+    updateHistoryTable(filteredData); 
+}
+
+// รับค่าเมื่อมีการเปลี่ยนตัวเลือกใน Dropdown ใดๆ
+const timeDropdowns = document.querySelectorAll(".time-filter-dropdown");
+timeDropdowns.forEach(dropdown => {
+    dropdown.addEventListener("change", (e) => {
+        const selectedValue = e.target.value;
+        currentChartTimeFilter = selectedValue;
+        
+        // ซิงค์ Dropdown ทุกจุดให้แสดงค่าที่เลือกเหมือนกัน
+        timeDropdowns.forEach(dd => {
+            dd.value = selectedValue;
+        });
+
+        // เรียกใช้งานกราฟใหม่ด้วยข้อมูลดิบที่เก็บไว้
+        renderChartsWithFilter(currentRackHistoryData);
+    });
+});
