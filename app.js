@@ -959,8 +959,8 @@ function loadRackHistory(rackID) {
 
         if (!data) {
             historyDataForExcel = [];
-            currentRackHistoryData = []; 
-            renderChartsWithFilter([]); 
+            currentRackHistoryData = [];
+            renderChartsWithFilter([]);
             return;
         }
 
@@ -1190,7 +1190,7 @@ function updateTemperatureChart(data) {
     const maxWidth = 30000; // ลิมิตความกว้างสูงสุดของ Canvas ป้องกันจอดำ
 
     let calculatedWidth = Math.max(minWidth, values.length * pointWidth);
-    
+
     // ถ้ากว้างเกินลิมิต ให้บังคับใช้ความกว้างสูงสุด
     if (calculatedWidth > maxWidth) {
         calculatedWidth = maxWidth;
@@ -1516,7 +1516,7 @@ function updateHumidityChart(data) {
     const maxWidth = 30000; // ลิมิตความกว้างสูงสุดของ Canvas ป้องกันจอดำ
 
     let calculatedWidth = Math.max(minWidth, values.length * pointWidth);
-    
+
     // ถ้ากว้างเกินลิมิต ให้บังคับใช้ความกว้างสูงสุด
     if (calculatedWidth > maxWidth) {
         calculatedWidth = maxWidth;
@@ -2791,16 +2791,16 @@ function renderChartsWithFilter(data) {
 
     // ถ้าเลือก "All Time" หรือ "1 Minute" ให้ดึงข้อมูลดิบทั้งหมดมาโชว์เลยโดยไม่กรอง
     // (เพราะฮาร์ดแวร์ส่งมาทุก 1 นาทีอยู่แล้ว)
-    if (currentChartTimeFilter === "all" || currentChartTimeFilter === "1") {
+    if (currentChartTimeFilter === "all") {
         filteredData = [...data];
-    } 
+    }
     // ถ้าเลือก 5, 10, 15 นาที... ค่อยใช้ระบบกรองเวลา
     else {
         const stepMinutes = parseInt(currentChartTimeFilter);
-        const stepMs = stepMinutes * 60 * 1000; 
-        
+        const stepMs = stepMinutes * 60 * 1000;
+
         // เผื่อเวลาคลาดเคลื่อนให้ 20 วินาที ป้องกันข้อมูลตกหล่น
-        const toleranceMs = 20000; 
+        const toleranceMs = 20000;
 
         let lastKeptTime = null;
 
@@ -2826,7 +2826,7 @@ function renderChartsWithFilter(data) {
     // ส่งข้อมูลไปวาดกราฟและอัปเดตตาราง
     updateTemperatureChart(filteredData);
     updateHumidityChart(filteredData);
-    updateHistoryTable(filteredData); 
+    updateHistoryTable(filteredData);
 }
 
 
@@ -2837,7 +2837,7 @@ timeDropdowns.forEach(dropdown => {
     dropdown.addEventListener("change", (e) => {
         const selectedValue = e.target.value;
         currentChartTimeFilter = selectedValue;
-        
+
         // ซิงค์ Dropdown ทุกจุดให้แสดงค่าที่เลือกเหมือนกัน
         timeDropdowns.forEach(dd => {
             dd.value = selectedValue;
