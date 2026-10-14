@@ -261,8 +261,7 @@ function startLiveStatusInterval() {
                 allRackData[selectedRack]
             );
         }
-
-    }, 60000);
+    }, 2000);
 }
 
 
@@ -364,9 +363,7 @@ function createRackCard(rackID, rackData) {
         overallClass = "alarm";
 
     } else {
-
-        overallStatus = environment.level;
-        overallClass = "online-good";
+        overallStatus = environment.level; overallClass = "warning";
     }
 
     const card = document.createElement("div");
@@ -777,47 +774,22 @@ function checkRackOnline(timestamp) {
     }
 
     let value = Number(timestamp);
-
-    if (
-        Number.isFinite(value) &&
-        value > 100000000000
-    ) {
-        value = value / 1000;
-    }
-
-    if (
-        Number.isFinite(value) &&
-        value > 0
-    ) {
-
-        const age =
-            Date.now() -
-            value * 1000;
-
-        return (
-            age >= 0 &&
-            age <= 120000
-        );
+    if (Number.isFinite(value) && value > 100000000000) value = value / 1000;
+    if (Number.isFinite(value) && value > 0) {
+        const age = Date.now() - value * 1000;
+        return (age >= 0 && age <= 90000);
     }
 
     const date =
         new Date(timestamp);
 
     if (!isNaN(date.getTime())) {
-
-        const age =
-            Date.now() -
-            date.getTime();
-
-        return (
-            age >= 0 &&
-            age <= 120000
-        );
+        const age = Date.now() - date.getTime();
+        return (age >= 0 && age <= 90000);
     }
 
     return false;
 }
-
 
 // =====================================================
 // Environment Status
@@ -853,19 +825,8 @@ function getEnvironmentStatus(
             level: "GOOD"
         };
     }
-
-    if (
-        temperature >= 5 &&
-        temperature <= 40 &&
-        humidity >= 20 &&
-        humidity <= 80
-    ) {
-
-        return {
-            text: "NORMAL",
-            className: "status-class-a",
-            level: "NORMAL"
-        };
+    if (temperature >= 5 && temperature <= 40 && humidity >= 20 && humidity <= 80) {
+        return { text: "NORMAL", className: "status-class-b", level: "NORMAL" };
     }
 
     if (
@@ -947,42 +908,37 @@ if (backToOverview) {
 // =====================================================
 
 function loadRackHistory(rackID) {
+
     if (historyListener) {
+
         historyListener();
+
         historyListener = null;
     }
-
     const historyRef = ref(database, `racks/${rackID}/history`);
-
     historyListener = onValue(historyRef, (snapshot) => {
         const data = snapshot.val();
-
         if (!data) {
             historyDataForExcel = [];
-            currentRackHistoryData = [];
-            renderChartsWithFilter([]);
+            updateTemperatureChart([]);
+            updateHumidityChart([]);
+            updateHistoryTable([]);
             return;
         }
 
-        let historyArray = Object.entries(data).map(([key, value]) => ({
-            id: key,
-            ...(value || {})
-        }));
+        let historyArray = Object.entries(data).map(([key, value]) => ({ id: key, ...(value || {}) }));
 
         historyArray = historyArray.filter(item => {
             const dt = String(item.datetime || "").trim().toUpperCase();
-            return (dt !== "TIME ERROR" && dt !== "");
+            return dt !== "TIME ERROR" && dt !== "";
         });
 
-        // เรียงข้อมูลล่าสุดขึ้นก่อน
+        historyDataForExcel = [...historyArray];
         historyArray.sort((a, b) => getDateTimeValue(b.datetime) - getDateTimeValue(a.datetime));
 
-        historyDataForExcel = [...historyArray];
-        currentRackHistoryData = [...historyArray]; // เก็บข้อมูลดิบไว้ให้ Dropdown ใช้งาน
-
-        // ส่งข้อมูลไปกรองก่อนแสดงผลกราฟและตาราง
-        renderChartsWithFilter(currentRackHistoryData);
-
+        updateTemperatureChart(historyArray);
+        updateHumidityChart(historyArray);
+        updateHistoryTable(historyArray);
     }, (error) => {
         console.error("History Firebase Error:", error);
     });
@@ -1187,17 +1143,11 @@ function updateTemperatureChart(data) {
 
     const pointWidth = 80;
     const minWidth = 1000;
-    const maxWidth = 30000; // ลิมิตความกว้างสูงสุดของ Canvas ป้องกันจอดำ
-
-    let calculatedWidth = Math.max(minWidth, values.length * pointWidth);
-
-    // ถ้ากว้างเกินลิมิต ให้บังคับใช้ความกว้างสูงสุด
-    if (calculatedWidth > maxWidth) {
-        calculatedWidth = maxWidth;
-    }
-
+    const calculatedWidth = Math.max(minWidth, values.length * pointWidth);
     if (scrollInner) {
-        scrollInner.style.width = `${calculatedWidth}px`;
+
+        scrollInner.style.width =
+            `${calculatedWidth}px`;
     }
 
     const validValues =
@@ -1513,17 +1463,11 @@ function updateHumidityChart(data) {
 
     const pointWidth = 80;
     const minWidth = 1000;
-    const maxWidth = 30000; // ลิมิตความกว้างสูงสุดของ Canvas ป้องกันจอดำ
-
-    let calculatedWidth = Math.max(minWidth, values.length * pointWidth);
-
-    // ถ้ากว้างเกินลิมิต ให้บังคับใช้ความกว้างสูงสุด
-    if (calculatedWidth > maxWidth) {
-        calculatedWidth = maxWidth;
-    }
-
+    const calculatedWidth = Math.max(minWidth, values.length * pointWidth);
     if (scrollInner) {
-        scrollInner.style.width = `${calculatedWidth}px`;
+
+        scrollInner.style.width =
+            `${calculatedWidth}px`;
     }
 
     const validValues =
@@ -2737,113 +2681,19 @@ if (clearHistoryBtn) {
                             `racks/${selectedRack}/history`
                         );
 
-                    remove(historyRef)
-                        .then(() => {
-
-                            showCustomModal(
-                                "สำเร็จ",
-                                `ลบประวัติของ ${selectedRack} สำเร็จแล้ว`,
-                                "alert"
-                            );
-
-                            historyDataForExcel = [];
-
-                            updateTemperatureChart([]);
-
-                            updateHumidityChart([]);
-
-                            updateHistoryTable([]);
-
-                        })
-                        .catch((error) => {
-
-                            console.error(
-                                "Error clearing history: ",
-                                error
-                            );
-
-                            showCustomModal(
-                                "เกิดข้อผิดพลาด",
-                                "ไม่สามารถลบประวัติได้: " +
-                                error.message,
-                                "alert"
-                            );
-
-                        });
-                }
-            );
-        }
-    );
-}
-
-// =====================================================
-// Global Time Filter Logic (Bypass for 1 Min & All)
-// =====================================================
-function renderChartsWithFilter(data) {
-    if (!data || data.length === 0) {
-        updateTemperatureChart([]);
-        updateHumidityChart([]);
-        updateHistoryTable([]);
-        return;
-    }
-
-    let filteredData = [];
-
-    // ถ้าเลือก "All Time" หรือ "1 Minute" ให้ดึงข้อมูลดิบทั้งหมดมาโชว์เลยโดยไม่กรอง
-    // (เพราะฮาร์ดแวร์ส่งมาทุก 1 นาทีอยู่แล้ว)
-    if (currentChartTimeFilter === "all") {
-        filteredData = [...data];
-    }
-    // ถ้าเลือก 5, 10, 15 นาที... ค่อยใช้ระบบกรองเวลา
-    else {
-        const stepMinutes = parseInt(currentChartTimeFilter);
-        const stepMs = stepMinutes * 60 * 1000;
-
-        // เผื่อเวลาคลาดเคลื่อนให้ 20 วินาที ป้องกันข้อมูลตกหล่น
-        const toleranceMs = 20000;
-
-        let lastKeptTime = null;
-
-        filteredData = data.filter(item => {
-            const itemTime = getDateTimeValue(item.datetime);
-            if (!itemTime) return false;
-
-            if (lastKeptTime === null) {
-                lastKeptTime = itemTime;
-                return true;
+                remove(historyRef)
+                    .then(() => {
+                        showCustomModal("สำเร็จ", `ลบประวัติของ ${selectedRack} สำเร็จแล้ว`, "alert");
+                        historyDataForExcel = [];
+                        updateTemperatureChart([]);
+                        updateHumidityChart([]);
+                        updateHistoryTable([]);
+                    })
+                    .catch((error) => {
+                        console.error("Error clearing history: ", error);
+                        showCustomModal("เกิดข้อผิดพลาด", "ไม่สามารถลบประวัติได้: " + error.message, "alert");
+                    });
             }
-
-            // ถ้าเวลาห่างกันถึงรอบที่กำหนด (เช่น 5 นาที) ให้อนุญาตให้แสดงผล
-            if (lastKeptTime - itemTime >= (stepMs - toleranceMs)) {
-                lastKeptTime = itemTime;
-                return true;
-            }
-
-            return false;
-        });
-    }
-
-    // ส่งข้อมูลไปวาดกราฟและอัปเดตตาราง
-    updateTemperatureChart(filteredData);
-    updateHumidityChart(filteredData);
-    updateHistoryTable(filteredData);
-}
-
-
-
-// รับค่าเมื่อมีการเปลี่ยนตัวเลือกใน Dropdown ใดๆ
-const timeDropdowns = document.querySelectorAll(".time-filter-dropdown");
-timeDropdowns.forEach(dropdown => {
-    dropdown.addEventListener("change", (e) => {
-        const selectedValue = e.target.value;
-        currentChartTimeFilter = selectedValue;
-
-        // ซิงค์ Dropdown ทุกจุดให้แสดงค่าที่เลือกเหมือนกัน
-        timeDropdowns.forEach(dd => {
-            dd.value = selectedValue;
-        });
-
-        // เรียกใช้งานกราฟใหม่ด้วยข้อมูลดิบที่เก็บไว้
-        renderChartsWithFilter(currentRackHistoryData);
+        );
     });
-});
+}
