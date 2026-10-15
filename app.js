@@ -2681,19 +2681,113 @@ if (clearHistoryBtn) {
                             `racks/${selectedRack}/history`
                         );
 
-                remove(historyRef)
-                    .then(() => {
-                        showCustomModal("สำเร็จ", `ลบประวัติของ ${selectedRack} สำเร็จแล้ว`, "alert");
-                        historyDataForExcel = [];
-                        updateTemperatureChart([]);
-                        updateHumidityChart([]);
-                        updateHistoryTable([]);
-                    })
-                    .catch((error) => {
-                        console.error("Error clearing history: ", error);
-                        showCustomModal("เกิดข้อผิดพลาด", "ไม่สามารถลบประวัติได้: " + error.message, "alert");
-                    });
-            }
-        );
-    });
+                    remove(historyRef)
+                        .then(() => {
+
+                            showCustomModal(
+                                "สำเร็จ",
+                                `ลบประวัติของ ${selectedRack} สำเร็จแล้ว`,
+                                "alert"
+                            );
+
+                            historyDataForExcel = [];
+
+                            updateTemperatureChart([]);
+
+                            updateHumidityChart([]);
+
+                            updateHistoryTable([]);
+
+                        })
+                        .catch((error) => {
+
+                            console.error(
+                                "Error clearing history: ",
+                                error
+                            );
+
+                            showCustomModal(
+                                "เกิดข้อผิดพลาด",
+                                "ไม่สามารถลบประวัติได้: " +
+                                error.message,
+                                "alert"
+                            );
+
+                        });
+                }
+            );
+        }
+    );
 }
+
+// =====================================================
+// Global Time Filter Logic (Bypass for 1 Min & All)
+// =====================================================
+function renderChartsWithFilter(data) {
+    if (!data || data.length === 0) {
+        updateTemperatureChart([]);
+        updateHumidityChart([]);
+        updateHistoryTable([]);
+        return;
+    }
+
+    let filteredData = [];
+
+    // ถ้าเลือก "All Time" หรือ "1 Minute" ให้ดึงข้อมูลดิบทั้งหมดมาโชว์เลยโดยไม่กรอง
+    // (เพราะฮาร์ดแวร์ส่งมาทุก 1 นาทีอยู่แล้ว)
+    if (currentChartTimeFilter === "all") {
+        filteredData = [...data];
+    }
+    // ถ้าเลือก 5, 10, 15 นาที... ค่อยใช้ระบบกรองเวลา
+    else {
+        const stepMinutes = parseInt(currentChartTimeFilter);
+        const stepMs = stepMinutes * 60 * 1000;
+
+        // เผื่อเวลาคลาดเคลื่อนให้ 20 วินาที ป้องกันข้อมูลตกหล่น
+        const toleranceMs = 20000;
+
+        let lastKeptTime = null;
+
+        filteredData = data.filter(item => {
+            const itemTime = getDateTimeValue(item.datetime);
+            if (!itemTime) return false;
+
+            if (lastKeptTime === null) {
+                lastKeptTime = itemTime;
+                return true;
+            }
+
+            // ถ้าเวลาห่างกันถึงรอบที่กำหนด (เช่น 5 นาที) ให้อนุญาตให้แสดงผล
+            if (lastKeptTime - itemTime >= (stepMs - toleranceMs)) {
+                lastKeptTime = itemTime;
+                return true;
+            }
+
+            return false;
+        });
+    }
+
+    // ส่งข้อมูลไปวาดกราฟและอัปเดตตาราง
+    updateTemperatureChart(filteredData);
+    updateHumidityChart(filteredData);
+    updateHistoryTable(filteredData);
+}
+
+
+
+// รับค่าเมื่อมีการเปลี่ยนตัวเลือกใน Dropdown ใดๆ
+const timeDropdowns = document.querySelectorAll(".time-filter-dropdown");
+timeDropdowns.forEach(dropdown => {
+    dropdown.addEventListener("change", (e) => {
+        const selectedValue = e.target.value;
+        currentChartTimeFilter = selectedValue;
+
+        // ซิงค์ Dropdown ทุกจุดให้แสดงค่าที่เลือกเหมือนกัน
+        timeDropdowns.forEach(dd => {
+            dd.value = selectedValue;
+        });
+
+        // เรียกใช้งานกราฟใหม่ด้วยข้อมูลดิบที่เก็บไว้
+        renderChartsWithFilter(currentRackHistoryData);
+    });
+});
