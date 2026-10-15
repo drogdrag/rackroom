@@ -906,19 +906,14 @@ if (backToOverview) {
 // =====================================================
 // Load Rack History
 // =====================================================
-
 function loadRackHistory(rackID) {
-
     if (historyListener) {
         historyListener();
         historyListener = null;
     }
-    
     const historyRef = ref(database, `racks/${rackID}/history`);
-    
     historyListener = onValue(historyRef, (snapshot) => {
         const data = snapshot.val();
-        
         if (!data) {
             historyDataForExcel = [];
             currentRackHistoryData = []; 
@@ -935,40 +930,30 @@ function loadRackHistory(rackID) {
             return dt !== "TIME ERROR" && dt !== "";
         });
 
-        // 1. จัดเรียงเวลา (ใหม่สุดไปเก่าสุด)
+        // 1. จัดเรียงเวลาใหม่สุดไปเก่าสุด
         historyArray.sort((a, b) => getDateTimeValue(b.datetime) - getDateTimeValue(a.datetime));
 
-        // 2. กรองข้อมูลซ้ำซ้อนขั้นเด็ดขาด (Strict Deduplication)
-        // ตัดเศษ Millisecond ทิ้ง เพื่อบังคับให้ 1 วินาทีมีเพียง 1 จุดข้อมูล แก้กราฟเส้นดิ่ง
+        // 2. กรองข้อมูลเวลาซ้ำ (บังคับไม่ให้มีเวลาเดียวกันเป๊ะ)
         const uniqueHistory = [];
-        const seenSeconds = new Set();
-        
+        const seenLabels = new Set();
         for (const item of historyArray) {
-            // หาร 1000 แล้วปัดเศษลง เพื่อกรุ๊ปข้อมูลในระดับ "วินาที"
-            const secondLevelTimestamp = Math.floor(getDateTimeValue(item.datetime) / 1000);
-            
-            if (!seenSeconds.has(secondLevelTimestamp)) {
-                seenSeconds.add(secondLevelTimestamp);
+            const label = getTimeOnly(item.datetime);
+            if (!seenLabels.has(label)) {
+                seenLabels.add(label);
                 uniqueHistory.push(item);
             }
         }
-        
         historyArray = uniqueHistory;
 
-        // 3. เก็บข้อมูลสำหรับการดาวน์โหลด Excel
+        // บันทึกข้อมูลเข้าตัวแปรสำหรับกราฟและ Excel
         historyDataForExcel = [...historyArray];
-
-        // 4. บันทึกข้อมูลเข้าตัวแปร Global เพื่อให้ Dropdown นำไปกรองต่อได้
         currentRackHistoryData = [...historyArray];
-
-        // 5. เรียกใช้วาดกราฟผ่านฟังก์ชัน Filter
         renderChartsWithFilter(currentRackHistoryData);
 
     }, (error) => {
         console.error("History Firebase Error:", error);
     });
 }
-
 
 // =====================================================
 // Convert DateTime
@@ -1100,649 +1085,193 @@ function getTimeOnly(datetime) {
     return text;
 }
 
-
 // =====================================================
 // Update Temperature Chart
 // =====================================================
-
 function updateTemperatureChart(data) {
+    const mainCanvas = document.getElementById("temperatureChart");
+    const axisCanvas = document.getElementById("temperatureAxis");
+    const scrollInner = document.getElementById("tempScrollInner");
+    const scrollBox = mainCanvas.closest(".scroll-box");
+    const axisBox = axisCanvas.closest(".y-axis-box");
 
-    const mainCanvas =
-        document.getElementById(
-            "temperatureChart"
-        );
+    if (!mainCanvas || !axisCanvas) return;
 
-    const axisCanvas =
-        document.getElementById(
-            "temperatureAxis"
-        );
+    let sorted = [...data].sort((a, b) => getDateTimeValue(a.datetime) - getDateTimeValue(b.datetime));
 
-    const scrollInner =
-        document.getElementById(
-            "tempScrollInner"
-        );
-
-    const scrollBox =
-        mainCanvas.closest(
-            ".scroll-box"
-        );
-
-    const axisBox =
-        axisCanvas.closest(
-            ".y-axis-box"
-        );
-
-    if (
-        !mainCanvas ||
-        !axisCanvas
-    ) {
-        return;
+    // ==========================================
+    // เพิ่มระบบจำกัดจุดกราฟ ป้องกัน Canvas พังและเส้นดิ่ง
+    // ==========================================
+    const MAX_POINTS = 100;
+    if (sorted.length > MAX_POINTS) {
+        const step = Math.ceil(sorted.length / MAX_POINTS);
+        const lastItem = sorted[sorted.length - 1]; // เก็บค่าล่าสุดเสมอ
+        sorted = sorted.filter((_, index) => index % step === 0);
+        if (sorted[sorted.length - 1] !== lastItem) {
+            sorted.push(lastItem); // บังคับแสดงข้อมูลวินาทีปัจจุบันเสมอ
+        }
     }
+    // ==========================================
 
-    const sorted =
-        [...data].sort(
-            (a, b) =>
-                getDateTimeValue(
-                    a.datetime
-                ) -
-                getDateTimeValue(
-                    b.datetime
-                )
-        );
-
-    const labels =
-        sorted.map(
-            item =>
-                getTimeOnly(
-                    item.datetime
-                )
-        );
-
-    const values =
-        sorted.map(
-            item =>
-                toNumber(
-                    item.temperature
-                )
-        );
+    const labels = sorted.map(item => getTimeOnly(item.datetime));
+    const values = sorted.map(item => toNumber(item.temperature));
 
     const pointWidth = 80;
     const minWidth = 1000;
     const calculatedWidth = Math.max(minWidth, values.length * pointWidth);
+    
     if (scrollInner) {
-
-        scrollInner.style.width =
-            `${calculatedWidth}px`;
+        scrollInner.style.width = `${calculatedWidth}px`;
     }
 
-    const validValues =
-        values.filter(
-            v => Number.isFinite(v)
-        );
-
-    const minVal =
-        validValues.length > 0
-            ? Math.min(...validValues)
-            : 0;
-
-    const maxVal =
-        validValues.length > 0
-            ? Math.max(...validValues)
-            : 100;
-
-    const scaleMin =
-        Math.floor(minVal) - 1;
-
-    const scaleMax =
-        Math.ceil(maxVal) + 1;
+    const validValues = values.filter(v => Number.isFinite(v));
+    const minVal = validValues.length > 0 ? Math.min(...validValues) : 0;
+    const maxVal = validValues.length > 0 ? Math.max(...validValues) : 100;
+    const scaleMin = Math.floor(minVal) - 1;
+    const scaleMax = Math.ceil(maxVal) + 1;
 
     if (temperatureChart) {
-
         temperatureChart.destroy();
-
         temperatureChart = null;
     }
-
     if (tempAxisChart) {
-
         tempAxisChart.destroy();
-
         tempAxisChart = null;
     }
 
-    tempAxisChart =
-        new Chart(
-            axisCanvas,
-            {
-                type: "line",
-
-                data: {
-
-                    labels: labels,
-
-                    datasets: [{
-                        data: values,
-                        borderColor: 'transparent',
-                        backgroundColor: 'transparent',
-                        pointRadius: 0
-                    }]
-                },
-
-                options: {
-
-                    responsive: true,
-                    maintainAspectRatio: false,
-
-                    plugins: {
-                        legend: {
-                            display: false
-                        },
-                        tooltip: {
-                            enabled: false
-                        }
-                    },
-
-                    layout: {
-                        padding: {
-                            left: 0,
-                            right: 0,
-                            top: 20,
-                            bottom: 5
-                        }
-                    },
-
-                    scales: {
-
-                        x: {
-
-                            ticks: {
-                                color: 'transparent',
-                                autoSkip: false,
-                                maxRotation: 35,
-                                minRotation: 35
-                            },
-
-                            grid: {
-                                display: false
-                            },
-
-                            border: {
-                                display: false
-                            }
-                        },
-
-                        y: {
-
-                            title: {
-                                display: true,
-                                text: 'Temperature (°C)',
-                                padding: {
-                                    bottom: 10
-                                },
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-
-                            min: scaleMin,
-                            max: scaleMax,
-
-                            ticks: {
-                                stepSize: 0.5,
-                                callback: function (val) {
-                                    return Number(val).toFixed(1);
-                                }
-                            },
-
-                            grid: {
-                                display: false
-                            },
-
-                            border: {
-                                display: false
-                            }
-                        }
-                    }
-                }
+    tempAxisChart = new Chart(axisCanvas, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{ data: values, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
+            scales: {
+                x: { ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }, grid: { display: false }, border: { display: false } },
+                y: { title: { display: true, text: 'Temperature (°C)', padding: { bottom: 10 }, font: { weight: 'bold' } }, min: scaleMin, max: scaleMax, ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { display: false }, border: { display: false } }
             }
-        );
+        }
+    });
 
-    temperatureChart =
-        new Chart(
-            mainCanvas,
-            {
-                type: "line",
-
-                data: {
-
-                    labels: labels,
-
-                    datasets: [{
-
-                        label: "Temperature (°C)",
-
-                        data: values,
-
-                        tension: 0.3,
-
-                        fill: false,
-
-                        pointRadius: 3,
-
-                        pointHoverRadius: 5
-                    }]
-                },
-
-                options: {
-
-                    responsive: true,
-                    maintainAspectRatio: false,
-
-                    plugins: {
-
-                        legend: {
-                            display: false
-                        },
-
-                        tooltip: {
-                            enabled: true
-                        }
-                    },
-
-                    layout: {
-
-                        padding: {
-                            left: 0,
-                            right: 15,
-                            top: 20,
-                            bottom: 8
-                        }
-                    },
-
-                    scales: {
-
-                        x: {
-
-                            ticks: {
-                                autoSkip: false,
-                                maxRotation: 35,
-                                minRotation: 35
-                            }
-                        },
-
-                        y: {
-
-                            display: true,
-
-                            min: scaleMin,
-                            max: scaleMax,
-
-                            ticks: {
-
-                                display: true,
-
-                                color: 'transparent',
-
-                                mirror: true,
-
-                                stepSize: 0.5,
-
-                                callback: function (val) {
-                                    return Number(val).toFixed(1);
-                                }
-                            },
-
-                            grid: {
-                                drawOnChartArea: true
-                            },
-
-                            border: {
-                                display: false
-                            }
-                        }
-                    }
-                }
+    temperatureChart = new Chart(mainCanvas, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{ label: "Temperature (°C)", data: values, tension: 0.3, fill: false, pointRadius: 3, pointHoverRadius: 5 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
+            scales: {
+                x: { ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 } },
+                y: { display: true, min: scaleMin, max: scaleMax, ticks: { display: true, color: 'transparent', mirror: true, stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { drawOnChartArea: true }, border: { display: false } }
             }
-        );
+        }
+    });
 
     setTimeout(() => {
-
-        if (scrollBox) {
-            scrollBox.scrollLeft =
-                scrollBox.scrollWidth;
-        }
-
-        if (axisBox) {
-            axisBox.scrollLeft =
-                axisBox.scrollWidth;
-        }
-
+        if (scrollBox) scrollBox.scrollLeft = scrollBox.scrollWidth;
+        if (axisBox) axisBox.scrollLeft = axisBox.scrollWidth;
     }, 50);
 }
-
 
 // =====================================================
 // Update Humidity Chart
 // =====================================================
-
 function updateHumidityChart(data) {
+    const mainCanvas = document.getElementById("humidityChart");
+    const axisCanvas = document.getElementById("humidityAxis");
+    const scrollInner = document.getElementById("humScrollInner");
+    const scrollBox = mainCanvas.closest(".scroll-box");
+    const axisBox = axisCanvas.closest(".y-axis-box");
 
-    const mainCanvas =
-        document.getElementById(
-            "humidityChart"
-        );
+    if (!mainCanvas || !axisCanvas) return;
 
-    const axisCanvas =
-        document.getElementById(
-            "humidityAxis"
-        );
+    let sorted = [...data].sort((a, b) => getDateTimeValue(a.datetime) - getDateTimeValue(b.datetime));
 
-    const scrollInner =
-        document.getElementById(
-            "humScrollInner"
-        );
-
-    const scrollBox =
-        mainCanvas.closest(
-            ".scroll-box"
-        );
-
-    const axisBox =
-        axisCanvas.closest(
-            ".y-axis-box"
-        );
-
-    if (
-        !mainCanvas ||
-        !axisCanvas
-    ) {
-        return;
+    // ==========================================
+    // เพิ่มระบบจำกัดจุดกราฟ ป้องกัน Canvas พังและเส้นดิ่ง
+    // ==========================================
+    const MAX_POINTS = 100;
+    if (sorted.length > MAX_POINTS) {
+        const step = Math.ceil(sorted.length / MAX_POINTS);
+        const lastItem = sorted[sorted.length - 1]; // เก็บค่าล่าสุดเสมอ
+        sorted = sorted.filter((_, index) => index % step === 0);
+        if (sorted[sorted.length - 1] !== lastItem) {
+            sorted.push(lastItem); // บังคับแสดงข้อมูลวินาทีปัจจุบันเสมอ
+        }
     }
+    // ==========================================
 
-    const sorted =
-        [...data].sort(
-            (a, b) =>
-                getDateTimeValue(
-                    a.datetime
-                ) -
-                getDateTimeValue(
-                    b.datetime
-                )
-        );
-
-    const labels =
-        sorted.map(
-            item =>
-                getTimeOnly(
-                    item.datetime
-                )
-        );
-
-    const values =
-        sorted.map(
-            item =>
-                toNumber(
-                    item.humidity
-                )
-        );
+    const labels = sorted.map(item => getTimeOnly(item.datetime));
+    const values = sorted.map(item => toNumber(item.humidity));
 
     const pointWidth = 80;
     const minWidth = 1000;
     const calculatedWidth = Math.max(minWidth, values.length * pointWidth);
+    
     if (scrollInner) {
-
-        scrollInner.style.width =
-            `${calculatedWidth}px`;
+        scrollInner.style.width = `${calculatedWidth}px`;
     }
 
-    const validValues =
-        values.filter(
-            v => Number.isFinite(v)
-        );
-
-    const minVal =
-        validValues.length > 0
-            ? Math.min(...validValues)
-            : 0;
-
-    const maxVal =
-        validValues.length > 0
-            ? Math.max(...validValues)
-            : 100;
-
-    const scaleMin =
-        Math.floor(minVal) - 1;
-
-    const scaleMax =
-        Math.ceil(maxVal) + 1;
+    const validValues = values.filter(v => Number.isFinite(v));
+    const minVal = validValues.length > 0 ? Math.min(...validValues) : 0;
+    const maxVal = validValues.length > 0 ? Math.max(...validValues) : 100;
+    const scaleMin = Math.floor(minVal) - 1;
+    const scaleMax = Math.ceil(maxVal) + 1;
 
     if (humidityChart) {
-
         humidityChart.destroy();
-
         humidityChart = null;
     }
-
     if (humAxisChart) {
-
         humAxisChart.destroy();
-
         humAxisChart = null;
     }
 
-    humAxisChart =
-        new Chart(
-            axisCanvas,
-            {
-                type: "line",
-
-                data: {
-
-                    labels: labels,
-
-                    datasets: [{
-                        data: values,
-                        borderColor: 'transparent',
-                        backgroundColor: 'transparent',
-                        pointRadius: 0
-                    }]
-                },
-
-                options: {
-
-                    responsive: true,
-                    maintainAspectRatio: false,
-
-                    plugins: {
-
-                        legend: {
-                            display: false
-                        },
-
-                        tooltip: {
-                            enabled: false
-                        }
-                    },
-
-                    layout: {
-
-                        padding: {
-                            left: 0,
-                            right: 0,
-                            top: 20,
-                            bottom: 5
-                        }
-                    },
-
-                    scales: {
-
-                        x: {
-
-                            ticks: {
-                                color: 'transparent',
-                                autoSkip: false,
-                                maxRotation: 35,
-                                minRotation: 35
-                            },
-
-                            grid: {
-                                display: false
-                            },
-
-                            border: {
-                                display: false
-                            }
-                        },
-
-                        y: {
-
-                            title: {
-                                display: true,
-                                text: 'Humidity (%RH)',
-                                padding: {
-                                    bottom: 10
-                                },
-                                font: {
-                                    weight: 'bold'
-                                }
-                            },
-
-                            min: scaleMin,
-                            max: scaleMax,
-
-                            ticks: {
-                                stepSize: 0.5,
-                                callback: function (val) {
-                                    return Number(val).toFixed(1);
-                                }
-                            },
-
-                            grid: {
-                                display: false
-                            },
-
-                            border: {
-                                display: false
-                            }
-                        }
-                    }
-                }
+    humAxisChart = new Chart(axisCanvas, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{ data: values, borderColor: 'transparent', backgroundColor: 'transparent', pointRadius: 0 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: false } },
+            layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
+            scales: {
+                x: { ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }, grid: { display: false }, border: { display: false } },
+                y: { title: { display: true, text: 'Humidity (%RH)', padding: { bottom: 10 }, font: { weight: 'bold' } }, min: scaleMin, max: scaleMax, ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { display: false }, border: { display: false } }
             }
-        );
+        }
+    });
 
-    humidityChart =
-        new Chart(
-            mainCanvas,
-            {
-                type: "line",
-
-                data: {
-
-                    labels: labels,
-
-                    datasets: [{
-
-                        label: "Humidity (%RH)",
-
-                        data: values,
-
-                        tension: 0.3,
-
-                        fill: false,
-
-                        pointRadius: 3,
-
-                        pointHoverRadius: 5
-                    }]
-                },
-
-                options: {
-
-                    responsive: true,
-                    maintainAspectRatio: false,
-
-                    plugins: {
-
-                        legend: {
-                            display: false
-                        },
-
-                        tooltip: {
-                            enabled: true
-                        }
-                    },
-
-                    layout: {
-
-                        padding: {
-                            left: 0,
-                            right: 15,
-                            top: 20,
-                            bottom: 8
-                        }
-                    },
-
-                    scales: {
-
-                        x: {
-
-                            ticks: {
-                                autoSkip: false,
-                                maxRotation: 35,
-                                minRotation: 35
-                            }
-                        },
-
-                        y: {
-
-                            display: true,
-
-                            min: scaleMin,
-                            max: scaleMax,
-
-                            ticks: {
-
-                                display: true,
-
-                                color: 'transparent',
-
-                                mirror: true,
-
-                                stepSize: 0.5,
-
-                                callback: function (val) {
-                                    return Number(val).toFixed(1);
-                                }
-                            },
-
-                            grid: {
-                                drawOnChartArea: true
-                            },
-
-                            border: {
-                                display: false
-                            }
-                        }
-                    }
-                }
+    humidityChart = new Chart(mainCanvas, {
+        type: "line",
+        data: {
+            labels: labels,
+            datasets: [{ label: "Humidity (%RH)", data: values, tension: 0.3, fill: false, pointRadius: 3, pointHoverRadius: 5 }]
+        },
+        options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { display: false }, tooltip: { enabled: true } },
+            layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
+            scales: {
+                x: { ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 } },
+                y: { display: true, min: scaleMin, max: scaleMax, ticks: { display: true, color: 'transparent', mirror: true, stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { drawOnChartArea: true }, border: { display: false } }
             }
-        );
+        }
+    });
 
     setTimeout(() => {
-
-        if (scrollBox) {
-            scrollBox.scrollLeft =
-                scrollBox.scrollWidth;
-        }
-
-        if (axisBox) {
-            axisBox.scrollLeft =
-                axisBox.scrollWidth;
-        }
-
+        if (scrollBox) scrollBox.scrollLeft = scrollBox.scrollWidth;
+        if (axisBox) axisBox.scrollLeft = axisBox.scrollWidth;
     }, 50);
 }
-
 
 // =====================================================
 // Update History Table
