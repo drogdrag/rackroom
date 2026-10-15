@@ -133,9 +133,7 @@ onValue(racksRef, (snapshot) => {
     const data = snapshot.val();
 
     if (!data) {
-
         allRackData = {};
-
         updateSummary({});
 
         if (rackGrid) {
@@ -147,14 +145,11 @@ onValue(racksRef, (snapshot) => {
                 </div>
             `;
         }
-
         return;
     }
 
     allRackData = data;
-
     updateSummary(data);
-
     renderRackOverview(data);
 
     if (selectedRack && data[selectedRack]) {
@@ -184,7 +179,6 @@ onValue(racksRef, (snapshot) => {
 // =====================================================
 
 function updateSummary(racks) {
-
     const rackEntries = Object.entries(racks);
 
     let online = 0;
@@ -192,24 +186,17 @@ function updateSummary(racks) {
     let alert = 0;
 
     rackEntries.forEach(([rackID, rackData]) => {
-
         const current = rackData?.current || {};
         const status = rackData?.status || {};
 
         const temperature = toNumber(current.temperature);
         const humidity = toNumber(current.humidity);
 
-        const environment = getEnvironmentStatus(
-            temperature,
-            humidity
-        );
-
+        const environment = getEnvironmentStatus(temperature, humidity);
         const isOnline = checkRackOnline(status.lastUpdate);
 
         if (isOnline) {
-
             online++;
-
             if (
                 environment.level === "BAD" ||
                 status.sensor !== "OK" ||
@@ -217,11 +204,9 @@ function updateSummary(racks) {
             ) {
                 alert++;
             }
-
         } else {
             offline++;
         }
-
     });
 
     setText("totalRack", rackEntries.length);
@@ -236,30 +221,18 @@ function updateSummary(racks) {
 // =====================================================
 
 function startLiveStatusInterval() {
-
     if (liveStatusInterval) return;
 
     liveStatusInterval = setInterval(() => {
-
-        if (
-            !allRackData ||
-            Object.keys(allRackData).length === 0
-        ) {
+        if (!allRackData || Object.keys(allRackData).length === 0) {
             return;
         }
 
         updateSummary(allRackData);
-
         renderRackOverview(allRackData);
 
-        if (
-            selectedRack &&
-            allRackData[selectedRack]
-        ) {
-            updateDetailData(
-                selectedRack,
-                allRackData[selectedRack]
-            );
+        if (selectedRack && allRackData[selectedRack]) {
+            updateDetailData(selectedRack, allRackData[selectedRack]);
         }
     }, 2000);
 }
@@ -270,20 +243,12 @@ function startLiveStatusInterval() {
 // =====================================================
 
 function renderRackOverview(racks) {
-
     if (!rackGrid) return;
-
     rackGrid.innerHTML = "";
 
     Object.entries(racks).forEach(([rackID, rackData]) => {
-
-        const card = createRackCard(
-            rackID,
-            rackData
-        );
-
+        const card = createRackCard(rackID, rackData);
         rackGrid.appendChild(card);
-
     });
 
     filterRacks(currentFilterMode);
@@ -295,20 +260,14 @@ function renderRackOverview(racks) {
 // =====================================================
 
 function createRackCard(rackID, rackData) {
-
     const current = rackData?.current || {};
     const status = rackData?.status || {};
 
     const temperature = toNumber(current.temperature);
     const humidity = toNumber(current.humidity);
 
-    const environment = getEnvironmentStatus(
-        temperature,
-        humidity
-    );
-
+    const environment = getEnvironmentStatus(temperature, humidity);
     const online = checkRackOnline(status.lastUpdate);
-
     const sensorOK = status.sensor === "OK";
     const wifiOK = status.wifi === "OK";
 
@@ -317,202 +276,90 @@ function createRackCard(rackID, rackData) {
     let overallStatus = "GOOD";
     let overallClass = "online-good";
 
-    let displayTemp = Number.isFinite(temperature)
-        ? temperature.toFixed(1)
-        : "--";
-
-    let displayHum = Number.isFinite(humidity)
-        ? humidity.toFixed(1)
-        : "--";
+    let displayTemp = Number.isFinite(temperature) ? temperature.toFixed(1) : "--";
+    let displayHum = Number.isFinite(humidity) ? humidity.toFixed(1) : "--";
 
     let envLabel = environment.text;
     let miniCardClass = environment.className;
 
     if (!online) {
-
         overallStatus = "OFFLINE";
         overallClass = "offline";
-
         envLabel = "OFFLINE";
-
         displayTemp = "--";
         displayHum = "--";
-
         miniCardClass = "status-offline";
-
     } else if (!sensorOK) {
-
         overallStatus = "SENSOR ERROR";
         overallClass = "alarm";
-
         envLabel = "ERROR";
-
         displayTemp = "--";
         displayHum = "--";
-
         miniCardClass = "status-bad";
-
     } else if (!wifiOK) {
-
         overallStatus = "WIFI ERROR";
         overallClass = "alarm";
-
     } else if (environment.level === "BAD") {
-
         overallStatus = "ALERT";
         overallClass = "alarm";
-
     } else {
         overallStatus = environment.level; overallClass = "warning";
     }
 
     const card = document.createElement("div");
-
     card.className = `rack-card ${overallClass}`;
 
     card.innerHTML = `
         <div class="rack-card-top">
-
-            <div class="rack-icon">
-                ${SERVER_ICON_SVG}
-            </div>
-
+            <div class="rack-icon">${SERVER_ICON_SVG}</div>
             <div class="rack-card-title">
-
                 <h3>${displayName}</h3>
-
                 <p>${online ? "Online" : "Offline"}</p>
-
             </div>
-
         </div>
-
         <div class="rack-online">
-
             <span class="dot ${online ? "online" : "offline"}"></span>
-
-            ${online
-            ? "Connected to Firebase"
-            : "Disconnected"
-        }
-
+            ${online ? "Connected to Firebase" : "Disconnected"}
         </div>
-
         <div class="rack-mini-cards">
-
             <div class="card card-mini ${miniCardClass}">
-
-                <div class="card-header">
-                    <span class="card-title">
-                        Temp
-                    </span>
-                </div>
-
+                <div class="card-header"><span class="card-title">Temp</span></div>
                 <div class="card-body">
-
                     <div class="status-box">
-
-                        <span class="status-label">
-                            status:
-                        </span>
-
-                        <span class="status-value">
-                            ${envLabel}
-                        </span>
-
+                        <span class="status-label">status:</span>
+                        <span class="status-value">${envLabel}</span>
                     </div>
-
                     <div class="value-box">
-
-                        <span class="number">
-                            ${displayTemp}
-                        </span>
-
-                        <span class="unit">
-                            °c
-                        </span>
-
+                        <span class="number">${displayTemp}</span>
+                        <span class="unit">°c</span>
                     </div>
-
                 </div>
-
             </div>
-
             <div class="card card-mini ${miniCardClass}">
-
-                <div class="card-header">
-
-                    <span class="card-title">
-                        Humidity
-                    </span>
-
-                </div>
-
+                <div class="card-header"><span class="card-title">Humidity</span></div>
                 <div class="card-body">
-
                     <div class="status-box">
-
-                        <span class="status-label">
-                            status:
-                        </span>
-
-                        <span class="status-value">
-                            ${envLabel}
-                        </span>
-
+                        <span class="status-label">status:</span>
+                        <span class="status-value">${envLabel}</span>
                     </div>
-
                     <div class="value-box">
-
-                        <span class="number">
-                            ${displayHum}
-                        </span>
-
-                        <span class="unit">
-                            %
-                        </span>
-
+                        <span class="number">${displayHum}</span>
+                        <span class="unit">%</span>
                     </div>
-
                 </div>
-
             </div>
-
         </div>
-
-        <span
-            class="rack-status"
-            style="display:none;"
-        >
-            ${overallStatus}
-        </span>
-
-        <button class="view-rack">
-            View Details →
-        </button>
+        <span class="rack-status" style="display:none;">${overallStatus}</span>
+        <button class="view-rack">View Details →</button>
     `;
 
-    card.addEventListener(
-        "click",
-        () => {
-            openRackDetail(rackID);
-        }
-    );
-
+    card.addEventListener("click", () => openRackDetail(rackID));
     const button = card.querySelector(".view-rack");
-
     if (button) {
-
-        button.addEventListener(
-            "click",
-            (event) => {
-
-                event.stopPropagation();
-
-                openRackDetail(rackID);
-
-            }
-        );
+        button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            openRackDetail(rackID);
+        });
     }
 
     return card;
@@ -524,26 +371,14 @@ function createRackCard(rackID, rackData) {
 // =====================================================
 
 function openRackDetail(rackID) {
-
     selectedRack = rackID;
-
-    if (overviewPage) {
-        overviewPage.style.display = "none";
-    }
-
-    if (detailPage) {
-        detailPage.style.display = "block";
-    }
+    if (overviewPage) overviewPage.style.display = "none";
+    if (detailPage) detailPage.style.display = "block";
 
     const rackData = allRackData[rackID];
-
     if (!rackData) return;
 
-    updateDetailData(
-        rackID,
-        rackData
-    );
-
+    updateDetailData(rackID, rackData);
     loadRackHistory(rackID);
 }
 
@@ -553,150 +388,52 @@ function openRackDetail(rackID) {
 // =====================================================
 
 function updateDetailData(rackID, rackData) {
-
     const current = rackData?.current || {};
     const status = rackData?.status || {};
 
-    const temperature = toNumber(
-        current.temperature
-    );
+    const temperature = toNumber(current.temperature);
+    const humidity = toNumber(current.humidity);
+    const online = checkRackOnline(status.lastUpdate);
+    const displayName = rackData?.name || rackID;
 
-    const humidity = toNumber(
-        current.humidity
-    );
-
-    const online = checkRackOnline(
-        status.lastUpdate
-    );
-
-    const displayName =
-        rackData?.name || rackID;
-
-    setText(
-        "detailRackTitle",
-        displayName
-    );
+    setText("detailRackTitle", displayName);
 
     let displayTemp = "--";
     let displayHum = "--";
-
     let environment = {};
 
     if (!online) {
-
-        environment = {
-            text: "OFFLINE",
-            className: "status-offline",
-            level: "OFFLINE"
-        };
-
+        environment = { text: "OFFLINE", className: "status-offline", level: "OFFLINE" };
     } else if (status.sensor !== "OK") {
-
-        environment = {
-            text: "ERROR",
-            className: "status-bad",
-            level: "ERROR"
-        };
-
+        environment = { text: "ERROR", className: "status-bad", level: "ERROR" };
     } else {
-
-        displayTemp =
-            Number.isFinite(temperature)
-                ? temperature.toFixed(1)
-                : "--";
-
-        displayHum =
-            Number.isFinite(humidity)
-                ? humidity.toFixed(1)
-                : "--";
-
-        environment =
-            getEnvironmentStatus(
-                temperature,
-                humidity
-            );
+        displayTemp = Number.isFinite(temperature) ? temperature.toFixed(1) : "--";
+        displayHum = Number.isFinite(humidity) ? humidity.toFixed(1) : "--";
+        environment = getEnvironmentStatus(temperature, humidity);
     }
 
-    setText(
-        "temperature",
-        displayTemp
-    );
+    setText("temperature", displayTemp);
+    setText("humidity", displayHum);
+    setStatusElement("temperatureStatus", environment);
+    setStatusElement("humidityStatus", environment);
 
-    setText(
-        "humidity",
-        displayHum
-    );
+    const tempCard = document.getElementById("temperatureCard");
+    if (tempCard) tempCard.className = `card ${environment.className}`;
 
-    setStatusElement(
-        "temperatureStatus",
-        environment
-    );
+    const humCard = document.getElementById("humidityCard");
+    if (humCard) humCard.className = `card ${environment.className}`;
 
-    setStatusElement(
-        "humidityStatus",
-        environment
-    );
+    setText("detailConnectionText", online ? "ONLINE" : "OFFLINE");
 
-    const tempCard =
-        document.getElementById(
-            "temperatureCard"
-        );
-
-    if (tempCard) {
-        tempCard.className =
-            `card ${environment.className}`;
-    }
-
-    const humCard =
-        document.getElementById(
-            "humidityCard"
-        );
-
-    if (humCard) {
-        humCard.className =
-            `card ${environment.className}`;
-    }
-
-    setText(
-        "detailConnectionText",
-        online ? "ONLINE" : "OFFLINE"
-    );
-
-    const detailDot =
-        document.getElementById(
-            "detailConnectionDot"
-        );
-
+    const detailDot = document.getElementById("detailConnectionDot");
     if (detailDot) {
-
-        detailDot.classList.remove(
-            "online",
-            "offline"
-        );
-
-        detailDot.classList.add(
-            online
-                ? "online"
-                : "offline"
-        );
+        detailDot.classList.remove("online", "offline");
+        detailDot.classList.add(online ? "online" : "offline");
     }
 
-    setText(
-        "detailLastUpdate",
-        status.lastUpdateText ||
-        current.datetime ||
-        "--"
-    );
-
-    setText(
-        "detailSensorStatus",
-        status.sensor || "--"
-    );
-
-    setText(
-        "detailWifiStatus",
-        status.wifi || "--"
-    );
+    setText("detailLastUpdate", status.lastUpdateText || current.datetime || "--");
+    setText("detailSensorStatus", status.sensor || "--");
+    setText("detailWifiStatus", status.wifi || "--");
 }
 
 
@@ -705,58 +442,22 @@ function updateDetailData(rackID, rackData) {
 // =====================================================
 
 function setText(elementID, value) {
-
-    const element =
-        document.getElementById(elementID);
-
-    if (element) {
-        element.textContent = value;
-    }
+    const element = document.getElementById(elementID);
+    if (element) element.textContent = value;
 }
 
 function toNumber(value) {
-
-    if (
-        value === null ||
-        value === undefined ||
-        value === ""
-    ) {
-        return NaN;
-    }
-
+    if (value === null || value === undefined || value === "") return NaN;
     const number = Number(value);
-
-    return Number.isFinite(number)
-        ? number
-        : NaN;
+    return Number.isFinite(number) ? number : NaN;
 }
 
-function setStatusElement(
-    elementID,
-    status
-) {
-
-    const element =
-        document.getElementById(elementID);
-
+function setStatusElement(elementID, status) {
+    const element = document.getElementById(elementID);
     if (!element) return;
-
-    element.textContent =
-        status.text;
-
-    element.classList.remove(
-        "status-class-a",
-        "status-class-b",
-        "status-class-s1",
-        "status-class-s2",
-        "status-class-s3",
-        "status-bad",
-        "status-offline"
-    );
-
-    element.classList.add(
-        status.className
-    );
+    element.textContent = status.text;
+    element.classList.remove("status-class-a", "status-class-b", "status-class-s1", "status-class-s2", "status-class-s3", "status-bad", "status-offline");
+    element.classList.add(status.className);
 }
 
 
@@ -765,13 +466,7 @@ function setStatusElement(
 // =====================================================
 
 function checkRackOnline(timestamp) {
-
-    if (
-        timestamp === null ||
-        timestamp === undefined
-    ) {
-        return false;
-    }
+    if (timestamp === null || timestamp === undefined) return false;
 
     let value = Number(timestamp);
     if (Number.isFinite(value) && value > 100000000000) value = value / 1000;
@@ -780,14 +475,11 @@ function checkRackOnline(timestamp) {
         return (age >= 0 && age <= 90000);
     }
 
-    const date =
-        new Date(timestamp);
-
+    const date = new Date(timestamp);
     if (!isNaN(date.getTime())) {
         const age = Date.now() - date.getTime();
         return (age >= 0 && age <= 90000);
     }
-
     return false;
 }
 
@@ -795,87 +487,26 @@ function checkRackOnline(timestamp) {
 // Environment Status
 // =====================================================
 
-function getEnvironmentStatus(
-    temperature,
-    humidity
-) {
-
-    if (
-        !Number.isFinite(temperature) ||
-        !Number.isFinite(humidity)
-    ) {
-
-        return {
-            text: "ERROR",
-            className: "status-ERROR",
-            level: "ERROR"
-        };
+function getEnvironmentStatus(temperature, humidity) {
+    if (!Number.isFinite(temperature) || !Number.isFinite(humidity)) {
+        return { text: "ERROR", className: "status-ERROR", level: "ERROR" };
     }
-
-    if (
-        temperature >= 15 &&
-        temperature <= 30 &&
-        humidity >= 40 &&
-        humidity <= 70
-    ) {
-
-        return {
-            text: "GOOD",
-            className: "status-class-a",
-            level: "GOOD"
-        };
+    if (temperature >= 15 && temperature <= 30 && humidity >= 40 && humidity <= 70) {
+        return { text: "GOOD", className: "status-class-a", level: "GOOD" };
     }
     if (temperature >= 5 && temperature <= 40 && humidity >= 20 && humidity <= 80) {
         return { text: "NORMAL", className: "status-class-b", level: "NORMAL" };
     }
-
-    if (
-        temperature >= 0 &&
-        temperature <= 50 &&
-        humidity >= 10 &&
-        humidity <= 90
-    ) {
-
-        return {
-            text: "BAD",
-            className: "status-class-s1",
-            level: "BAD"
-        };
+    if (temperature >= 0 && temperature <= 50 && humidity >= 10 && humidity <= 90) {
+        return { text: "BAD", className: "status-class-s1", level: "BAD" };
     }
-
-    if (
-        temperature >= -10 &&
-        temperature <= 60 &&
-        humidity >= 5 &&
-        humidity <= 95
-    ) {
-
-        return {
-            text: "BAD",
-            className: "status-class-s2",
-            level: "BAD"
-        };
+    if (temperature >= -10 && temperature <= 60 && humidity >= 5 && humidity <= 95) {
+        return { text: "BAD", className: "status-class-s2", level: "BAD" };
     }
-
-    if (
-        temperature >= -25 &&
-        temperature <= 70 &&
-        humidity >= 5 &&
-        humidity <= 100
-    ) {
-
-        return {
-            text: "BAD",
-            className: "status-class-s3",
-            level: "BAD"
-        };
+    if (temperature >= -25 && temperature <= 70 && humidity >= 5 && humidity <= 100) {
+        return { text: "BAD", className: "status-class-s3", level: "BAD" };
     }
-
-    return {
-        text: "BAD",
-        className: "status-bad",
-        level: "BAD"
-    };
+    return { text: "BAD", className: "status-bad", level: "BAD" };
 }
 
 
@@ -884,28 +515,18 @@ function getEnvironmentStatus(
 // =====================================================
 
 if (backToOverview) {
-
-    backToOverview.addEventListener(
-        "click",
-        () => {
-
-            selectedRack = null;
-
-            if (detailPage) {
-                detailPage.style.display = "none";
-            }
-
-            if (overviewPage) {
-                overviewPage.style.display = "block";
-            }
-        }
-    );
+    backToOverview.addEventListener("click", () => {
+        selectedRack = null;
+        if (detailPage) detailPage.style.display = "none";
+        if (overviewPage) overviewPage.style.display = "block";
+    });
 }
 
 
 // =====================================================
-// Load Rack History
+// Load Rack History (แก้ไขให้กรองข้อมูลเข้มงวด)
 // =====================================================
+
 function loadRackHistory(rackID) {
     if (historyListener) {
         historyListener();
@@ -930,24 +551,33 @@ function loadRackHistory(rackID) {
             return dt !== "TIME ERROR" && dt !== "";
         });
 
-        // 1. จัดเรียงเวลาใหม่สุดไปเก่าสุด
-        historyArray.sort((a, b) => getDateTimeValue(b.datetime) - getDateTimeValue(a.datetime));
+        // 1. จัดเรียงข้อมูลจาก อดีต -> ปัจจุบัน (Oldest to Newest)
+        historyArray.sort((a, b) => getDateTimeValue(a.datetime) - getDateTimeValue(b.datetime));
 
-        // 2. กรองข้อมูลเวลาซ้ำ (บังคับไม่ให้มีเวลาเดียวกันเป๊ะ)
+        // 2. กรองข้อมูลขยะและเว้นระยะห่างขั้นต่ำ 50 วินาที ป้องกันข้อมูลเซนเซอร์กระจุกตัว
         const uniqueHistory = [];
-        const seenLabels = new Set();
+        let lastValidTime = 0;
+
         for (const item of historyArray) {
-            const label = getTimeOnly(item.datetime);
-            if (!seenLabels.has(label)) {
-                seenLabels.add(label);
-                uniqueHistory.push(item);
+            const timeValue = getDateTimeValue(item.datetime);
+            
+            // กรองทิ้งหากเวลาเพี้ยน (น้อยกว่าปี 2020)
+            if (timeValue > 1600000000000) { 
+                // ต้องมีระยะห่างอย่างน้อย 50 วินาทีจากจุดก่อนหน้า
+                if (timeValue - lastValidTime >= 50000) {
+                    uniqueHistory.push(item);
+                    lastValidTime = timeValue;
+                }
             }
         }
+        
         historyArray = uniqueHistory;
 
-        // บันทึกข้อมูลเข้าตัวแปรสำหรับกราฟและ Excel
+        // 3. เซฟข้อมูลที่สมบูรณ์ไว้สำหรับโหลดเข้าตาราง/Excel
         historyDataForExcel = [...historyArray];
         currentRackHistoryData = [...historyArray];
+
+        // 4. วาดกราฟ
         renderChartsWithFilter(currentRackHistoryData);
 
     }, (error) => {
@@ -955,71 +585,30 @@ function loadRackHistory(rackID) {
     });
 }
 
+
 // =====================================================
 // Convert DateTime
 // =====================================================
 
 function getDateTimeValue(datetime) {
-
     if (!datetime) return 0;
-
     if (typeof datetime === "number") {
-
-        if (
-            datetime <
-            100000000000
-        ) {
-            return datetime * 1000;
-        }
-
+        if (datetime < 100000000000) return datetime * 1000;
         return datetime;
     }
-
-    const text =
-        String(datetime).trim();
-
-    const match =
-        text.match(
-            /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/
-        );
-
+    const text = String(datetime).trim();
+    const match = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
     if (match) {
-
-        const day =
-            Number(match[1]);
-
-        const month =
-            Number(match[2]) - 1;
-
-        const year =
-            Number(match[3]);
-
-        const hour =
-            Number(match[4]);
-
-        const minute =
-            Number(match[5]);
-
-        const second =
-            Number(match[6]);
-
-        return new Date(
-            year,
-            month,
-            day,
-            hour,
-            minute,
-            second
-        ).getTime();
+        const day = Number(match[1]);
+        const month = Number(match[2]) - 1;
+        const year = Number(match[3]);
+        const hour = Number(match[4]);
+        const minute = Number(match[5]);
+        const second = Number(match[6]);
+        return new Date(year, month, day, hour, minute, second).getTime();
     }
-
-    const date =
-        new Date(text);
-
-    if (!isNaN(date.getTime())) {
-        return date.getTime();
-    }
-
+    const date = new Date(text);
+    if (!isNaN(date.getTime())) return date.getTime();
     return 0;
 }
 
@@ -1029,94 +618,37 @@ function getDateTimeValue(datetime) {
 // =====================================================
 
 function getTimeOnly(datetime) {
-
     if (!datetime) return "--";
-
-    const text =
-        String(datetime).trim();
-
-    const match =
-        text.match(
-            /^\d{1,2}\/\d{1,2}\/\d{4}\s+(\d{1,2}):(\d{2}):(\d{2})$/
-        );
-
-    if (match) {
-
-        return (
-            String(match[1]).padStart(2, "0") +
-            ":" +
-            match[2] +
-            ":" +
-            match[3]
-        );
-    }
-
-    const match2 =
-        text.match(
-            /^\d{4}-\d{1,2}-\d{1,2}\s+(\d{1,2}):(\d{2}):(\d{2})/
-        );
-
-    if (match2) {
-
-        return (
-            String(match2[1]).padStart(2, "0") +
-            ":" +
-            match2[2] +
-            ":" +
-            match2[3]
-        );
-    }
-
-    const date =
-        new Date(text);
-
+    const text = String(datetime).trim();
+    const match = text.match(/^\d{1,2}\/\d{1,2}\/\d{4}\s+(\d{1,2}):(\d{2}):(\d{2})$/);
+    if (match) return (String(match[1]).padStart(2, "0") + ":" + match[2] + ":" + match[3]);
+    const match2 = text.match(/^\d{4}-\d{1,2}-\d{1,2}\s+(\d{1,2}):(\d{2}):(\d{2})/);
+    if (match2) return (String(match2[1]).padStart(2, "0") + ":" + match2[2] + ":" + match2[3]);
+    const date = new Date(text);
     if (!isNaN(date.getTime())) {
-
-        return date.toLocaleTimeString(
-            "en-GB",
-            {
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
-            }
-        );
+        return date.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
     }
-
     return text;
 }
 
+
 // =====================================================
-// Update Temperature Chart
+// Update Temperature Chart (แก้ไขแก้ Canvas พัง)
 // =====================================================
+
 function updateTemperatureChart(data) {
     const mainCanvas = document.getElementById("temperatureChart");
     const axisCanvas = document.getElementById("temperatureAxis");
     const scrollInner = document.getElementById("tempScrollInner");
-    const scrollBox = mainCanvas.closest(".scroll-box");
-    const axisBox = axisCanvas.closest(".y-axis-box");
+    const scrollBox = mainCanvas?.closest(".scroll-box");
+    const axisBox = axisCanvas?.closest(".y-axis-box");
 
     if (!mainCanvas || !axisCanvas) return;
 
-    let sorted = [...data].sort((a, b) => getDateTimeValue(a.datetime) - getDateTimeValue(b.datetime));
+    const labels = data.map(item => getTimeOnly(item.datetime));
+    const values = data.map(item => toNumber(item.temperature));
 
-    // ==========================================
-    // เพิ่มระบบจำกัดจุดกราฟ ป้องกัน Canvas พังและเส้นดิ่ง
-    // ==========================================
-    const MAX_POINTS = 100;
-    if (sorted.length > MAX_POINTS) {
-        const step = Math.ceil(sorted.length / MAX_POINTS);
-        const lastItem = sorted[sorted.length - 1]; // เก็บค่าล่าสุดเสมอ
-        sorted = sorted.filter((_, index) => index % step === 0);
-        if (sorted[sorted.length - 1] !== lastItem) {
-            sorted.push(lastItem); // บังคับแสดงข้อมูลวินาทีปัจจุบันเสมอ
-        }
-    }
-    // ==========================================
-
-    const labels = sorted.map(item => getTimeOnly(item.datetime));
-    const values = sorted.map(item => toNumber(item.temperature));
-
-    const pointWidth = 80;
+    const pointWidth = 60; 
     const minWidth = 1000;
     const calculatedWidth = Math.max(minWidth, values.length * pointWidth);
     
@@ -1150,8 +682,16 @@ function updateTemperatureChart(data) {
             plugins: { legend: { display: false }, tooltip: { enabled: false } },
             layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
             scales: {
-                x: { ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }, grid: { display: false }, border: { display: false } },
-                y: { title: { display: true, text: 'Temperature (°C)', padding: { bottom: 10 }, font: { weight: 'bold' } }, min: scaleMin, max: scaleMax, ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { display: false }, border: { display: false } }
+                x: {
+                    ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 },
+                    grid: { display: false }, border: { display: false }
+                },
+                y: {
+                    title: { display: true, text: 'Temperature (°C)', padding: { bottom: 10 }, font: { weight: 'bold' } },
+                    min: scaleMin, max: scaleMax,
+                    ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } },
+                    grid: { display: false }, border: { display: false }
+                }
             }
         }
     });
@@ -1167,8 +707,14 @@ function updateTemperatureChart(data) {
             plugins: { legend: { display: false }, tooltip: { enabled: true } },
             layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
-                x: { ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 } },
-                y: { display: true, min: scaleMin, max: scaleMax, ticks: { display: true, color: 'transparent', mirror: true, stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { drawOnChartArea: true }, border: { display: false } }
+                x: {
+                    ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }
+                },
+                y: {
+                    display: true, min: scaleMin, max: scaleMax,
+                    ticks: { display: true, color: 'transparent', mirror: true, stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } },
+                    grid: { drawOnChartArea: true }, border: { display: false }
+                }
             }
         }
     });
@@ -1179,38 +725,24 @@ function updateTemperatureChart(data) {
     }, 50);
 }
 
+
 // =====================================================
-// Update Humidity Chart
+// Update Humidity Chart (แก้ไขแก้ Canvas พัง)
 // =====================================================
+
 function updateHumidityChart(data) {
     const mainCanvas = document.getElementById("humidityChart");
     const axisCanvas = document.getElementById("humidityAxis");
     const scrollInner = document.getElementById("humScrollInner");
-    const scrollBox = mainCanvas.closest(".scroll-box");
-    const axisBox = axisCanvas.closest(".y-axis-box");
+    const scrollBox = mainCanvas?.closest(".scroll-box");
+    const axisBox = axisCanvas?.closest(".y-axis-box");
 
     if (!mainCanvas || !axisCanvas) return;
 
-    let sorted = [...data].sort((a, b) => getDateTimeValue(a.datetime) - getDateTimeValue(b.datetime));
+    const labels = data.map(item => getTimeOnly(item.datetime));
+    const values = data.map(item => toNumber(item.humidity));
 
-    // ==========================================
-    // เพิ่มระบบจำกัดจุดกราฟ ป้องกัน Canvas พังและเส้นดิ่ง
-    // ==========================================
-    const MAX_POINTS = 100;
-    if (sorted.length > MAX_POINTS) {
-        const step = Math.ceil(sorted.length / MAX_POINTS);
-        const lastItem = sorted[sorted.length - 1]; // เก็บค่าล่าสุดเสมอ
-        sorted = sorted.filter((_, index) => index % step === 0);
-        if (sorted[sorted.length - 1] !== lastItem) {
-            sorted.push(lastItem); // บังคับแสดงข้อมูลวินาทีปัจจุบันเสมอ
-        }
-    }
-    // ==========================================
-
-    const labels = sorted.map(item => getTimeOnly(item.datetime));
-    const values = sorted.map(item => toNumber(item.humidity));
-
-    const pointWidth = 80;
+    const pointWidth = 60;
     const minWidth = 1000;
     const calculatedWidth = Math.max(minWidth, values.length * pointWidth);
     
@@ -1244,8 +776,16 @@ function updateHumidityChart(data) {
             plugins: { legend: { display: false }, tooltip: { enabled: false } },
             layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
             scales: {
-                x: { ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }, grid: { display: false }, border: { display: false } },
-                y: { title: { display: true, text: 'Humidity (%RH)', padding: { bottom: 10 }, font: { weight: 'bold' } }, min: scaleMin, max: scaleMax, ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { display: false }, border: { display: false } }
+                x: {
+                    ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 },
+                    grid: { display: false }, border: { display: false }
+                },
+                y: {
+                    title: { display: true, text: 'Humidity (%RH)', padding: { bottom: 10 }, font: { weight: 'bold' } },
+                    min: scaleMin, max: scaleMax,
+                    ticks: { stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } },
+                    grid: { display: false }, border: { display: false }
+                }
             }
         }
     });
@@ -1261,8 +801,14 @@ function updateHumidityChart(data) {
             plugins: { legend: { display: false }, tooltip: { enabled: true } },
             layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
-                x: { ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 } },
-                y: { display: true, min: scaleMin, max: scaleMax, ticks: { display: true, color: 'transparent', mirror: true, stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } }, grid: { drawOnChartArea: true }, border: { display: false } }
+                x: {
+                    ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }
+                },
+                y: {
+                    display: true, min: scaleMin, max: scaleMax,
+                    ticks: { display: true, color: 'transparent', mirror: true, stepSize: 0.5, callback: function (val) { return Number(val).toFixed(1); } },
+                    grid: { drawOnChartArea: true }, border: { display: false }
+                }
             }
         }
     });
@@ -1273,98 +819,51 @@ function updateHumidityChart(data) {
     }, 50);
 }
 
+
 // =====================================================
 // Update History Table
 // =====================================================
 
 function updateHistoryTable(data) {
-
-    const table =
-        document.getElementById(
-            "historyTable"
-        );
-
+    const table = document.getElementById("historyTable");
     if (!table) return;
 
-    if (
-        !data ||
-        data.length === 0
-    ) {
-
-        table.innerHTML =
-            `<tr><td colspan="4">Waiting for data...</td></tr>`;
-
+    if (!data || data.length === 0) {
+        table.innerHTML = `<tr><td colspan="4">Waiting for data...</td></tr>`;
         return;
     }
 
-    const latest =
-        data.slice(0, 5);
+    // เรียงให้ข้อมูลล่าสุดอยู่บนสุดเฉพาะในตาราง (Reverse) แล้วตัด 5 รายการ
+    const latest = [...data].reverse().slice(0, 5);
 
-    table.innerHTML =
-        latest.map(item => {
+    table.innerHTML = latest.map(item => {
+        const datetime = String(item.datetime || "");
+        let date = "--", time = "--";
 
-            const datetime =
-                String(
-                    item.datetime || ""
-                );
-
-            let date = "--";
-            let time = "--";
-
-            if (datetime.includes(" ")) {
-
-                const parts =
-                    datetime.split(" ");
-
-                date =
-                    parts[0] || "--";
-
-                time =
-                    parts[1] || "--";
-
-            } else {
-
-                const d =
-                    new Date(
-                        getDateTimeValue(
-                            datetime
-                        )
-                    );
-
-                if (!isNaN(d.getTime())) {
-
-                    date =
-                        d.toLocaleDateString(
-                            "en-GB"
-                        );
-
-                    time =
-                        d.toLocaleTimeString(
-                            "en-GB"
-                        );
-                }
+        if (datetime.includes(" ")) {
+            const parts = datetime.split(" ");
+            date = parts[0] || "--";
+            time = parts[1] || "--";
+        } else {
+            const d = new Date(getDateTimeValue(datetime));
+            if (!isNaN(d.getTime())) {
+                date = d.toLocaleDateString("en-GB");
+                time = d.toLocaleTimeString("en-GB");
             }
+        }
 
-            const temperature =
-                toNumber(
-                    item.temperature
-                );
+        const temperature = toNumber(item.temperature);
+        const humidity = toNumber(item.humidity);
 
-            const humidity =
-                toNumber(
-                    item.humidity
-                );
-
-            return `
-                <tr>
-                    <td>${date}</td>
-                    <td>${time}</td>
-                    <td>${Number.isFinite(temperature) ? temperature.toFixed(1) : "--"} °C</td>
-                    <td>${Number.isFinite(humidity) ? humidity.toFixed(1) : "--"} %RH</td>
-                </tr>
-            `;
-
-        }).join("");
+        return `
+            <tr>
+                <td>${date}</td>
+                <td>${time}</td>
+                <td>${Number.isFinite(temperature) ? temperature.toFixed(1) : "--"} °C</td>
+                <td>${Number.isFinite(humidity) ? humidity.toFixed(1) : "--"} %RH</td>
+            </tr>
+        `;
+    }).join("");
 }
 
 
@@ -1373,273 +872,71 @@ function updateHistoryTable(data) {
 // =====================================================
 
 function downloadExcel(type) {
-
-    if (
-        !historyDataForExcel ||
-        historyDataForExcel.length === 0
-    ) {
-
-        showCustomModal(
-            "แจ้งเตือน",
-            "ยังไม่มีข้อมูลสำหรับดาวน์โหลด",
-            "alert"
-        );
-
+    if (!historyDataForExcel || historyDataForExcel.length === 0) {
+        showCustomModal("แจ้งเตือน", "ยังไม่มีข้อมูลสำหรับดาวน์โหลด", "alert");
         return;
     }
 
-    // =====================================================
-    // แยกวันที่และเวลาออกจาก DateTime
-    // =====================================================
-
     function formatDateTime(datetime) {
-
-        if (!datetime) {
-
-            return {
-                date: "",
-                time: ""
-            };
-        }
-
-        const text =
-            String(datetime).trim();
-
-        // รองรับรูปแบบ DD/MM/YYYY HH:MM:SS
-        const match =
-            text.match(
-                /^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/
-            );
-
+        if (!datetime) return { date: "", time: "" };
+        const text = String(datetime).trim();
+        const match = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
         if (match) {
-
-            const day =
-                String(match[1])
-                    .padStart(2, "0");
-
-            const month =
-                String(match[2])
-                    .padStart(2, "0");
-
-            const year =
-                match[3];
-
-            const hour =
-                String(match[4])
-                    .padStart(2, "0");
-
-            const minute =
-                match[5];
-
-            const second =
-                match[6];
-
             return {
-                date: `${day}/${month}/${year}`,
-                time: `${hour}:${minute}:${second}`
+                date: `${String(match[1]).padStart(2, "0")}/${String(match[2]).padStart(2, "0")}/${match[3]}`,
+                time: `${String(match[4]).padStart(2, "0")}:${match[5]}:${match[6]}`
             };
         }
-
-        // ถ้าเป็นรูปแบบอื่น ให้ใช้ getDateTimeValue()
-        const timestamp =
-            getDateTimeValue(datetime);
-
+        const timestamp = getDateTimeValue(datetime);
         if (timestamp) {
-
-            const dateObject =
-                new Date(timestamp);
-
+            const dateObject = new Date(timestamp);
             if (!isNaN(dateObject.getTime())) {
-
                 return {
-
-                    date:
-                        dateObject.toLocaleDateString(
-                            "en-GB"
-                        ),
-
-                    time:
-                        dateObject.toLocaleTimeString(
-                            "en-GB",
-                            {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                                second: "2-digit"
-                            }
-                        )
+                    date: dateObject.toLocaleDateString("en-GB"),
+                    time: dateObject.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", second: "2-digit" })
                 };
             }
         }
+        return { date: text, time: "" };
+    }
 
+    // Reverse ก่อนแปลงเป็น Excel เพื่อให้ไฟล์ข้อมูลล่าสุดอยู่บรรทัดบนสุด
+    let data = [...historyDataForExcel].reverse().map(item => {
+        const dateTime = formatDateTime(item.datetime);
         return {
-            date: text,
-            time: ""
+            Date: dateTime.date,
+            Time: dateTime.time,
+            Temperature: item.temperature ?? "",
+            Humidity: item.humidity ?? ""
         };
-    }
-
-
-    // =====================================================
-    // สร้างข้อมูลสำหรับ Excel
-    // =====================================================
-
-    let data =
-        historyDataForExcel.map(item => {
-
-            const dateTime =
-                formatDateTime(
-                    item.datetime
-                );
-
-            return {
-
-                Date: dateTime.date,
-
-                Time: dateTime.time,
-
-                Temperature:
-                    item.temperature ?? "",
-
-                Humidity:
-                    item.humidity ?? ""
-            };
-        });
-
-
-    // =====================================================
-    // เลือกประเภทข้อมูลที่จะ Download
-    // =====================================================
+    });
 
     if (type === "temperature") {
-
-        data =
-            data.map(item => ({
-
-                Date:
-                    item.Date,
-
-                Time:
-                    item.Time,
-
-                Temperature:
-                    item.Temperature
-            }));
+        data = data.map(item => ({ Date: item.Date, Time: item.Time, Temperature: item.Temperature }));
     }
-
     if (type === "humidity") {
-
-        data =
-            data.map(item => ({
-
-                Date:
-                    item.Date,
-
-                Time:
-                    item.Time,
-
-                Humidity:
-                    item.Humidity
-            }));
+        data = data.map(item => ({ Date: item.Date, Time: item.Time, Humidity: item.Humidity }));
     }
 
-    // type === "all"
-    // จะมี Date / Time / Temperature / Humidity
-
-
-    // =====================================================
-    // สร้าง Excel Worksheet
-    // =====================================================
-
-    const worksheet =
-        XLSX.utils.json_to_sheet(data);
-
-
-    // =====================================================
-    // กำหนดความกว้างของ Column
-    // =====================================================
+    const worksheet = XLSX.utils.json_to_sheet(data);
 
     if (type === "temperature") {
-
-        worksheet["!cols"] = [
-
-            { wch: 15 }, // Date
-
-            { wch: 12 }, // Time
-
-            { wch: 18 }  // Temperature
-        ];
-
+        worksheet["!cols"] = [{ wch: 15 }, { wch: 12 }, { wch: 18 }];
     } else if (type === "humidity") {
-
-        worksheet["!cols"] = [
-
-            { wch: 15 }, // Date
-
-            { wch: 12 }, // Time
-
-            { wch: 18 }  // Humidity
-        ];
-
+        worksheet["!cols"] = [{ wch: 15 }, { wch: 12 }, { wch: 18 }];
     } else {
-
-        worksheet["!cols"] = [
-
-            { wch: 15 }, // Date
-
-            { wch: 12 }, // Time
-
-            { wch: 18 }, // Temperature
-
-            { wch: 18 }  // Humidity
-        ];
+        worksheet["!cols"] = [{ wch: 15 }, { wch: 12 }, { wch: 18 }, { wch: 18 }];
     }
 
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
 
-    // =====================================================
-    // สร้าง Workbook
-    // =====================================================
+    let fileName = selectedRack || "Rack";
+    if (type === "temperature") fileName += "_Temperature.xlsx";
+    else if (type === "humidity") fileName += "_Humidity.xlsx";
+    else fileName += "_All_Data.xlsx";
 
-    const workbook =
-        XLSX.utils.book_new();
-
-    XLSX.utils.book_append_sheet(
-        workbook,
-        worksheet,
-        "Data"
-    );
-
-
-    // =====================================================
-    // ตั้งชื่อไฟล์
-    // =====================================================
-
-    let fileName =
-        selectedRack || "Rack";
-
-    if (type === "temperature") {
-
-        fileName +=
-            "_Temperature.xlsx";
-
-    } else if (type === "humidity") {
-
-        fileName +=
-            "_Humidity.xlsx";
-
-    } else {
-
-        fileName +=
-            "_All_Data.xlsx";
-    }
-
-
-    // =====================================================
-    // Download Excel
-    // =====================================================
-
-    XLSX.writeFile(
-        workbook,
-        fileName
-    );
+    XLSX.writeFile(workbook, fileName);
 }
 
 
@@ -1647,50 +944,13 @@ function downloadExcel(type) {
 // Download Buttons
 // =====================================================
 
-const downloadTemperature =
-    document.getElementById(
-        "downloadTemperature"
-    );
+const downloadTemperature = document.getElementById("downloadTemperature");
+const downloadHumidity = document.getElementById("downloadHumidity");
+const downloadAll = document.getElementById("downloadAll");
 
-const downloadHumidity =
-    document.getElementById(
-        "downloadHumidity"
-    );
-
-const downloadAll =
-    document.getElementById(
-        "downloadAll"
-    );
-
-if (downloadTemperature) {
-
-    downloadTemperature.addEventListener(
-        "click",
-        () => {
-            downloadExcel("temperature");
-        }
-    );
-}
-
-if (downloadHumidity) {
-
-    downloadHumidity.addEventListener(
-        "click",
-        () => {
-            downloadExcel("humidity");
-        }
-    );
-}
-
-if (downloadAll) {
-
-    downloadAll.addEventListener(
-        "click",
-        () => {
-            downloadExcel("all");
-        }
-    );
-}
+if (downloadTemperature) downloadTemperature.addEventListener("click", () => downloadExcel("temperature"));
+if (downloadHumidity) downloadHumidity.addEventListener("click", () => downloadExcel("humidity"));
+if (downloadAll) downloadAll.addEventListener("click", () => downloadExcel("all"));
 
 
 // =====================================================
@@ -1698,50 +958,21 @@ if (downloadAll) {
 // =====================================================
 
 function filterRacks(mode) {
-
     if (!rackGrid) return;
-
-    const cards =
-        rackGrid.querySelectorAll(
-            ".rack-card"
-        );
+    const cards = rackGrid.querySelectorAll(".rack-card");
 
     cards.forEach(card => {
-
-        const statusElement =
-            card.querySelector(
-                ".rack-status"
-            );
-
+        const statusElement = card.querySelector(".rack-status");
         if (!statusElement) return;
 
-        const status =
-            statusElement.textContent
-                .trim()
-                .toUpperCase();
-
+        const status = statusElement.textContent.trim().toUpperCase();
         let show = true;
 
-        if (mode === "online") {
-            show =
-                status !== "OFFLINE";
-        }
+        if (mode === "online") show = status !== "OFFLINE";
+        if (mode === "offline") show = status === "OFFLINE";
+        if (mode === "alert") show = status === "BAD" || status === "SENSOR ERROR" || status === "WIFI ERROR";
 
-        if (mode === "offline") {
-            show =
-                status === "OFFLINE";
-        }
-
-        if (mode === "alert") {
-
-            show =
-                status === "BAD" ||
-                status === "SENSOR ERROR" ||
-                status === "WIFI ERROR";
-        }
-
-        card.style.display =
-            show ? "" : "none";
+        card.style.display = show ? "" : "none";
     });
 }
 
@@ -1750,271 +981,64 @@ function filterRacks(mode) {
 // Filter Buttons
 // =====================================================
 
-const filterAll =
-    document.getElementById(
-        "filterAll"
-    );
-
-const filterOnline =
-    document.getElementById(
-        "filterOnline"
-    );
-
-const filterOffline =
-    document.getElementById(
-        "filterOffline"
-    );
-
-const filterAlert =
-    document.getElementById(
-        "filterAlert"
-    );
-
-const filterButtons = [
-    filterAll,
-    filterOnline,
-    filterOffline,
-    filterAlert
-];
+const filterAll = document.getElementById("filterAll");
+const filterOnline = document.getElementById("filterOnline");
+const filterOffline = document.getElementById("filterOffline");
+const filterAlert = document.getElementById("filterAlert");
+const filterButtons = [filterAll, filterOnline, filterOffline, filterAlert];
 
 function setActiveFilterButton(button) {
-
-    filterButtons.forEach(btn => {
-
-        if (btn) {
-            btn.classList.remove(
-                "active"
-            );
-        }
-
-    });
-
-    if (button) {
-        button.classList.add(
-            "active"
-        );
-    }
+    filterButtons.forEach(btn => { if (btn) btn.classList.remove("active"); });
+    if (button) button.classList.add("active");
 }
 
-if (filterAll) {
-
-    filterAll.addEventListener(
-        "click",
-        () => {
-
-            currentFilterMode =
-                "all";
-
-            setActiveFilterButton(
-                filterAll
-            );
-
-            filterRacks("all");
-        }
-    );
-}
-
-if (filterOnline) {
-
-    filterOnline.addEventListener(
-        "click",
-        () => {
-
-            currentFilterMode =
-                "online";
-
-            setActiveFilterButton(
-                filterOnline
-            );
-
-            filterRacks("online");
-        }
-    );
-}
-
-if (filterOffline) {
-
-    filterOffline.addEventListener(
-        "click",
-        () => {
-
-            currentFilterMode =
-                "offline";
-
-            setActiveFilterButton(
-                filterOffline
-            );
-
-            filterRacks("offline");
-        }
-    );
-}
-
-if (filterAlert) {
-
-    filterAlert.addEventListener(
-        "click",
-        () => {
-
-            currentFilterMode =
-                "alert";
-
-            setActiveFilterButton(
-                filterAlert
-            );
-
-            filterRacks("alert");
-        }
-    );
-}
+if (filterAll) filterAll.addEventListener("click", () => { currentFilterMode = "all"; setActiveFilterButton(filterAll); filterRacks("all"); });
+if (filterOnline) filterOnline.addEventListener("click", () => { currentFilterMode = "online"; setActiveFilterButton(filterOnline); filterRacks("online"); });
+if (filterOffline) filterOffline.addEventListener("click", () => { currentFilterMode = "offline"; setActiveFilterButton(filterOffline); filterRacks("offline"); });
+if (filterAlert) filterAlert.addEventListener("click", () => { currentFilterMode = "alert"; setActiveFilterButton(filterAlert); filterRacks("alert"); });
 
 
 // =====================================================
 // Edit Rack Name
 // =====================================================
 
-const editRackNameBtn =
-    document.getElementById(
-        "editRackNameBtn"
-    );
+const editRackNameBtn = document.getElementById("editRackNameBtn");
+const editNameModal = document.getElementById("editNameModal");
+const editNameInput = document.getElementById("editNameInput");
+const saveEditBtn = document.getElementById("saveEditBtn");
+const cancelEditBtn = document.getElementById("cancelEditBtn");
 
-const editNameModal =
-    document.getElementById(
-        "editNameModal"
-    );
-
-const editNameInput =
-    document.getElementById(
-        "editNameInput"
-    );
-
-const saveEditBtn =
-    document.getElementById(
-        "saveEditBtn"
-    );
-
-const cancelEditBtn =
-    document.getElementById(
-        "cancelEditBtn"
-    );
-
-if (
-    editRackNameBtn &&
-    editNameModal
-) {
-
-    editRackNameBtn.addEventListener(
-        "click",
-        () => {
-
-            if (!selectedRack) return;
-
-            const rackData =
-                allRackData[
-                selectedRack
-                ];
-
-            const currentName =
-                rackData?.name ||
-                selectedRack;
-
-            if (editNameInput) {
-
-                editNameInput.value =
-                    currentName;
-            }
-
-            editNameModal.style.display =
-                "flex";
-
-            if (editNameInput) {
-                editNameInput.focus();
-            }
-        }
-    );
+if (editRackNameBtn && editNameModal) {
+    editRackNameBtn.addEventListener("click", () => {
+        if (!selectedRack) return;
+        const rackData = allRackData[selectedRack];
+        const currentName = rackData?.name || selectedRack;
+        if (editNameInput) editNameInput.value = currentName;
+        editNameModal.style.display = "flex";
+        if (editNameInput) editNameInput.focus();
+    });
 }
 
-if (
-    cancelEditBtn &&
-    editNameModal
-) {
-
-    cancelEditBtn.addEventListener(
-        "click",
-        () => {
-
-            editNameModal.style.display =
-                "none";
-        }
-    );
+if (cancelEditBtn && editNameModal) {
+    cancelEditBtn.addEventListener("click", () => { editNameModal.style.display = "none"; });
 }
 
 if (saveEditBtn) {
-
-    saveEditBtn.addEventListener(
-        "click",
-        () => {
-
-            if (
-                !selectedRack ||
-                !editNameInput
-            ) {
-                return;
-            }
-
-            const newName =
-                editNameInput.value.trim();
-
-            if (newName !== "") {
-
-                const rackRef =
-                    ref(
-                        database,
-                        `racks/${selectedRack}`
-                    );
-
-                update(
-                    rackRef,
-                    {
-                        name: newName
-                    }
-                )
-                    .then(() => {
-
-                        console.log(
-                            "เปลี่ยนชื่อสำเร็จ"
-                        );
-
-                        if (editNameModal) {
-
-                            editNameModal.style.display =
-                                "none";
-                        }
-
-                    })
-                    .catch(error => {
-
-                        showCustomModal(
-                            "เกิดข้อผิดพลาด",
-                            "ไม่สามารถเปลี่ยนชื่อได้: " +
-                            error.message,
-                            "alert"
-                        );
-
-                    });
-
-            } else {
-
-                showCustomModal(
-                    "แจ้งเตือน",
-                    "กรุณากรอกชื่อ Rack ครับ",
-                    "alert"
-                );
-
-                editNameInput.focus();
-            }
+    saveEditBtn.addEventListener("click", () => {
+        if (!selectedRack || !editNameInput) return;
+        const newName = editNameInput.value.trim();
+        if (newName !== "") {
+            const rackRef = ref(database, `racks/${selectedRack}`);
+            update(rackRef, { name: newName })
+                .then(() => {
+                    if (editNameModal) editNameModal.style.display = "none";
+                })
+                .catch(error => showCustomModal("เกิดข้อผิดพลาด", "ไม่สามารถเปลี่ยนชื่อได้: " + error.message, "alert"));
+        } else {
+            showCustomModal("แจ้งเตือน", "กรุณากรอกชื่อ Rack ครับ", "alert");
+            editNameInput.focus();
         }
-    );
+    });
 }
 
 
@@ -2022,54 +1046,19 @@ if (saveEditBtn) {
 // Header QR Button Logic
 // =====================================================
 
-const qrContainer =
-    document.getElementById(
-        "qrContainer"
-    );
+const qrContainer = document.getElementById("qrContainer");
 
 if (qrContainer) {
-
-    qrContainer.addEventListener(
-        "click",
-        (e) => {
-
-            e.stopPropagation();
-
-            qrContainer.classList.toggle(
-                "open"
-            );
-        }
-    );
-
-    document.addEventListener(
-        "click",
-        (e) => {
-
-            if (
-                !qrContainer.contains(
-                    e.target
-                )
-            ) {
-
-                qrContainer.classList.remove(
-                    "open"
-                );
-            }
-        }
-    );
-
-    document.addEventListener(
-        "keydown",
-        (e) => {
-
-            if (e.key === "Escape") {
-
-                qrContainer.classList.remove(
-                    "open"
-                );
-            }
-        }
-    );
+    qrContainer.addEventListener("click", (e) => {
+        e.stopPropagation();
+        qrContainer.classList.toggle("open");
+    });
+    document.addEventListener("click", (e) => {
+        if (!qrContainer.contains(e.target)) qrContainer.classList.remove("open");
+    });
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape") qrContainer.classList.remove("open");
+    });
 }
 
 
@@ -2077,120 +1066,45 @@ if (qrContainer) {
 // Custom Confirm & Alert Dialog Helper
 // =====================================================
 
-function showCustomModal(
-    title,
-    message,
-    type = "confirm",
-    onConfirm = null
-) {
-
-    const modal =
-        document.getElementById(
-            "customModal"
-        );
-
-    const modalTitle =
-        document.getElementById(
-            "customModalTitle"
-        );
-
-    const modalMessage =
-        document.getElementById(
-            "customModalMessage"
-        );
-
-    const modalIcon =
-        document.getElementById(
-            "customModalIcon"
-        );
-
-    const btnConfirm =
-        document.getElementById(
-            "customModalConfirm"
-        );
-
-    const btnCancel =
-        document.getElementById(
-            "customModalCancel"
-        );
+function showCustomModal(title, message, type = "confirm", onConfirm = null) {
+    const modal = document.getElementById("customModal");
+    const modalTitle = document.getElementById("customModalTitle");
+    const modalMessage = document.getElementById("customModalMessage");
+    const modalIcon = document.getElementById("customModalIcon");
+    const btnConfirm = document.getElementById("customModalConfirm");
+    const btnCancel = document.getElementById("customModalCancel");
 
     if (!modal) return;
-
-    modalTitle.textContent =
-        title;
-
-    modalMessage.textContent =
-        message;
+    modalTitle.textContent = title;
+    modalMessage.textContent = message;
 
     if (type === "confirm") {
-
-        modalIcon.textContent =
-            "⚠️";
-
-        btnCancel.style.display =
-            "block";
-
-        btnConfirm.textContent =
-            "ยืนยันลบ";
-
-        btnConfirm.style.background =
-            "#ef4444";
-
+        modalIcon.textContent = "⚠️";
+        btnCancel.style.display = "block";
+        btnConfirm.textContent = "ยืนยันลบ";
+        btnConfirm.style.background = "#ef4444";
     } else {
-
-        modalIcon.textContent =
-            "✅";
-
-        btnCancel.style.display =
-            "none";
-
-        btnConfirm.textContent =
-            "ตกลง";
-
-        btnConfirm.style.background =
-            "#1f2937";
+        modalIcon.textContent = "✅";
+        btnCancel.style.display = "none";
+        btnConfirm.textContent = "ตกลง";
+        btnConfirm.style.background = "#1f2937";
     }
 
-    modal.style.display =
-        "flex";
+    modal.style.display = "flex";
 
-    const newConfirm =
-        btnConfirm.cloneNode(true);
+    const newConfirm = btnConfirm.cloneNode(true);
+    const newCancel = btnCancel.cloneNode(true);
+    btnConfirm.parentNode.replaceChild(newConfirm, btnConfirm);
+    btnCancel.parentNode.replaceChild(newCancel, btnCancel);
 
-    const newCancel =
-        btnCancel.cloneNode(true);
+    newConfirm.addEventListener("click", () => {
+        modal.style.display = "none";
+        if (onConfirm) onConfirm();
+    });
 
-    btnConfirm.parentNode.replaceChild(
-        newConfirm,
-        btnConfirm
-    );
-
-    btnCancel.parentNode.replaceChild(
-        newCancel,
-        btnCancel
-    );
-
-    newConfirm.addEventListener(
-        "click",
-        () => {
-
-            modal.style.display =
-                "none";
-
-            if (onConfirm) {
-                onConfirm();
-            }
-        }
-    );
-
-    newCancel.addEventListener(
-        "click",
-        () => {
-
-            modal.style.display =
-                "none";
-        }
-    );
+    newCancel.addEventListener("click", () => {
+        modal.style.display = "none";
+    });
 }
 
 
@@ -2198,85 +1112,37 @@ function showCustomModal(
 // Clear Specific Rack History
 // =====================================================
 
-const clearHistoryBtn =
-    document.getElementById(
-        "clearHistoryBtn"
-    );
-
+const clearHistoryBtn = document.getElementById("clearHistoryBtn");
 if (clearHistoryBtn) {
-
-    clearHistoryBtn.addEventListener(
-        "click",
-        () => {
-
-            if (!selectedRack) {
-
-                showCustomModal(
-                    "แจ้งเตือน",
-                    "กรุณาเลือก Rack ก่อนทำการลบประวัติ",
-                    "alert"
-                );
-
-                return;
-            }
-
-            showCustomModal(
-                "ยืนยันการลบประวัติ",
-
-                `คุณต้องการลบประวัติเฉพาะของ ${selectedRack} นี้ใช่หรือไม่? (ข้อมูลของ Rack อื่นจะไม่ถูกกระทบ)`,
-
-                "confirm",
-
-                () => {
-
-                    const historyRef =
-                        ref(
-                            database,
-                            `racks/${selectedRack}/history`
-                        );
-
-                    remove(historyRef)
-                        .then(() => {
-
-                            showCustomModal(
-                                "สำเร็จ",
-                                `ลบประวัติของ ${selectedRack} สำเร็จแล้ว`,
-                                "alert"
-                            );
-
-                            historyDataForExcel = [];
-
-                            updateTemperatureChart([]);
-
-                            updateHumidityChart([]);
-
-                            updateHistoryTable([]);
-
-                        })
-                        .catch((error) => {
-
-                            console.error(
-                                "Error clearing history: ",
-                                error
-                            );
-
-                            showCustomModal(
-                                "เกิดข้อผิดพลาด",
-                                "ไม่สามารถลบประวัติได้: " +
-                                error.message,
-                                "alert"
-                            );
-
-                        });
-                }
-            );
+    clearHistoryBtn.addEventListener("click", () => {
+        if (!selectedRack) {
+            showCustomModal("แจ้งเตือน", "กรุณาเลือก Rack ก่อนทำการลบประวัติ", "alert");
+            return;
         }
-    );
+
+        showCustomModal("ยืนยันการลบประวัติ", `คุณต้องการลบประวัติเฉพาะของ ${selectedRack} นี้ใช่หรือไม่?`, "confirm", () => {
+            const historyRef = ref(database, `racks/${selectedRack}/history`);
+            remove(historyRef)
+                .then(() => {
+                    showCustomModal("สำเร็จ", `ลบประวัติของ ${selectedRack} สำเร็จแล้ว`, "alert");
+                    historyDataForExcel = [];
+                    updateTemperatureChart([]);
+                    updateHumidityChart([]);
+                    updateHistoryTable([]);
+                })
+                .catch((error) => {
+                    console.error("Error clearing history: ", error);
+                    showCustomModal("เกิดข้อผิดพลาด", "ไม่สามารถลบประวัติได้: " + error.message, "alert");
+                });
+        });
+    });
 }
 
+
 // =====================================================
-// Global Time Filter Logic (Bypass for 1 Min & All)
+// Global Time Filter Logic
 // =====================================================
+
 function renderChartsWithFilter(data) {
     if (!data || data.length === 0) {
         updateTemperatureChart([]);
@@ -2287,61 +1153,57 @@ function renderChartsWithFilter(data) {
 
     let filteredData = [];
 
-    // ถ้าเลือก "All Time" หรือ "1 Minute" ให้ดึงข้อมูลดิบทั้งหมดมาโชว์เลยโดยไม่กรอง
-    // (เพราะฮาร์ดแวร์ส่งมาทุก 1 นาทีอยู่แล้ว)
-    if (currentChartTimeFilter === "all") {
+    if (currentChartTimeFilter === "all" || currentChartTimeFilter === "1") {
         filteredData = [...data];
-    }
-    // ถ้าเลือก 5, 10, 15 นาที... ค่อยใช้ระบบกรองเวลา
-    else {
+    } else {
         const stepMinutes = parseInt(currentChartTimeFilter);
         const stepMs = stepMinutes * 60 * 1000;
-
-        // เผื่อเวลาคลาดเคลื่อนให้ 20 วินาที ป้องกันข้อมูลตกหล่น
-        const toleranceMs = 20000;
-
-        let lastKeptTime = null;
+        let lastKeptTime = 0;
 
         filteredData = data.filter(item => {
             const itemTime = getDateTimeValue(item.datetime);
             if (!itemTime) return false;
 
-            if (lastKeptTime === null) {
+            if (lastKeptTime === 0) {
                 lastKeptTime = itemTime;
                 return true;
             }
 
-            // ถ้าเวลาห่างกันถึงรอบที่กำหนด (เช่น 5 นาที) ให้อนุญาตให้แสดงผล
-            if (lastKeptTime - itemTime >= (stepMs - toleranceMs)) {
+            if (itemTime - lastKeptTime >= (stepMs - 20000)) {
                 lastKeptTime = itemTime;
                 return true;
             }
-
             return false;
         });
     }
 
-    // ส่งข้อมูลไปวาดกราฟและอัปเดตตาราง
-    updateTemperatureChart(filteredData);
-    updateHumidityChart(filteredData);
+    // === สำคัญ: ตัดข้อมูลไม่ให้เกิน 150 จุด เพื่อป้องกัน Canvas พังและเส้นดิ่ง ===
+    let chartData = [...filteredData];
+    const MAX_CHART_POINTS = 150;
+    
+    if (chartData.length > MAX_CHART_POINTS) {
+        chartData = chartData.slice(-MAX_CHART_POINTS);
+    }
+
+    updateTemperatureChart(chartData);
+    updateHumidityChart(chartData);
     updateHistoryTable(filteredData);
 }
 
+// =====================================================
+// Dropdown Setup
+// =====================================================
 
-
-// รับค่าเมื่อมีการเปลี่ยนตัวเลือกใน Dropdown ใดๆ
 const timeDropdowns = document.querySelectorAll(".time-filter-dropdown");
 timeDropdowns.forEach(dropdown => {
     dropdown.addEventListener("change", (e) => {
         const selectedValue = e.target.value;
         currentChartTimeFilter = selectedValue;
 
-        // ซิงค์ Dropdown ทุกจุดให้แสดงค่าที่เลือกเหมือนกัน
         timeDropdowns.forEach(dd => {
             dd.value = selectedValue;
         });
 
-        // เรียกใช้งานกราฟใหม่ด้วยข้อมูลดิบที่เก็บไว้
         renderChartsWithFilter(currentRackHistoryData);
     });
 });
