@@ -910,16 +910,18 @@ if (backToOverview) {
 function loadRackHistory(rackID) {
 
     if (historyListener) {
-
         historyListener();
-
         historyListener = null;
     }
+    
     const historyRef = ref(database, `racks/${rackID}/history`);
+    
     historyListener = onValue(historyRef, (snapshot) => {
         const data = snapshot.val();
+        
         if (!data) {
             historyDataForExcel = [];
+            currentRackHistoryData = []; 
             updateTemperatureChart([]);
             updateHumidityChart([]);
             updateHistoryTable([]);
@@ -933,12 +935,35 @@ function loadRackHistory(rackID) {
             return dt !== "TIME ERROR" && dt !== "";
         });
 
-        historyDataForExcel = [...historyArray];
+        // 1. จัดเรียงเวลา (ใหม่สุดไปเก่าสุด)
         historyArray.sort((a, b) => getDateTimeValue(b.datetime) - getDateTimeValue(a.datetime));
 
-        updateTemperatureChart(historyArray);
-        updateHumidityChart(historyArray);
-        updateHistoryTable(historyArray);
+        // 2. กรองข้อมูลซ้ำซ้อนขั้นเด็ดขาด (Strict Deduplication)
+        // ตัดเศษ Millisecond ทิ้ง เพื่อบังคับให้ 1 วินาทีมีเพียง 1 จุดข้อมูล แก้กราฟเส้นดิ่ง
+        const uniqueHistory = [];
+        const seenSeconds = new Set();
+        
+        for (const item of historyArray) {
+            // หาร 1000 แล้วปัดเศษลง เพื่อกรุ๊ปข้อมูลในระดับ "วินาที"
+            const secondLevelTimestamp = Math.floor(getDateTimeValue(item.datetime) / 1000);
+            
+            if (!seenSeconds.has(secondLevelTimestamp)) {
+                seenSeconds.add(secondLevelTimestamp);
+                uniqueHistory.push(item);
+            }
+        }
+        
+        historyArray = uniqueHistory;
+
+        // 3. เก็บข้อมูลสำหรับการดาวน์โหลด Excel
+        historyDataForExcel = [...historyArray];
+
+        // 4. บันทึกข้อมูลเข้าตัวแปร Global เพื่อให้ Dropdown นำไปกรองต่อได้
+        currentRackHistoryData = [...historyArray];
+
+        // 5. เรียกใช้วาดกราฟผ่านฟังก์ชัน Filter
+        renderChartsWithFilter(currentRackHistoryData);
+
     }, (error) => {
         console.error("History Firebase Error:", error);
     });
