@@ -726,9 +726,8 @@ function updateTemperatureChart(data) {
     }, 50);
 }
 
-
 // =====================================================
-// Update Humidity Chart (แก้ไขแก้ Canvas พัง)
+// Update Humidity Chart
 // =====================================================
 
 function updateHumidityChart(data) {
@@ -778,7 +777,8 @@ function updateHumidityChart(data) {
             layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
             scales: {
                 x: {
-                    ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 },
+                    // เอา autoSkip: false กลับมา
+                    ticks: { color: 'transparent', autoSkip: false, maxRotation: 35, minRotation: 35 },
                     grid: { display: false }, border: { display: false }
                 },
                 y: {
@@ -803,7 +803,8 @@ function updateHumidityChart(data) {
             layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
                 x: {
-                    ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }
+                    // เอา autoSkip: false กลับมา
+                    ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 }
                 },
                 y: {
                     display: true, min: scaleMin, max: scaleMax,
