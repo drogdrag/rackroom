@@ -631,9 +631,8 @@ function getTimeOnly(datetime) {
     return text;
 }
 
-
 // =====================================================
-// Update Temperature Chart (แก้ไขแก้ Canvas พัง)
+// Update Temperature Chart
 // =====================================================
 
 function updateTemperatureChart(data) {
@@ -683,7 +682,8 @@ function updateTemperatureChart(data) {
             layout: { padding: { left: 0, right: 0, top: 20, bottom: 5 } },
             scales: {
                 x: {
-                    ticks: { color: 'transparent', autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 },
+                    // เอา autoSkip: false กลับมาเพื่อให้แสดงเวลาทุกจุดที่ถูกจัดระยะไว้แล้ว
+                    ticks: { color: 'transparent', autoSkip: false, maxRotation: 35, minRotation: 35 },
                     grid: { display: false }, border: { display: false }
                 },
                 y: {
@@ -708,7 +708,8 @@ function updateTemperatureChart(data) {
             layout: { padding: { left: 0, right: 15, top: 20, bottom: 8 } },
             scales: {
                 x: {
-                    ticks: { autoSkip: true, maxTicksLimit: 10, maxRotation: 35, minRotation: 35 }
+                    // เอา autoSkip: false กลับมา
+                    ticks: { autoSkip: false, maxRotation: 35, minRotation: 35 }
                 },
                 y: {
                     display: true, min: scaleMin, max: scaleMax,
